@@ -1,5 +1,5 @@
 """
-EDGAR v8 gridded NOx (v8.1 AP) and fossil CO2 (v8.0 GHG), clipped to the Phase 1 cube box.
+EDGAR v8 gridded NOx and CO (v8.1 AP) and fossil CO2 (v8.0 GHG), clipped to the Phase 1 cube box.
 
 Both releases share the FT2022 activity data, so their NOx:CO2 ratios are internally consistent.
 Files are global 0.1 degree annual emissions (tonnes per cell; NOx as NO2 mass). Each is
@@ -26,6 +26,7 @@ BASE = "https://jeodpp.jrc.ec.europa.eu/ftp/jrc-opendata/EDGAR/datasets"
 RELEASES = {
     "NOx": ("v81_FT2022_AP_new/NOx", "v8.1_FT2022_AP_NOx"),
     "CO2": ("v80_FT2022_GHG/CO2", "v8.0_FT2022_GHG_CO2"),
+    "CO": ("v81_FT2022_AP_new/CO", "v8.1_FT2022_AP_CO"),  # D4: CO:NOx ratio by sector
 }
 YEARS_TOTALS = [2019, 2020, 2021, 2022]
 SECTOR_YEAR = 2021  # pre-/post-COVID-normal year for the sector breakdown

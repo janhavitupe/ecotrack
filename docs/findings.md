@@ -1,7 +1,7 @@
 # EcoTrack — Findings to Date
 
 **Project:** Meteorology-informed multi-source satellite estimation of urban fossil-fuel CO₂, Shivajinagar → Talegaon Dabhade corridor, Pune
-**Author:** Janhavi Tupe · **Covers:** feasibility stage (G1–G4) and Phase 1 (NO₂ inversion, NOx → CO₂, inventory comparison, OCO check) · **Last updated:** 2026-09-24
+**Author:** Janhavi Tupe · **Covers:** feasibility stage (G1–G4) and Phase 1 (NO₂ inversion, NOx → CO₂, inventory comparison, OCO check, TROPOMI CO sector constraint) · **Last updated:** 2026-09-24
 
 This document collects every result so far in one place. Day-by-day detail is in
 [research_log.md](research_log.md), and the reasoning behind each design change is in
@@ -24,7 +24,8 @@ regenerated with the commands in §9.
 10. **Satellite NOx is 22% below EDGAR** in the same area (16.5 vs 21.1 kt/yr). **The two inventories disagree by 3.2×** (EDGAR 3.6 vs ODIAC 11.8 Mt CO₂/yr), which is the strongest argument for an independent satellite check.
 11. **The largest uncertainty is the NOx → CO₂ ratio**, as the base paper found. EDGAR's sector ratios range from 115 (industry) to 393 (residential), so the city ratio depends on the sector mix. The OCO-3 comparison (D8) tests exactly this.
 12. **OCO-3/OCO-2 cannot see Pune's CO₂ plume** (exploratory D8). The predicted plume is 0.02–0.15 ppm, against 0.5–1 ppm noise and swath artefacts. The data are *consistent* with our estimate (scale factor 1.0 ± 0.9) but set only an **upper limit of ~7–14 Mt CO₂/yr**; the detection threshold for these 8 dates is ~8–15 Mt/yr. So direct CO₂ observation gives a bound, not a measurement, for a city of Pune's size (proposed D11).
-13. **Winds reverse seasonally:** from the east-southeast in October–March (Pune's plume is carried up the corridor) and from the west-northwest in April–May. This is central to interpreting every corridor result.
+13. **TROPOMI CO pins down the NOx → CO₂ ratio.** Pune's CO plume is clearly detected: CO:NOx = **21.1 mol/mol [18.6–23.7]**, 32% above EDGAR. The excess needs more residential/biomass-type combustion than EDGAR assumes (industry replacing transport can't explain it). The CO-constrained CO₂:NOx is **181 (167–196)** instead of 115–393. **Headline estimate: 2.99 Mt CO₂/yr ± 23%** (was ± 32%). **This is where multi-source data measurably improve the result** (proposed D12).
+14. **Winds reverse seasonally:** from the east-southeast in October–March (Pune's plume is carried up the corridor) and from the west-northwest in April–May. This is central to interpreting every corridor result.
 
 ---
 
@@ -124,6 +125,7 @@ Before running on real data, both methods were tested on a simulated point sourc
 |---|---|---|---|
 | EMG (wind rotation + line density) | **+11 to +12%** | **−16 to −17%** | R² 0.99; the same bias in both random seeds → systematic |
 | Flux divergence | **−4%** | (lifetime is an input) | Stable at 15, 25 and 35 km radii; no spurious source away from the plume |
+| CO step (inert tracer, §4.8) | **−1.4%** | (no decay) | Static terrain pattern larger than the plume; terrain alone gives ≈ 0 |
 
 **Where the EMG bias comes from** (measured by switching each factor off):
 - ~2%: the ±20 km across-wind window cuts off the widening plume
@@ -334,11 +336,82 @@ The slope β measures observed ÷ predicted: β = 1 means OCO agrees with our es
 ![OCO soundings vs predicted plume](../outputs/phase1/figures/oco_dates_r10.png)
 ![Scale factor per date](../outputs/phase1/figures/oco_beta_r10.png)
 
-### 4.8 What Phase 1 has *not* yet produced
+### 4.8 TROPOMI CO: constraining the sector mix and the CO₂:NOx ratio (D4)
 
-- No observational test of the NOx → CO₂ ratio. OCO could not provide one (§4.7); TROPOMI CO (D4) is the remaining lever.
+**Why:** the NOx → CO₂ ratio was the largest error term (§4.6), and OCO could not test it (§4.7). Sectors differ strongly in how much CO they emit per NOx, so measuring Pune's CO:NOx tells us the sector mix, and with it which CO₂:NOx ratio applies.
+
+**Data:** TROPOMI OFFL L3 CO via Earth Engine (pre-filtered qa > 0.5; solar zenith ≤ 70°), same 0.01° grid as NO₂: **907 overpasses**, 608 with 2–8 m/s wind. SRTM elevation on the same grid. EDGAR v8.1 CO (totals 2019–2022, sectors 2021).
+
+**The terrain problem.** A CO column measures all the air above the ground. The Pune plateau (~560 m) and the Konkan lowlands (~0 m) differ by ~6% in air mass, **more than Pune's own CO signal (~2%)**; the raw January mean peaked over the Konkan, not Pune.
+
+**Method (robust to terrain):**
+1. Divide each column by the relative air mass, exp(−z/H) with H = 8.4 km, using elevation smoothed to the ~5 km CO footprint.
+2. Remove each day's box median.
+3. **Remove each pixel's long-term mean.** Anything fixed in space disappears, including residual terrain and the city's direction-averaged CO dome.
+4. Rotate each day by its wind. The downwind-minus-upwind line density (20–40 km windows) equals the full step, so E(CO) = step ÷ ⟨1/w⟩.
+
+**Synthetic test** (`tests/test_co_step.py`): an inert source of 100 mol/s with a static terrain pattern *larger than the plume* is recovered as **98.6 mol/s (−1.4%)**; **terrain alone gives −0.8 mol/s (≈ 0)**.
+
+**Result:**
+
+| | Value |
+|---|---|
+| CO step (downwind − upwind line density) | 65.0 mol/m |
+| **E(CO)** | **6.73 kg/s** |
+| **CO:NOx emission ratio** (NOx from EMG) | **21.1 mol/mol [95% CI 18.6–23.7]** |
+| EDGAR CO:NOx, same 25 km area | 16.0 mol/mol → **observed is 32% higher** |
+
+| Sensitivity | CO:NOx |
+|---|---|
+| Scale height 7.5 / 9.5 km | 21.3 / 20.9 |
+| No terrain correction | 19.5 |
+| October–January only | 21.9 |
+| February–May only (fire season) | 20.4 (no sign of fire inflation) |
+
+![CO step over Pune](../outputs/phase1/figures/co_step.png)
+
+**What the excess CO means (EDGAR 2021 sector ratios, same area):**
+
+| Sector | CO:NOx (mol/mol) | CO₂:NOx (t/t) | EDGAR share of NOx |
+|---|---|---|---|
+| Industry | 9.9 | 115 | 64% |
+| Road transport | 1.95 | 174 | 20% |
+| Residential & commercial | 77.9 | 393 | 10% |
+| Power | 0.38 | 284 | 3% |
+
+Re-splitting one sector pair at a time (all others held at EDGAR shares) to match the observed 21.1:
+
+| Scenario | Feasible? | Implied change | CO₂:NOx [95%] |
+|---|---|---|---|
+| A: high-CO group (residential + crop burning) vs rest | yes | high-CO share of NOx 18% (EDGAR 11%) | 188 [179–196] |
+| B: industry vs transport | **no** (needs 153% industry) | – | – |
+| C: residential vs industry | yes | residential 24% of pair (EDGAR 13%) | 180 [170–191] |
+| D: residential vs transport | yes | residential 56% of pair (EDGAR 33%) | 174 [167–182] |
+
+- **The excess CO can't come from industry replacing transport.** It needs more high-CO (residential/biomass-type) combustion than EDGAR assumes.
+- **CO-constrained CO₂:NOx = 181 (95% range 167–196)**, against EDGAR's 172 and an unconstrained sector span of 115–393.
+
+**Revised CO₂ estimate and uncertainty budget (proposed D12):**
+
+| | EDGAR ratio (§4.6) | **CO-constrained ratio** |
+|---|---|---|
+| CO₂:NOx | 172 | **181** (167–196) |
+| City fossil CO₂ (midday rate) | 2.84 Mt/yr | **2.99 Mt/yr** |
+| Total uncertainty (1σ) | 31.5% | **23.1%** |
+
+In the revised budget, the base paper's 25% "ratio representativeness" term becomes **8.1%** (half-range of the feasible scenarios) **+ 10%** (assumed, for EDGAR's per-sector ratios). The other terms are unchanged (bootstrap 3.3%, wind level 6.3%, wind regime 10.4%, EMG bias 12%, NOx/NO₂ 7.6%, EDGAR year/choice 3.1%). **Adding TROPOMI CO cuts the dominant error term by about two thirds.** This is the clearest answer yet to the primary research question.
+
+**Caveats:**
+- The mixing model trusts EDGAR's per-sector CO:NOx and CO₂:NOx ratios, and re-splits only one pair at a time.
+- Secondary CO from VOC oxidation in the plume, and the EMG's +12% NOx bias, would both make the true CO:NOx *higher*, pushing toward more residential share and a higher CO₂:NOx.
+- EDGAR gives Indian road transport a low CO:NOx (1.95); whether that's realistic is itself an inventory assumption.
+- Residential CO₂ here is fossil only (EDGAR's framing); biomass CO₂ is biogenic and excluded.
+
+### 4.9 What Phase 1 has *not* yet produced
+
+- No *direct* observational test of the CO₂:NOx ratio (OCO couldn't provide one, §4.7). TROPOMI CO constrains it indirectly through EDGAR's sector ratios (§4.8).
 - No diurnal or seasonal adjustment between the midday October–May satellite rate and the annual inventories.
-- No TROPOMI CO analysis of the sector mix (D4).
+- The Monte Carlo version of the uncertainty budget.
 
 ---
 
@@ -357,6 +430,7 @@ The slope β measures observed ÷ predicted: β = 1 means OCO agrees with our es
 | D9 | Corridor = highway centreline ± 3.5 km + Talegaon MIDC | G4: waypoint errors up to 4.4 km; MIDC outside |
 | D10 | City total from EMG; spatial split from flux-divergence shares | Phase 1: FD totals sensitive, FD shares robust |
 | D11 *(proposed)* | OCO gives consistency + an upper limit + a detection threshold, not an independent estimate | D8 run: no detection (plume ≪ noise and swath artefacts) |
+| D12 *(proposed)* | CO₂:NOx from the TROPOMI-CO-constrained sector mix (181, 167–196); headline 2.99 Mt/yr ± 23% | D4 run: CO:NOx 21.1 vs EDGAR 16.0 |
 
 Full reasoning for each is in [decisions.md](decisions.md).
 
@@ -386,23 +460,24 @@ Full reasoning for each is in [decisions.md](decisions.md).
 | Chakan industrial area outside the corridor to the NE | Possible upwind contamination on NE-wind days | To note; could be tested by wind direction |
 | Midday, October–May only | "kt/yr" figures are not annual totals | Always labelled "midday rate" |
 | Fixed NOx/NO₂ = 1.32 | Scales all NOx values | Literature value; ±0.1 in the budget (7.6%) |
-| NOx → CO₂ uses EDGAR's ratio (172; sectors 115–393) | Satellite CO₂ not independent of EDGAR; the largest error term | D8 (OCO-3) tests it; TROPOMI CO for the sector mix |
+| NOx → CO₂ ratio (EDGAR 172; sectors 115–393) | Was the largest error term (25%) | **Constrained by TROPOMI CO to 167–196 (D12)**; still relies on EDGAR's per-sector ratios (assumed 10%) |
 | Satellite NOx 22% below EDGAR | Either EDGAR is high or the EMG background absorbs diffuse sources | Open; check with a sloped-background fit and FD totals |
 | EDGAR and ODIAC disagree by 3.2× | Inventory "plausibility" range is very wide | Report both; don't treat either as truth |
 | Midday October–May rate vs annual inventories | Not like-for-like | Diurnal/seasonal profiles to be applied |
-| OCO-3/OCO-2 can't detect the Pune plume | No observational test of the CO₂:NOx ratio | Upper limit only (D11); TROPOMI CO for the sector mix; try per-swath offsets |
+| OCO-3/OCO-2 can't detect the Pune plume | No *direct* test of the CO₂:NOx ratio | Upper limit only (D11); ratio constrained indirectly via TROPOMI CO (D12) |
+| TROPOMI CO terrain imprint (~6%) larger than Pune's signal | Could fake or hide the CO step | Air-mass normalisation + static-pattern removal; synthetic test −1.4% / ≈0 with terrain only |
+| Secondary CO (VOC oxidation) and EDGAR's per-sector ratios | CO:NOx → CO₂:NOx mapping | Both push toward a higher ratio; 10% term assumed |
 | D8 not yet approved | Changes Experiment B's meaning | **Awaiting guide review** |
 
 ---
 
 ## 8. Next steps
 
-1. **Discuss D8/D11 with the guide.** The OCO result is a non-detection with an upper limit; agree how to frame it.
-2. **TROPOMI CO/NO₂ analysis (D4)** to constrain the sector mix and so the CO₂:NOx ratio, now the key open uncertainty.
-3. **Diurnal/seasonal adjustment** of the satellite midday rate before comparing with annual inventories (EDGAR temporal profiles).
-4. **Monte Carlo version of the uncertainty budget** (the current one is root-sum-square with independent terms).
-5. **Phase 2 data layers** on the 1 km grid: VIIRS, OSM roads, Sentinel-2 NDBI/NDVI, TROPOMI CO, EDGAR, ODIAC.
-6. **Optional:** per-swath offsets in the OCO regression; a sloped background in the EMG fit (the residuals at both ends suggest a regional gradient).
+1. **Discuss D8/D11/D12 with the guide.** OCO: non-detection with an upper limit. CO: constrained ratio, headline 2.99 Mt/yr ± 23%.
+2. **Diurnal/seasonal adjustment** of the satellite midday rate before comparing with annual inventories (EDGAR temporal profiles).
+3. **Monte Carlo version of the uncertainty budget** (the current one is root-sum-square with independent terms).
+4. **Phase 2 data layers** on the 1 km grid: VIIRS, OSM roads, Sentinel-2 NDBI/NDVI, TROPOMI CO, EDGAR, ODIAC.
+5. **Optional:** per-swath offsets in the OCO regression; a sloped background; CO with a wider across-wind window in the EMG fit (the residuals at both ends suggest a regional gradient).
 
 ---
 
@@ -423,6 +498,8 @@ python -m ecotrack.inversion.run_divergence
 python -m ecotrack.acquire.edgar ; python -m ecotrack.acquire.odiac
 python -m ecotrack.inversion.run_co2
 python -m ecotrack.inversion.run_oco_check ; python -m ecotrack.inversion.run_oco_check --prior-radius 10 --tag _r10
+python -m ecotrack.acquire.tropomi_cube --product co ; python -m ecotrack.acquire.dem
+python -m ecotrack.inversion.run_co_ratio
 # Method tests
 python -m pytest
 ```
@@ -435,5 +512,6 @@ python -m pytest
 | Flux-divergence results and map | `outputs/phase1/divergence_totals.json`, `divergence_map.npz` |
 | CO₂ conversion, inventory comparison, uncertainty budget | `outputs/phase1/co2_summary.json` |
 | OCO check (D8) | `outputs/phase1/oco_check.json`, `oco_check_r10.json` |
+| TROPOMI CO ratio, sector scenarios, revised budget (D4/D12) | `outputs/phase1/co_ratio.json` |
 | Figures | `outputs/phase1/figures/` |
 | Feasibility memo for the guide | [feasibility_memo.md](feasibility_memo.md) |

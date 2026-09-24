@@ -7,7 +7,7 @@ Study period: October 2019 – May 2024, October–May seasons.
 - Proposal: [docs/EcoTrack_Project_Proposal.md](docs/EcoTrack_Project_Proposal.md)
 - **Findings to date: [docs/findings.md](docs/findings.md)**
 - Design decisions (changes from the proposal, with reasons): [docs/decisions.md](docs/decisions.md)
-- Current stage: **Phase 1 complete** (NO₂ inversion, NOx → CO₂, inventory comparison, OCO check). Next: TROPOMI CO (D4) and Phase 2 data layers. See [docs/findings.md §8](docs/findings.md)
+- Current stage: **Phase 1 complete** (NO₂ inversion, NOx → CO₂, inventory comparison, OCO check, TROPOMI CO sector constraint). Headline: 2.99 Mt CO₂/yr ± 23% for Pune + PCMC. Next: guide review of D8/D11/D12, then Phase 2 data layers. See [docs/findings.md §8](docs/findings.md)
 - Feasibility memo for the guide: [docs/feasibility_memo.md](docs/feasibility_memo.md) · Weeks 0–2 checklist: [docs/week1_checklist.md](docs/week1_checklist.md)
 - Research log: [docs/research_log.md](docs/research_log.md)
 
@@ -24,7 +24,7 @@ earthengine authenticate
 ```
 configs/study.yaml     every threshold and region definition (single source of truth)
 src/ecotrack/          package: config, geometry, acquire/ (TROPOMI, ERA5, OCO, EDGAR, ODIAC), feasibility/ (G1–G4),
-                       inversion/ (EMG, flux divergence, CO2 conversion, OCO check); later: grid, labels, models, validate
+                       inversion/ (EMG, flux divergence, CO2 conversion, OCO check, CO ratio); later: grid, labels, models, validate
 tests/                 synthetic-plume recovery tests for the inversion methods (python -m pytest)
 data/raw, data/interim not in git; recreated by the acquire scripts
 outputs/               figures, tables, feasibility results

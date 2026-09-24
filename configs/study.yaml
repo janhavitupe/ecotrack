@@ -92,3 +92,12 @@ inversion:
   nox_no2_ratio: 1.32           # NOx/NO2 at midday urban conditions (Beirle et al. 2011); a documented assumption
   de: {popsize: 60, mutation: [0.5, 1.0], recombination: 0.7, maxiter: 2000, seed: 42}  # 60 x 5 params = NP 300
   bootstrap: 200
+
+# D4 — TROPOMI CO as a source-type tracer. GEE's L3 CO is pre-filtered (qa > 0.5) and has no
+# cloud_fraction band; CO is retrieved in clear and low-cloud scenes. Our extra QC: solar zenith.
+tropomi_co:
+  collection: COPERNICUS/S5P/OFFL/L3_CO
+  band: CO_column_number_density
+  solar_zenith_max: 70
+  scale_m: 1113.2
+  min_valid_fraction: 0.5
