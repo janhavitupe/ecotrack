@@ -414,7 +414,7 @@ In the revised budget, the base paper's 25% "ratio representativeness" term beco
 **Items against the proposal's own Phase 1 definition** (checked 2026-09-24):
 - ✅ **IQR outlier removal** of TROPOMI NO₂ (proposal step 1): done (D13). Per-pixel time series, Tukey k = 3; removes 0.09% of pixels; every result moved < 2%.
 - ✅ **Differential Evolution settings sensitivity test** (proposal step 4): done. 36 combinations, identical optimum (spread < 0.001%).
-- ⬜ **Phase 1 report** (proposal deliverable): not yet written; `findings.md` is the running results record, not the report.
+- ✅ **Phase 1 report** (proposal deliverable): [phase1_report.md](phase1_report.md). `findings.md` remains the complete running results record.
 - Per-sub-zone line-density plots were replaced by cluster-scale flux divergence (D1, D10). This is a documented deviation, not an omission.
 
 **Other gaps:**
@@ -485,12 +485,11 @@ Full reasoning for each is in [decisions.md](decisions.md).
 
 ## 8. Next steps
 
-1. **Write the Phase 1 report** (the last open Phase 1 deliverable).
-2. **Discuss D8/D11/D12/D13 with the guide.** OCO: non-detection with an upper limit. CO: constrained ratio, headline 2.98 Mt/yr ± 24%.
-3. **Diurnal/seasonal adjustment** of the satellite midday rate before comparing with annual inventories (EDGAR temporal profiles).
-4. **Monte Carlo version of the uncertainty budget** (the current one is root-sum-square with independent terms).
-5. **Phase 2 data layers** on the 1 km grid: VIIRS, OSM roads, Sentinel-2 NDBI/NDVI (TROPOMI CO, EDGAR and ODIAC are already downloaded).
-6. **Optional:** per-swath offsets in the OCO regression; a sloped background in the EMG fit (the residuals at both ends suggest a regional gradient); a wider across-wind window for the CO step.
+1. **Send the Phase 1 report to the guide and discuss D8/D11/D12.** OCO: non-detection with an upper limit. CO: constrained ratio, headline 2.98 Mt/yr ± 24%.
+2. **Diurnal/seasonal adjustment** of the satellite midday rate before comparing with annual inventories (EDGAR temporal profiles).
+3. **Monte Carlo version of the uncertainty budget** (the current one is root-sum-square with independent terms).
+4. **Phase 2 data layers** on the 1 km grid: VIIRS, OSM roads, Sentinel-2 NDBI/NDVI (TROPOMI CO, EDGAR and ODIAC are already downloaded).
+5. **Optional:** per-swath offsets in the OCO regression; a sloped background in the EMG fit (the residuals at both ends suggest a regional gradient); a wider across-wind window for the CO step.
 
 ---
 
