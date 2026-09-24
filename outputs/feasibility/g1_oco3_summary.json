@@ -1,0 +1,66 @@
+{
+  "product": "oco3",
+  "generated": "2026-09-24T11:16:55",
+  "days_scanned": 893,
+  "soundings_near_corridor_all_quality": 12196,
+  "good_soundings_in_bbox": 983,
+  "good_soundings_in_corridor": 236,
+  "good_soundings_per_cluster": {
+    "C1_shivajinagar_kasarwadi": 152,
+    "C2_pcmc": 149,
+    "C3_dehu_talegaon": 122
+  },
+  "days_with_any_good_corridor_sounding": 10,
+  "usable_days_(>=20_good_in_corridor)": 6,
+  "usable_dates": [
+    "2019-10-14",
+    "2020-04-21",
+    "2020-12-20",
+    "2020-12-24",
+    "2021-01-01",
+    "2022-01-27"
+  ],
+  "bbox_days_with_>=50_good": {
+    "2019-10-14": {
+      "n": 67,
+      "sam_share": 1.0
+    },
+    "2020-04-21": {
+      "n": 98,
+      "sam_share": 0.0
+    },
+    "2020-12-20": {
+      "n": 205,
+      "sam_share": 1.0
+    },
+    "2020-12-24": {
+      "n": 201,
+      "sam_share": 1.0
+    },
+    "2021-01-01": {
+      "n": 62,
+      "sam_share": 1.0
+    },
+    "2022-01-27": {
+      "n": 150,
+      "sam_share": 1.0
+    },
+    "2022-11-21": {
+      "n": 91,
+      "sam_share": 1.0
+    }
+  },
+  "good_corridor_soundings_by_operation_mode": {
+    "4": 183,
+    "0": 53
+  },
+  "good_corridor_soundings_by_season_month": {
+    "2019-10": 25,
+    "2020-04": 48,
+    "2020-12": 81,
+    "2021-01": 20,
+    "2022-01": 40,
+    "2022-05": 7,
+    "2022-11": 15
+  }
+}

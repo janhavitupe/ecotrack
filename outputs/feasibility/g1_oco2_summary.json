@@ -1,0 +1,30 @@
+{
+  "product": "oco2",
+  "generated": "2026-09-24T11:17:00",
+  "days_scanned": 1177,
+  "soundings_near_corridor_all_quality": 2315,
+  "good_soundings_in_bbox": 140,
+  "good_soundings_in_corridor": 60,
+  "good_soundings_per_cluster": {
+    "C1_shivajinagar_kasarwadi": 63,
+    "C2_pcmc": 35,
+    "C3_dehu_talegaon": 0
+  },
+  "days_with_any_good_corridor_sounding": 1,
+  "usable_days_(>=20_good_in_corridor)": 1,
+  "usable_dates": [
+    "2024-01-23"
+  ],
+  "bbox_days_with_>=50_good": {
+    "2024-01-23": {
+      "n": 121,
+      "sam_share": 0.0
+    }
+  },
+  "good_corridor_soundings_by_operation_mode": {
+    "1": 60
+  },
+  "good_corridor_soundings_by_season_month": {
+    "2024-01": 60
+  }
+}

@@ -1,0 +1,122 @@
+[
+  {
+    "name": "Shivajinagar",
+    "lat": 18.5308,
+    "lon": 73.8478,
+    "category": "traffic_urban_core",
+    "status": "approx",
+    "osm_lat": 18.5325915,
+    "osm_lon": 73.8513115,
+    "osm_display": "Shivajinagar, Shivajinagar Railway Station Road, Shivajinagar, Pune, Pune City Subdistrict, Pune, Maharashtra, 411001, India",
+    "distance_m": 420,
+    "flag": "ok"
+  },
+  {
+    "name": "Khadki",
+    "lat": 18.5642,
+    "lon": 73.8508,
+    "category": "traffic_defense_industrial",
+    "status": "approx",
+    "osm_lat": 18.5681753,
+    "osm_lon": 73.8507787,
+    "osm_display": "Khadki, Pune City Subdistrict, Pune, Maharashtra, 411003, India",
+    "distance_m": 442,
+    "flag": "ok"
+  },
+  {
+    "name": "Dapodi",
+    "lat": 18.5793,
+    "lon": 73.8309,
+    "category": "industrial",
+    "status": "approx",
+    "osm_lat": 18.5816816,
+    "osm_lon": 73.8326689,
+    "osm_display": "Dapodi, Dapodi Railway Station Back Road, Pimple Gurav, Pimpri-Chinchwad, Haveli Subdistrict, Pune, Maharashtra, 411012, India",
+    "distance_m": 324,
+    "flag": "ok"
+  },
+  {
+    "name": "Kasarwadi",
+    "lat": 18.5975,
+    "lon": 73.8258,
+    "category": "industrial",
+    "status": "approx",
+    "osm_lat": 18.6080927,
+    "osm_lon": 73.8208678,
+    "osm_display": "Kasarwadi, Bharatratna J.R.D Tata Flyover Ramp, Kasarwadi, Pimpri-Chinchwad, Haveli Subdistrict, Pune, Maharashtra, 411034, India",
+    "distance_m": 1287,
+    "flag": "CHECK"
+  },
+  {
+    "name": "Pimpri",
+    "lat": 18.6298,
+    "lon": 73.8131,
+    "category": "industrial_traffic",
+    "status": "approx",
+    "osm_lat": 18.6231854,
+    "osm_lon": 73.8019932,
+    "osm_display": "Pimpri, Pimpri Chinchwad Link Road Flyover, Pimpri, Pimpri-Chinchwad, Haveli Subdistrict, Pune, Maharashtra, 411089, India",
+    "distance_m": 1382,
+    "flag": "CHECK"
+  },
+  {
+    "name": "Chinchwad",
+    "lat": 18.6298,
+    "lon": 73.7997,
+    "category": "industrial_traffic",
+    "status": "approx",
+    "osm_lat": 18.6403548,
+    "osm_lon": 73.7917128,
+    "osm_display": "Chinchwad, Mangal Upvan Road, Chinchwad, Pimpri-Chinchwad, Haveli Subdistrict, Pune, Maharashtra, 411019, India",
+    "distance_m": 1444,
+    "flag": "CHECK"
+  },
+  {
+    "name": "Akurdi",
+    "lat": 18.648,
+    "lon": 73.767,
+    "category": "industrial",
+    "status": "approx",
+    "osm_lat": 18.6486418,
+    "osm_lon": 73.7647081,
+    "osm_display": "Akurdi, Krantisinha Nana Patil Road, Nigdi, Pimpri-Chinchwad, Haveli Subdistrict, Pune, Maharashtra, 412110, India",
+    "distance_m": 252,
+    "flag": "ok"
+  },
+  {
+    "name": "Nigdi",
+    "lat": 18.6553,
+    "lon": 73.7639,
+    "category": "traffic",
+    "status": "approx",
+    "osm_lat": 18.6598134,
+    "osm_lon": 73.7772821,
+    "osm_display": "Nigdi, Nigdi Bus Stop Lane, Nigdi, Pimpri-Chinchwad, Haveli Subdistrict, Pune, Maharashtra, 411044, India",
+    "distance_m": 1496,
+    "flag": "CHECK"
+  },
+  {
+    "name": "Dehu Road",
+    "lat": 18.7167,
+    "lon": 73.75,
+    "category": "traffic_cantonment",
+    "status": "approx",
+    "osm_lat": 18.680047,
+    "osm_lon": 73.7343306,
+    "osm_display": "Dehu Road, Bus Stop, Mamurdi, Haveli Subdistrict, Pune, Maharashtra, 654321, India",
+    "distance_m": 4397,
+    "flag": "CHECK"
+  },
+  {
+    "name": "Talegaon Dabhade",
+    "lat": 18.7213,
+    "lon": 73.6873,
+    "category": "industrial_traffic",
+    "status": "approx",
+    "osm_lat": 18.7337107,
+    "osm_lon": 73.6728593,
+    "osm_display": "Talegaon Dabhade, Mawal Subdistrict, Pune, Maharashtra, 410506, India",
+    "distance_m": 2054,
+    "flag": "CHECK"
+  }
+]

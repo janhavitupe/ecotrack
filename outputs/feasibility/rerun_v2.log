@@ -1,0 +1,208 @@
+=== ecotrack.feasibility.g1_oco_soundings --product oco3 --summarize-only
+{
+  "product": "oco3",
+  "generated": "2026-09-24T11:16:55",
+  "days_scanned": 893,
+  "soundings_near_corridor_all_quality": 12196,
+  "good_soundings_in_bbox": 983,
+  "good_soundings_in_corridor": 236,
+  "good_soundings_per_cluster": {
+    "C1_shivajinagar_kasarwadi": 152,
+    "C2_pcmc": 149,
+    "C3_dehu_talegaon": 122
+  },
+  "days_with_any_good_corridor_sounding": 10,
+  "usable_days_(>=20_good_in_corridor)": 6,
+  "bbox_days_with_>=50_good": {
+    "2019-10-14": {
+      "n": 67,
+      "sam_share": 1.0
+    },
+    "2020-04-21": {
+      "n": 98,
+      "sam_share": 0.0
+    },
+    "2020-12-20": {
+      "n": 205,
+      "sam_share": 1.0
+    },
+    "2020-12-24": {
+      "n": 201,
+      "sam_share": 1.0
+    },
+    "2021-01-01": {
+      "n": 62,
+      "sam_share": 1.0
+    },
+    "2022-01-27": {
+      "n": 150,
+      "sam_share": 1.0
+    },
+    "2022-11-21": {
+      "n": 91,
+      "sam_share": 1.0
+    }
+  },
+  "good_corridor_soundings_by_operation_mode": {
+    "4": 183,
+    "0": 53
+  },
+  "good_corridor_soundings_by_season_month": {
+    "2019-10": 25,
+    "2020-04": 48,
+    "2020-12": 81,
+    "2021-01": 20,
+    "2022-01": 40,
+    "2022-05": 7,
+    "2022-11": 15
+  }
+}
+
+Saved D:\EcoTrack\outputs\feasibility\g1_oco3_summary.json
+Read-out guide (a judgement call, record it in docs/decisions.md):
+  >= ~15 usable days  -> OCO-3 can serve as an independent validation target (label L2)
+  ~5-15 usable days   -> case-study / constraint on cluster totals only
+  < ~5 usable days    -> qualitative only; Experiment B reframed, try OCO-2 as well
+=== ecotrack.feasibility.g1_oco_soundings --product oco2 --summarize-only
+{
+  "product": "oco2",
+  "generated": "2026-09-24T11:17:00",
+  "days_scanned": 1177,
+  "soundings_near_corridor_all_quality": 2315,
+  "good_soundings_in_bbox": 140,
+  "good_soundings_in_corridor": 60,
+  "good_soundings_per_cluster": {
+    "C1_shivajinagar_kasarwadi": 63,
+    "C2_pcmc": 35,
+    "C3_dehu_talegaon": 0
+  },
+  "days_with_any_good_corridor_sounding": 1,
+  "usable_days_(>=20_good_in_corridor)": 1,
+  "bbox_days_with_>=50_good": {
+    "2024-01-23": {
+      "n": 121,
+      "sam_share": 0.0
+    }
+  },
+  "good_corridor_soundings_by_operation_mode": {
+    "1": 60
+  },
+  "good_corridor_soundings_by_season_month": {
+    "2024-01": 60
+  }
+}
+
+Saved D:\EcoTrack\outputs\feasibility\g1_oco2_summary.json
+Read-out guide (a judgement call, record it in docs/decisions.md):
+  >= ~15 usable days  -> OCO-3 can serve as an independent validation target (label L2)
+  ~5-15 usable days   -> case-study / constraint on cluster totals only
+  < ~5 usable days    -> qualitative only; Experiment B reframed, try OCO-2 as well
+=== ecotrack.feasibility.g2_tropomi_coverage
+*** Earth Engine *** Share your feedback by taking our Annual Developer Satisfaction Survey: https://google.qualtrics.com/jfe/form/SV_9oS0DRcPvElRMNw?source=python
+Corridor = 230 TROPOMI L3 pixels
+  2019-10: 439 images searched, 13 usable days
+  2019-11: 424 images searched, 22 usable days
+  2019-12: 440 images searched, 19 usable days
+  2020-01: 439 images searched, 26 usable days
+  2020-02: 407 images searched, 27 usable days
+  2020-03: 440 images searched, 29 usable days
+  2020-04: 425 images searched, 30 usable days
+  2020-05: 438 images searched, 28 usable days
+  2020-10: 440 images searched, 13 usable days
+  2020-11: 425 images searched, 23 usable days
+  2020-12: 438 images searched, 25 usable days
+  2021-01: 437 images searched, 23 usable days
+  2021-02: 397 images searched, 27 usable days
+  2021-03: 440 images searched, 30 usable days
+  2021-04: 424 images searched, 25 usable days
+  2021-05: 437 images searched, 19 usable days
+  2021-10: 438 images searched, 25 usable days
+  2021-11: 426 images searched, 17 usable days
+  2021-12: 438 images searched, 21 usable days
+  2022-01: 433 images searched, 27 usable days
+  2022-02: 394 images searched, 28 usable days
+  2022-03: 440 images searched, 31 usable days
+  2022-04: 424 images searched, 26 usable days
+  2022-05: 426 images searched, 24 usable days
+  2022-10: 440 images searched, 16 usable days
+  2022-11: 425 images searched, 26 usable days
+  2022-12: 439 images searched, 26 usable days
+  2023-01: 440 images searched, 29 usable days
+  2023-02: 397 images searched, 28 usable days
+  2023-03: 440 images searched, 27 usable days
+  2023-04: 426 images searched, 23 usable days
+  2023-05: 401 images searched, 23 usable days
+  2023-10: 440 images searched, 20 usable days
+  2023-11: 425 images searched, 21 usable days
+  2023-12: 438 images searched, 26 usable days
+  2024-01: 432 images searched, 27 usable days
+  2024-02: 407 images searched, 28 usable days
+  2024-03: 433 images searched, 27 usable days
+  2024-04: 425 images searched, 27 usable days
+  2024-05: 439 images searched, 29 usable days
+{
+  "corridor_pixels": 230,
+  "months": 40,
+  "median_usable_days_per_month": 26.0,
+  "min_usable_days_per_month": 13,
+  "months_below_5_usable_days": []
+}
+Read-out guide: >= ~8 usable days in most months -> monthly composites are OK; otherwise composite by season (Oct-Jan / Feb-May) and say so in Methods.
+=== ecotrack.feasibility.g3_no2_signal --export-year 0
+*** Earth Engine *** Share your feedback by taking our Annual Developer Satisfaction Survey: https://google.qualtrics.com/jfe/form/SV_9oS0DRcPvElRMNw?source=python
+  2019-20: background 2.49e-05 mol/m2, enhancement ratios {'C1_shivajinagar_kasarwadi': 2.22, 'C2_pcmc': 2.1, 'C3_dehu_talegaon': 1.74}
+  2020-21: background 3.06e-05 mol/m2, enhancement ratios {'C1_shivajinagar_kasarwadi': 2.29, 'C2_pcmc': 2.24, 'C3_dehu_talegaon': 1.81}
+  2021-22: background 2.87e-05 mol/m2, enhancement ratios {'C1_shivajinagar_kasarwadi': 2.31, 'C2_pcmc': 2.15, 'C3_dehu_talegaon': 1.71}
+  2022-23: background 3.25e-05 mol/m2, enhancement ratios {'C1_shivajinagar_kasarwadi': 2.31, 'C2_pcmc': 2.21, 'C3_dehu_talegaon': 1.77}
+  2023-24: background 3.09e-05 mol/m2, enhancement ratios {'C1_shivajinagar_kasarwadi': 2.37, 'C2_pcmc': 2.25, 'C3_dehu_talegaon': 1.78}
+Saved D:\EcoTrack\outputs\feasibility\g3_no2_signal.json
+Read-out guide: ratios consistently >= ~1.5 per cluster -> cluster-scale inversion is worth attempting; ~1.0-1.3 -> treat Pune+PCMC as one source. Inspect the exported map as well: the enhancement should sit on PCMC, not only on central Pune.
+=== ecotrack.acquire.era5_overpass
+*** Earth Engine *** Share your feedback by taking our Annual Developer Satisfaction Survey: https://google.qualtrics.com/jfe/form/SV_9oS0DRcPvElRMNw?source=python
+1031 usable overpasses -> 1031 distinct ERA5 hours
+  sampled 150/1031 hours
+  sampled 300/1031 hours
+  sampled 450/1031 hours
+  sampled 600/1031 hours
+  sampled 750/1031 hours
+  sampled 900/1031 hours
+  sampled 1031/1031 hours
+Saved D:\EcoTrack\data\interim\era5\overpass_met.csv (3093 rows)
+                          ws10           ws100           ws850               blh                
+                           10%  50%  90%   10%  50%  90%   10%  50%  90%     10%     50%     90%
+cluster                                                                                         
+C1_shivajinagar_kasarwadi  1.1  2.5  4.2   1.4  3.2  5.6   1.5  3.6  6.6  1071.2  1675.9  2958.9
+C2_pcmc                    1.1  2.6  4.3   1.3  3.2  5.7   1.5  3.5  6.5  1056.1  1657.1  2932.9
+C3_dehu_talegaon           1.1  2.6  4.3   1.3  3.2  5.7   1.5  3.5  6.5  1056.1  1657.1  2932.9
+=== ecotrack.feasibility.g4_map
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "D:\EcoTrack\src\ecotrack\feasibility\g4_map.py", line 175, in <module>
+    run()
+  File "D:\EcoTrack\src\ecotrack\feasibility\g4_map.py", line 62, in run
+    "industrial": industrial_land(),
+                  ^^^^^^^^^^^^^^^^^
+  File "D:\EcoTrack\src\ecotrack\feasibility\g4_map.py", line 37, in industrial_land
+    with urllib.request.urlopen(req, timeout=140) as resp:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\JANHAVI TUPE\AppData\Local\Programs\Python\Python311\Lib\urllib\request.py", line 216, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\JANHAVI TUPE\AppData\Local\Programs\Python\Python311\Lib\urllib\request.py", line 525, in open
+    response = meth(req, response)
+               ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\JANHAVI TUPE\AppData\Local\Programs\Python\Python311\Lib\urllib\request.py", line 634, in http_response
+    response = self.parent.error(
+               ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\JANHAVI TUPE\AppData\Local\Programs\Python\Python311\Lib\urllib\request.py", line 563, in error
+    return self._call_chain(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\JANHAVI TUPE\AppData\Local\Programs\Python\Python311\Lib\urllib\request.py", line 496, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "C:\Users\JANHAVI TUPE\AppData\Local\Programs\Python\Python311\Lib\urllib\request.py", line 643, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 504: Gateway Timeout
+FAILED: ecotrack.feasibility.g4_map
+ALL_DONE

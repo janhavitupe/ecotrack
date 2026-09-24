@@ -1,0 +1,7 @@
+{
+  "corridor_pixels": 230,
+  "months": 40,
+  "median_usable_days_per_month": 26.0,
+  "min_usable_days_per_month": 13,
+  "months_below_5_usable_days": []
+}

@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.egg-info/
+data/raw/
+data/interim/
+*.nc
+*.nc4
+*.h5
+*.tif
+.netrc
+_netrc
+.ipynb_checkpoints/
+.dodsrc
+.urs_cookies
+images/

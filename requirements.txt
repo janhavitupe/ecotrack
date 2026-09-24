@@ -1,0 +1,10 @@
+# Week 0-2 (feasibility gates). Later phases add xarray/rioxarray/geopandas/osmnx/xgboost/shap.
+numpy
+pandas
+pyyaml
+shapely>=2.0
+pyproj
+h5py
+earthaccess
+earthengine-api
+matplotlib

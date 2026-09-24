@@ -1,0 +1,78 @@
+# EcoTrack study configuration — the single source of truth for every threshold.
+# Change values here, never inline in code, and note each change in docs/research_log.md.
+
+accounts:
+  gee_project: ecotrack-509517   # Earth Engine Cloud project (credentials never go in this file)
+
+study:
+  period: {start: "2019-10-01", end: "2024-05-31"}
+  # Oct-May only: avoids monsoon cloud gaps (documented limitation: no full annual cycle).
+  season_months: [10, 11, 12, 1, 2, 3, 4, 5]
+
+region:
+  bbox: {lon_min: 73.62, lat_min: 18.50, lon_max: 73.89, lat_max: 18.82}  # 18.82 N covers Talegaon MIDC
+  # Wider box used only for the G3 background estimate (Western Ghats / Maval rural land).
+  regional_bbox: {lon_min: 73.30, lat_min: 18.20, lon_max: 74.30, lat_max: 19.00}
+  corridor_buffer_km: 3.5
+  grid_res_km: 1.0
+  utm_epsg: 32643   # UTM 43N covers Pune
+
+# Waypoints: (lat, lon), OSM place centres (G4, 2026-09-24). Used as labels and cluster centres;
+# the corridor itself is built from `centreline` below.
+waypoints:
+  - {name: Shivajinagar,     lat: 18.5326, lon: 73.8513, category: traffic_urban_core,         status: OSM place centre 2026-09-24}
+  - {name: Khadki,           lat: 18.5682, lon: 73.8508, category: traffic_defense_industrial, status: OSM place centre 2026-09-24}
+  - {name: Dapodi,           lat: 18.5817, lon: 73.8327, category: industrial,                 status: OSM place centre 2026-09-24}
+  - {name: Kasarwadi,        lat: 18.6081, lon: 73.8209, category: industrial,                 status: OSM place centre 2026-09-24}
+  - {name: Pimpri,           lat: 18.6232, lon: 73.8020, category: industrial_traffic,         status: OSM place centre 2026-09-24}
+  - {name: Chinchwad,        lat: 18.6404, lon: 73.7917, category: industrial_traffic,         status: OSM place centre 2026-09-24}
+  - {name: Akurdi,           lat: 18.6486, lon: 73.7647, category: industrial,                 status: OSM place centre 2026-09-24}
+  - {name: Nigdi,            lat: 18.6598, lon: 73.7773, category: traffic,                    status: OSM place centre 2026-09-24}
+  - {name: Dehu Road,        lat: 18.6800, lon: 73.7343, category: traffic_cantonment,         status: OSM place centre 2026-09-24}
+  - {name: Talegaon Dabhade, lat: 18.7337, lon: 73.6729, category: industrial_traffic,         status: OSM place centre 2026-09-24}
+
+# Corridor centreline: each waypoint snapped to the nearest point of the OSM-tagged Old Pune-Mumbai
+# Highway (Overpass, 2026-09-24), in road order. Talegaon kept at its place centre because the OSM
+# highway tagging stops near Dehu Road. The highway lies a median 200 m from this line, far below
+# the 3.5 km buffer and the TROPOMI pixel size. Waypoints above stay as labels / cluster centres.
+centreline:  # [lat, lon]
+  - [18.5333, 73.8523]  # Shivajinagar
+  - [18.5621, 73.8424]  # Khadki
+  - [18.5820, 73.8340]  # Dapodi
+  - [18.6083, 73.8211]  # Kasarwadi
+  - [18.6240, 73.8075]  # Pimpri
+  - [18.6433, 73.7913]  # Chinchwad
+  - [18.6603, 73.7763]  # Akurdi / Nigdi (both snap to the same highway point)
+  - [18.6781, 73.7359]  # Dehu Road
+  - [18.7337, 73.6729]  # Talegaon Dabhade
+
+# Industrial estates named in the proposal that lie outside the highway buffer, added as circles.
+# Talegaon MIDC is ~5 km north of Talegaon town, 1.5-1.8 km beyond the buffer (OSM landuse=industrial,
+# 2026-09-24). MIDC Bhosari is already fully inside the buffer.
+extra_areas:
+  - {name: Talegaon MIDC, lat: 18.7820, lon: 73.6920, radius_km: 2.5}  # 2.5 km joins it to the buffer
+
+# Inversion runs at cluster scale, not per waypoint (see docs/decisions.md, D1):
+# waypoints inside a cluster are closer together than one TROPOMI pixel (~3.5 x 5.5 km).
+clusters:
+  C1_shivajinagar_kasarwadi: [Shivajinagar, Khadki, Dapodi, Kasarwadi]
+  C2_pcmc:                   [Pimpri, Chinchwad, Akurdi, Nigdi]
+  C3_dehu_talegaon:          [Dehu Road, Talegaon Dabhade]
+cluster_radius_km: 5.0
+
+tropomi:
+  collection: COPERNICUS/S5P/OFFL/L3_NO2
+  band: tropospheric_NO2_column_number_density
+  cloud_fraction_max: 0.3
+  solar_zenith_max: 70
+  qa_min: 0.7                # applied only if the collection exposes a qa_value band
+  scale_m: 1113.2            # native GEE L3 grid spacing
+  min_valid_fraction: 0.5    # an overpass "counts" if >= this share of corridor pixels is valid
+
+oco:
+  products:
+    oco3: {short_name: OCO3_L2_Lite_FP, version: null}   # null = newest version found
+    oco2: {short_name: OCO2_L2_Lite_FP, version: null}
+  good_quality_flag: 0
+  search_pad_deg: 0.25        # also keep soundings this far outside the bbox (for background)
+  min_good_soundings_per_day: 20   # a day is "usable" for enhancement analysis above this

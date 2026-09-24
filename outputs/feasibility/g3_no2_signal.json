@@ -1,0 +1,102 @@
+{
+  "2019-20": {
+    "background_p10": 2.492302597395856e-05,
+    "clusters": {
+      "C1_shivajinagar_kasarwadi": {
+        "mean": 5.526868459442471e-05,
+        "std": 2.7938547102804415e-06,
+        "enhancement_ratio": 2.2175752114600193
+      },
+      "C2_pcmc": {
+        "mean": 5.2424916105111724e-05,
+        "std": 3.2310515363321596e-06,
+        "enhancement_ratio": 2.1034731561042865
+      },
+      "C3_dehu_talegaon": {
+        "mean": 4.330603201865209e-05,
+        "std": 4.720343258649945e-06,
+        "enhancement_ratio": 1.7375912565312681
+      }
+    }
+  },
+  "2020-21": {
+    "background_p10": 3.0640583134771364e-05,
+    "clusters": {
+      "C1_shivajinagar_kasarwadi": {
+        "mean": 7.00374095962411e-05,
+        "std": 4.239377821898809e-06,
+        "enhancement_ratio": 2.2857727376853236
+      },
+      "C2_pcmc": {
+        "mean": 6.876979691061114e-05,
+        "std": 4.200750011876118e-06,
+        "enhancement_ratio": 2.244402353836739
+      },
+      "C3_dehu_talegaon": {
+        "mean": 5.542271200824062e-05,
+        "std": 6.983709413869668e-06,
+        "enhancement_ratio": 1.808800823550455
+      }
+    }
+  },
+  "2021-22": {
+    "background_p10": 2.8721836834727397e-05,
+    "clusters": {
+      "C1_shivajinagar_kasarwadi": {
+        "mean": 6.642183155823973e-05,
+        "std": 5.326073684249035e-06,
+        "enhancement_ratio": 2.3125899621409136
+      },
+      "C2_pcmc": {
+        "mean": 6.17175640859993e-05,
+        "std": 4.08731434772178e-06,
+        "enhancement_ratio": 2.1488028234801813
+      },
+      "C3_dehu_talegaon": {
+        "mean": 4.911144609594544e-05,
+        "std": 6.252288277313973e-06,
+        "enhancement_ratio": 1.7098992093905738
+      }
+    }
+  },
+  "2022-23": {
+    "background_p10": 3.253927670519358e-05,
+    "clusters": {
+      "C1_shivajinagar_kasarwadi": {
+        "mean": 7.530077051217231e-05,
+        "std": 4.572606219566068e-06,
+        "enhancement_ratio": 2.314150102179548
+      },
+      "C2_pcmc": {
+        "mean": 7.188560889349774e-05,
+        "std": 4.559983914041082e-06,
+        "enhancement_ratio": 2.2091950458758696
+      },
+      "C3_dehu_talegaon": {
+        "mean": 5.769870869487038e-05,
+        "std": 7.705639559227868e-06,
+        "enhancement_ratio": 1.773201943534938
+      }
+    }
+  },
+  "2023-24": {
+    "background_p10": 3.0879225940969954e-05,
+    "clusters": {
+      "C1_shivajinagar_kasarwadi": {
+        "mean": 7.321577526353608e-05,
+        "std": 4.087192794815238e-06,
+        "enhancement_ratio": 2.371036612235633
+      },
+      "C2_pcmc": {
+        "mean": 6.94807039399429e-05,
+        "std": 4.4264116784526534e-06,
+        "enhancement_ratio": 2.250079197994314
+      },
+      "C3_dehu_talegaon": {
+        "mean": 5.5063031339485976e-05,
+        "std": 7.51916826132887e-06,
+        "enhancement_ratio": 1.7831739514697298
+      }
+    }
+  }
+}

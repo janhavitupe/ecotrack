@@ -1,0 +1,9 @@
+*** Earth Engine *** Share your feedback by taking our Annual Developer Satisfaction Survey: https://google.qualtrics.com/jfe/form/SV_9oS0DRcPvElRMNw?source=python
+  2019-20: background 2.49e-05 mol/m2, enhancement ratios {'C1_shivajinagar_kasarwadi': 2.23, 'C2_pcmc': 2.09, 'C3_dehu_talegaon': 1.7}
+  2020-21: background 3.06e-05 mol/m2, enhancement ratios {'C1_shivajinagar_kasarwadi': 2.29, 'C2_pcmc': 2.23, 'C3_dehu_talegaon': 1.76}
+  2021-22: background 2.87e-05 mol/m2, enhancement ratios {'C1_shivajinagar_kasarwadi': 2.33, 'C2_pcmc': 2.14, 'C3_dehu_talegaon': 1.67}
+  Exported composite map for 2021-22 to Drive/ecotrack_feasibility
+  2022-23: background 3.25e-05 mol/m2, enhancement ratios {'C1_shivajinagar_kasarwadi': 2.32, 'C2_pcmc': 2.21, 'C3_dehu_talegaon': 1.73}
+  2023-24: background 3.09e-05 mol/m2, enhancement ratios {'C1_shivajinagar_kasarwadi': 2.38, 'C2_pcmc': 2.25, 'C3_dehu_talegaon': 1.74}
+Saved D:\EcoTrack\outputs\feasibility\g3_no2_signal.json
+Read-out guide: ratios consistently >= ~1.5 per cluster -> cluster-scale inversion is worth attempting; ~1.0-1.3 -> treat Pune+PCMC as one source. Inspect the exported map as well: the enhancement should sit on PCMC, not only on central Pune.

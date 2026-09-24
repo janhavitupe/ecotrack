@@ -1,0 +1,50 @@
+*** Earth Engine *** Share your feedback by taking our Annual Developer Satisfaction Survey: https://google.qualtrics.com/jfe/form/SV_9oS0DRcPvElRMNw?source=python
+Corridor = 221 TROPOMI L3 pixels
+  2019-10: 439 images searched, 13 usable days
+  2019-11: 424 images searched, 22 usable days
+  2019-12: 440 images searched, 19 usable days
+  2020-01: 439 images searched, 25 usable days
+  2020-02: 407 images searched, 26 usable days
+  2020-03: 440 images searched, 29 usable days
+  2020-04: 425 images searched, 30 usable days
+  2020-05: 438 images searched, 28 usable days
+  2020-10: 440 images searched, 13 usable days
+  2020-11: 425 images searched, 22 usable days
+  2020-12: 438 images searched, 25 usable days
+  2021-01: 437 images searched, 24 usable days
+  2021-02: 397 images searched, 27 usable days
+  2021-03: 440 images searched, 30 usable days
+  2021-04: 424 images searched, 25 usable days
+  2021-05: 437 images searched, 18 usable days
+  2021-10: 438 images searched, 25 usable days
+  2021-11: 426 images searched, 17 usable days
+  2021-12: 438 images searched, 21 usable days
+  2022-01: 433 images searched, 27 usable days
+  2022-02: 394 images searched, 28 usable days
+  2022-03: 440 images searched, 31 usable days
+  2022-04: 424 images searched, 26 usable days
+  2022-05: 426 images searched, 24 usable days
+  2022-10: 440 images searched, 16 usable days
+  2022-11: 425 images searched, 27 usable days
+  2022-12: 439 images searched, 26 usable days
+  2023-01: 440 images searched, 29 usable days
+  2023-02: 397 images searched, 28 usable days
+  2023-03: 440 images searched, 27 usable days
+  2023-04: 426 images searched, 23 usable days
+  2023-05: 401 images searched, 23 usable days
+  2023-10: 440 images searched, 20 usable days
+  2023-11: 425 images searched, 21 usable days
+  2023-12: 438 images searched, 26 usable days
+  2024-01: 432 images searched, 27 usable days
+  2024-02: 407 images searched, 28 usable days
+  2024-03: 433 images searched, 28 usable days
+  2024-04: 425 images searched, 26 usable days
+  2024-05: 439 images searched, 28 usable days
+{
+  "corridor_pixels": 221,
+  "months": 40,
+  "median_usable_days_per_month": 26.0,
+  "min_usable_days_per_month": 13,
+  "months_below_5_usable_days": []
+}
+Read-out guide: >= ~8 usable days in most months -> monthly composites are OK; otherwise composite by season (Oct-Jan / Feb-May) and say so in Methods.
