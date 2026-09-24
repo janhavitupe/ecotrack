@@ -65,3 +65,14 @@ First-corridor results are archived in `outputs/feasibility/v1_waypoint_corridor
 - **Spatial distribution** = flux-divergence map, used for **shares** between zones rather than absolute totals: corridor share, cluster shares, and the Pune-core vs PCMC ratio. Verified across the 6 sensitivity runs (τ ×0.7/×1.3/÷0.84, background p5/p25, 100 m wind): corridor share of the 25 km total 0.206–0.216 (±2.5%), C2/Pune-core ratio 0.212–0.231, while the absolute corridor total ranges 0.100–0.155 kg/s (−16% to +30%).
 - Report both estimators side by side. The agreement at matched area is the validation; the non-plateau is a stated limitation.
 **Consequence for Phase 3 (labels):** the city total is distributed to 1 km cells using flux-divergence shares, in place of (or compared with) the activity-weighted allocation in the proposal. That also helps D2: labels no longer depend on nighttime lights, NDBI or road density, which can therefore stay as model features without circularity.
+
+## D11 — OCO-3/OCO-2 cannot independently constrain Pune's CO₂; reframe D8 as a detectability result (2026-09-24, PROPOSED)
+**Evidence (exploratory D8 run):** the predicted Pune plume is 0.02–0.15 ppm, against 0.5–1.1 ppm sounding scatter and 0.5–1 ppm swath-stripe artefacts on the SAM dates. The combined scale factor is 1.01 ± 0.93 (10 km prior) or 2.00 ± 1.80 (25 km prior), with between-date χ² 11–14. There is no detection, and the result leans heavily on one near-calm OCO-2 date where the plume model is invalid.
+**Decision (proposed):** report the OCO analysis as
+1. **consistency:** the OCO data agree with the NO₂-based and EDGAR estimates;
+2. **an upper limit:** E < 7–14 Mt CO₂/yr (95%, depending on the spatial prior);
+3. **a detection threshold:** ~8–15 Mt/yr for 8 dates;
+4. a tentative, non-robust hint that ODIAC's 11.8 Mt/yr is too high.
+
+It is **not** an independent emission estimate and does **not** validate the EDGAR CO₂:NOx ratio. This answers the proposal's primary research question honestly for this corridor: *direct CO₂ observation from current satellites adds a bound, not a measurement, for a city of Pune's size.* The proposal's §11 explicitly counts such a result as valid.
+**Consequence:** the NOx → CO₂ ratio remains the dominant uncertainty and is untested by observation. The best remaining lever is TROPOMI CO (D4) to constrain the sector mix, and hence which sector ratio (115–393) applies. Worth trying before finalising: per-swath offsets in the OCO regression.

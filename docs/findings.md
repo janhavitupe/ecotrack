@@ -1,7 +1,7 @@
 # EcoTrack — Findings to Date
 
 **Project:** Meteorology-informed multi-source satellite estimation of urban fossil-fuel CO₂, Shivajinagar → Talegaon Dabhade corridor, Pune
-**Author:** Janhavi Tupe · **Covers:** feasibility stage (G1–G4) and Phase 1 (NO₂ inversion, NOx → CO₂, inventory comparison) · **Last updated:** 2026-09-24
+**Author:** Janhavi Tupe · **Covers:** feasibility stage (G1–G4) and Phase 1 (NO₂ inversion, NOx → CO₂, inventory comparison, OCO check) · **Last updated:** 2026-09-24
 
 This document collects every result so far in one place. Day-by-day detail is in
 [research_log.md](research_log.md), and the reasoning behind each design change is in
@@ -23,7 +23,8 @@ regenerated with the commands in §9.
 9. **First satellite-based fossil CO₂ estimate: 2.84 Mt/yr ± 32%** (1σ, midday rate) for Pune + PCMC within 25 km. The corridor accounts for **0.60 Mt/yr**. This relies on EDGAR's CO₂:NOx ratio (172), so it is not independent of EDGAR.
 10. **Satellite NOx is 22% below EDGAR** in the same area (16.5 vs 21.1 kt/yr). **The two inventories disagree by 3.2×** (EDGAR 3.6 vs ODIAC 11.8 Mt CO₂/yr), which is the strongest argument for an independent satellite check.
 11. **The largest uncertainty is the NOx → CO₂ ratio**, as the base paper found. EDGAR's sector ratios range from 115 (industry) to 393 (residential), so the city ratio depends on the sector mix. The OCO-3 comparison (D8) tests exactly this.
-12. **Winds reverse seasonally:** from the east-southeast in October–March (Pune's plume is carried up the corridor) and from the west-northwest in April–May. This is central to interpreting every corridor result.
+12. **OCO-3/OCO-2 cannot see Pune's CO₂ plume** (exploratory D8). The predicted plume is 0.02–0.15 ppm, against 0.5–1 ppm noise and swath artefacts. The data are *consistent* with our estimate (scale factor 1.0 ± 0.9) but set only an **upper limit of ~7–14 Mt CO₂/yr**; the detection threshold for these 8 dates is ~8–15 Mt/yr. So direct CO₂ observation gives a bound, not a measurement, for a city of Pune's size (proposed D11).
+13. **Winds reverse seasonally:** from the east-southeast in October–March (Pune's plume is carried up the corridor) and from the west-northwest in April–May. This is central to interpreting every corridor result.
 
 ---
 
@@ -293,9 +294,49 @@ The 25% term comes from the base paper and **may be optimistic** here, given the
 
 ![Uncertainty budget](../outputs/phase1/figures/co2_uncertainty_budget.png)
 
-### 4.7 What Phase 1 has *not* yet produced
+### 4.7 Independent check with OCO-3 / OCO-2 (D8, exploratory)
 
-- No comparison with a **direct CO₂ observation** yet (OCO-3/OCO-2, D8).
+**Method (plume-model scaling).** For each of the 8 dates:
+1. Take the flux-divergence emission map scaled to 2.84 Mt CO₂/yr.
+2. Carry it downwind as a Gaussian column plume on that day's ERA5 850 hPa wind, at the OCO overpass hour.
+3. Regress observed XCO₂ on the predicted enhancement, plus a linear regional gradient.
+
+The slope β measures observed ÷ predicted: β = 1 means OCO agrees with our estimate, and β × 2.84 Mt/yr is an emission estimate **independent of EDGAR's CO₂:NOx ratio**.
+
+| Date (IST) | Soundings | Wind (m/s, from) | Predicted max (ppm)* | β ± 1σ* |
+|---|---|---|---|---|
+| OCO-3 2019-10-14 08:52 | 167 | 8.9, 98° | 0.04 | 10.8 ± 5.8 |
+| OCO-3 2020-04-21 15:31 | 208 | 7.0, 288° | 0.06 | −7.9 ± 3.8 |
+| OCO-3 2020-12-20 15:16 | 890 | 6.1, 100° | 0.07 | −3.7 ± 1.8 |
+| OCO-3 2020-12-24 13:42 | 917 | 3.7, 122° | 0.11 | 5.0 ± 0.8 |
+| OCO-3 2021-01-01 10:34 | 252 | 4.8, 159° | 0.08 | 1.7 ± 3.9 |
+| OCO-3 2022-01-27 14:03 | 397 | 3.2, 113° | 0.13 | −0.2 ± 0.9 |
+| OCO-3 2022-11-21 16:04 | 247 | 2.9, 66° | 0.15 | −10.0 ± 1.8 |
+| OCO-2 2024-01-23 13:51 | 230 | **0.6**, 106° | 0.41 | 1.15 ± 0.33 |
+
+\* *With emissions confined to 10 km of the source. Spreading them over 25 km lowers the predicted maxima to 0.02–0.07 ppm.*
+
+**Combined (inverse-variance, error inflated for between-date scatter):**
+
+| Emission prior | β | Between-date χ² | 95% upper limit | 3σ detection threshold |
+|---|---|---|---|---|
+| Confined to 10 km | **1.01 ± 0.93** | 11.1 | E < 7.3 Mt/yr | ~8 Mt/yr |
+| Spread over 25 km | 2.00 ± 1.80 | 14.3 | E < 14.1 Mt/yr | ~15 Mt/yr |
+| 10 km, without the near-calm date | 0.65 ± 1.92 | 12.9 | E < 10.8 Mt/yr | – |
+
+**What this means**
+- **Not a detection.** The predicted plume is 10–20× smaller than the sounding scatter (0.5–1.1 ppm) and the **swath-to-swath stripes** visible on the Snapshot Area Map dates (retrieval artefacts of 0.5–1 ppm). The dates disagree with each other far more than their error bars allow.
+- β ≈ 1 with the 10 km prior is **consistent with, not a confirmation of**, the NO₂-based estimate. It leans heavily on the one near-calm OCO-2 date, where a steady-state plume model is not valid.
+- **EDGAR (β = 1.28) is consistent in every variant.** ODIAC (β = 4.14) is 3.3σ away with the 10 km prior but only 1.2σ with the 25 km prior: **a tentative, non-robust hint that ODIAC is too high for Pune.**
+- **Answer to the research question for this corridor:** current CO₂ satellites give an *upper bound* on Pune's emissions, not an independent measurement, because Pune (~3–4 Mt/yr) is below the ~8–15 Mt/yr detection threshold of these 8 overpasses. The proposal's success criteria (§11) count this as a valid result.
+- A possible improvement before finalising: per-swath offset terms in the regression, to absorb the stripe artefacts.
+
+![OCO soundings vs predicted plume](../outputs/phase1/figures/oco_dates_r10.png)
+![Scale factor per date](../outputs/phase1/figures/oco_beta_r10.png)
+
+### 4.8 What Phase 1 has *not* yet produced
+
+- No observational test of the NOx → CO₂ ratio. OCO could not provide one (§4.7); TROPOMI CO (D4) is the remaining lever.
 - No diurnal or seasonal adjustment between the midday October–May satellite rate and the annual inventories.
 - No TROPOMI CO analysis of the sector mix (D4).
 
@@ -315,6 +356,7 @@ The 25% term comes from the base paper and **may be optimistic** here, given the
 | D8 *(proposed)* | OCO-3 (7 dates) + OCO-2 (1 date) as a city-scale mass-balance check on NO₂-derived CO₂ | G1: too sparse for ML, but direct CO₂ |
 | D9 | Corridor = highway centreline ± 3.5 km + Talegaon MIDC | G4: waypoint errors up to 4.4 km; MIDC outside |
 | D10 | City total from EMG; spatial split from flux-divergence shares | Phase 1: FD totals sensitive, FD shares robust |
+| D11 *(proposed)* | OCO gives consistency + an upper limit + a detection threshold, not an independent estimate | D8 run: no detection (plume ≪ noise and swath artefacts) |
 
 Full reasoning for each is in [decisions.md](decisions.md).
 
@@ -348,18 +390,19 @@ Full reasoning for each is in [decisions.md](decisions.md).
 | Satellite NOx 22% below EDGAR | Either EDGAR is high or the EMG background absorbs diffuse sources | Open; check with a sloped-background fit and FD totals |
 | EDGAR and ODIAC disagree by 3.2× | Inventory "plausibility" range is very wide | Report both; don't treat either as truth |
 | Midday October–May rate vs annual inventories | Not like-for-like | Diurnal/seasonal profiles to be applied |
-| 8 direct-CO₂ dates; none after Nov 2023 except one OCO-2 track | D8 is a case study, not a statistic | Report n honestly |
+| OCO-3/OCO-2 can't detect the Pune plume | No observational test of the CO₂:NOx ratio | Upper limit only (D11); TROPOMI CO for the sector mix; try per-swath offsets |
 | D8 not yet approved | Changes Experiment B's meaning | **Awaiting guide review** |
 
 ---
 
 ## 8. Next steps
 
-1. **OCO-3/OCO-2 mass-balance check (D8)** on the 8 dates, compared with the NO₂-derived CO₂. This directly tests the largest uncertainty term. *Needs guide approval of D8.*
-2. **Diurnal/seasonal adjustment** of the satellite midday rate before comparing with annual inventories (EDGAR temporal profiles).
-3. **Monte Carlo version of the uncertainty budget** (the current one is root-sum-square with independent terms).
-4. **Phase 2 data layers** on the 1 km grid: VIIRS, OSM roads, Sentinel-2 NDBI/NDVI, TROPOMI CO, EDGAR, ODIAC.
-5. **Optional:** test a sloped background in the EMG fit (the residuals at both ends suggest a regional gradient).
+1. **Discuss D8/D11 with the guide.** The OCO result is a non-detection with an upper limit; agree how to frame it.
+2. **TROPOMI CO/NO₂ analysis (D4)** to constrain the sector mix and so the CO₂:NOx ratio, now the key open uncertainty.
+3. **Diurnal/seasonal adjustment** of the satellite midday rate before comparing with annual inventories (EDGAR temporal profiles).
+4. **Monte Carlo version of the uncertainty budget** (the current one is root-sum-square with independent terms).
+5. **Phase 2 data layers** on the 1 km grid: VIIRS, OSM roads, Sentinel-2 NDBI/NDVI, TROPOMI CO, EDGAR, ODIAC.
+6. **Optional:** per-swath offsets in the OCO regression; a sloped background in the EMG fit (the residuals at both ends suggest a regional gradient).
 
 ---
 
@@ -379,6 +422,7 @@ python -m ecotrack.inversion.run_city
 python -m ecotrack.inversion.run_divergence
 python -m ecotrack.acquire.edgar ; python -m ecotrack.acquire.odiac
 python -m ecotrack.inversion.run_co2
+python -m ecotrack.inversion.run_oco_check ; python -m ecotrack.inversion.run_oco_check --prior-radius 10 --tag _r10
 # Method tests
 python -m pytest
 ```
@@ -390,5 +434,6 @@ python -m pytest
 | EMG results | `outputs/phase1/city_fit.json` |
 | Flux-divergence results and map | `outputs/phase1/divergence_totals.json`, `divergence_map.npz` |
 | CO₂ conversion, inventory comparison, uncertainty budget | `outputs/phase1/co2_summary.json` |
+| OCO check (D8) | `outputs/phase1/oco_check.json`, `oco_check_r10.json` |
 | Figures | `outputs/phase1/figures/` |
 | Feasibility memo for the guide | [feasibility_memo.md](feasibility_memo.md) |
