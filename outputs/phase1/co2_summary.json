@@ -1,0 +1,155 @@
+{
+  "comparison_area": "within 25 km of source (18.485, 73.855)",
+  "satellite_nox_kg_s": 0.5238505323530344,
+  "satellite_nox_kt_yr_midday": 16.531465559784117,
+  "satellite_nox_kt_yr_ci95": [
+    15.490422363582402,
+    16.55956386969882,
+    17.58769694488605
+  ],
+  "edgar_by_year": {
+    "2019": {
+      "nox_t": 21220.89655975342,
+      "co2_t": 3732959.5853320314,
+      "nox_corridor_t": 6760.336953735352,
+      "co2_corridor_t": 1187044.551953125,
+      "ratio": 175.90960753334954
+    },
+    "2020": {
+      "nox_t": 20421.607714385987,
+      "co2_t": 3378828.5189843746,
+      "nox_corridor_t": 6518.760546875,
+      "co2_corridor_t": 1071590.26609375,
+      "ratio": 165.4536002375641
+    },
+    "2021": {
+      "nox_t": 21043.903247070313,
+      "co2_t": 3595140.395927734,
+      "nox_corridor_t": 6728.6233184814455,
+      "co2_corridor_t": 1143024.411953125,
+      "ratio": 170.83999834623086
+    },
+    "2022": {
+      "nox_t": 21693.559538879395,
+      "co2_t": 3819379.8833007812,
+      "nox_corridor_t": 6930.752645874024,
+      "co2_corridor_t": 1213372.74,
+      "ratio": 176.06054352010116
+    }
+  },
+  "edgar_sectors_2021": {
+    "IND": {
+      "nox_t": 13478.640784053803,
+      "co2_t": 1548076.6275268556,
+      "ratio": 114.85406075650751
+    },
+    "TRO": {
+      "nox_t": 4149.206875898838,
+      "co2_t": 723787.6077545165,
+      "ratio": 174.43999043738287
+    },
+    "RCO": {
+      "nox_t": 2082.835820260048,
+      "co2_t": 819004.954239502,
+      "ratio": 393.2162805502581
+    },
+    "ENE": {
+      "nox_t": 579.6229858398438,
+      "co2_t": 164583.0,
+      "ratio": 283.94836647398955
+    },
+    "CHE": {
+      "nox_t": 0.0,
+      "co2_t": 187708.31724250794,
+      "ratio": null
+    },
+    "REF_TRF": {
+      "nox_t": 14.927397349653765,
+      "co2_t": 37069.43496025086,
+      "ratio": 2483.31534908265
+    },
+    "AGS": {
+      "nox_t": 360.1670022964478,
+      "co2_t": 19418.158999023435,
+      "ratio": 53.91431995494317
+    },
+    "AWB": {
+      "nox_t": 143.82226778030395,
+      "co2_t": 0.0,
+      "ratio": 0.0
+    },
+    "TNR_Other": {
+      "nox_t": 82.31801664339378,
+      "co2_t": 7706.844096468687,
+      "ratio": 93.62281078582303
+    },
+    "TNR_Aviation_LTO": {
+      "nox_t": 72.5177993774414,
+      "co2_t": 21419.69921875,
+      "ratio": 295.3716108684507
+    },
+    "NEU": {
+      "nox_t": 0.0,
+      "co2_t": 29171.409550600052,
+      "ratio": null
+    },
+    "PRU_SOL": {
+      "nox_t": 0.0,
+      "co2_t": 14035.546967620849,
+      "ratio": null
+    },
+    "NMM": {
+      "nox_t": 0.02213194976223349,
+      "co2_t": 755.3577069202065,
+      "ratio": null
+    },
+    "NFE": {
+      "nox_t": 0.0,
+      "co2_t": 1442.152763802409,
+      "ratio": null
+    }
+  },
+  "ratio_co2_per_nox_mean": 172.0659374093114,
+  "ratio_combustion_only_2021": 175.0319110369496,
+  "satellite_co2_mt_yr_midday": 2.8445021182940007,
+  "satellite_co2_mt_yr_range_1sigma": [
+    1.9475314051467405,
+    3.7414728314412606
+  ],
+  "edgar_co2_mt_yr_mean": 3.6315770958862306,
+  "edgar_nox_kt_yr_mean": 21.09499176502228,
+  "odiac_co2_mt_yr_octmay": 11.781893916489198,
+  "shares_of_city": {
+    "corridor": 0.20942504655551855,
+    "C1_shivajinagar_kasarwadi": 0.10065838770248457,
+    "C2_pcmc": 0.06442894969687823,
+    "C3_dehu_talegaon": 0.04433770915615569,
+    "pune_core": 0.29516057330595086
+  },
+  "zone_co2_mt_yr": {
+    "corridor": 0.5957099885509922,
+    "C1_shivajinagar_kasarwadi": 0.2863229970437762,
+    "C2_pcmc": 0.18326828389222774,
+    "C3_dehu_talegaon": 0.12611870761498817,
+    "pune_core": 0.8395848760056489
+  },
+  "corridor_inventories_mt_yr": {
+    "edgar": 1.1537579925,
+    "odiac": 4.037206269653428
+  },
+  "uncertainty_budget_rel_1sigma": {
+    "EMG fit + sampling (bootstrap)": 0.03337603820490109,
+    "Wind level (850 hPa vs 100 m, half-difference)": 0.06334885355006996,
+    "Wind regime (E-SE vs W-NW, half-difference)": 0.10359210934171456,
+    "EMG method bias (synthetic test; systematic, kept uncorrected)": 0.12,
+    "NOx/NO2 ratio (1.32 +/- 0.1)": 0.07575757575757576,
+    "EDGAR CO2:NOx ratio (year-to-year + combustion-only choice)": 0.030635099429989474,
+    "EDGAR ratio representativeness (Xie et al. 2026 value, ~25%)": 0.25
+  },
+  "uncertainty_total_rel_1sigma": 0.3153348726227075,
+  "notes": [
+    "'Midday' rates: TROPOMI overpass 11:30-13:30 IST, Oct-May; not annual totals.",
+    "ODIAC in tonnes C/cell/month (US GHG Center docs), converted x44/12; spatial proxy includes nighttime lights.",
+    "EDGAR NOx is expressed as NO2 mass, matching the satellite convention."
+  ]
+}

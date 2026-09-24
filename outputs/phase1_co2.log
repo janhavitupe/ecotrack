@@ -1,0 +1,33 @@
+Comparison area: within 25 km of source (18.485, 73.855)
+Satellite NOx: 0.524 kg/s = 16.5 kt/yr (midday rate)
+EDGAR NOx (same area, 2019-22 mean): 21.1 kt/yr  -> satellite/EDGAR = 0.78
+EDGAR CO2/NOx ratio by year: {2019: 175.9, 2020: 165.5, 2021: 170.8, 2022: 176.1} mean 172.1; combustion-only 175.0
+EDGAR 2021 sectors (same area):
+  Industry (combustion)          NOx   13,479 t  CO2   1,548,077 t  ratio 115
+  Residential & commercial       NOx    2,083 t  CO2     819,005 t  ratio 393
+  Road transport                 NOx    4,149 t  CO2     723,788 t  ratio 174
+  Chemicals                      NOx        0 t  CO2     187,708 t  ratio -
+  Power generation               NOx      580 t  CO2     164,583 t  ratio 284
+  Refineries & transformation    NOx       15 t  CO2      37,069 t  ratio 2483
+  Non-energy use                 NOx        0 t  CO2      29,171 t  ratio -
+  Aviation (landing/take-off)    NOx       73 t  CO2      21,420 t  ratio 295
+  Agricultural soils             NOx      360 t  CO2      19,418 t  ratio 54
+  Solvents                       NOx        0 t  CO2      14,036 t  ratio -
+  Off-road / rail                NOx       82 t  CO2       7,707 t  ratio 94
+  Non-ferrous metals             NOx        0 t  CO2       1,442 t  ratio -
+  Non-metallic minerals          NOx        0 t  CO2         755 t  ratio -
+  Agricultural waste burning     NOx      144 t  CO2           0 t  ratio -
+
+SATELLITE fossil CO2: 2.84 Mt/yr (midday rate), ±32% (1 sigma) -> 1.95-3.74
+EDGAR CO2 (same area): 3.63 Mt/yr;  ODIAC (Oct-May, x12): 11.78 Mt/yr
+Zone CO2 (Mt/yr, via FD shares): {'corridor': 0.596, 'C1_shivajinagar_kasarwadi': 0.286, 'C2_pcmc': 0.183, 'C3_dehu_talegaon': 0.126, 'pune_core': 0.84}
+Corridor CO2 in inventories (Mt/yr): {'edgar': 1.154, 'odiac': 4.037}
+Uncertainty budget (1 sigma):
+  EMG fit + sampling (bootstrap)                                   3.3%
+  Wind level (850 hPa vs 100 m, half-difference)                   6.3%
+  Wind regime (E-SE vs W-NW, half-difference)                     10.4%
+  EMG method bias (synthetic test; systematic, kept uncorrected)  12.0%
+  NOx/NO2 ratio (1.32 +/- 0.1)                                     7.6%
+  EDGAR CO2:NOx ratio (year-to-year + combustion-only choice)      3.1%
+  EDGAR ratio representativeness (Xie et al. 2026 value, ~25%)    25.0%
+  TOTAL (root-sum-square)                                         31.5%

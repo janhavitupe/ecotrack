@@ -5,6 +5,7 @@ along the Shivajinagar → Talegaon Dabhade corridor (Old Mumbai–Pune Highway)
 Study period: October 2019 – May 2024, October–May seasons.
 
 - Proposal: [docs/EcoTrack_Project_Proposal.md](docs/EcoTrack_Project_Proposal.md)
+- **Findings to date: [docs/findings.md](docs/findings.md)**
 - Design decisions (changes from the proposal, with reasons): [docs/decisions.md](docs/decisions.md)
 - Current stage: [docs/week1_checklist.md](docs/week1_checklist.md)
 - Research log: [docs/research_log.md](docs/research_log.md)
