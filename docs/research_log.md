@@ -92,3 +92,4 @@ This log is the raw material for the Methods chapter.
   - **Detection threshold (3σ) with these 8 dates: ~8–15 Mt CO₂/yr.** Pune's ~3–4 Mt/yr (satellite or EDGAR) is below it.
   - vs inventories: EDGAR (β 1.28) is consistent in every variant. ODIAC (β 4.14) is 3.3σ off with the 10 km prior and all dates, but only 1.2σ with the 25 km prior. **A tentative hint that ODIAC is too high, not robust.**
   - A possible improvement: per-swath offset terms in the regression, to absorb the stripe artefacts.
+- Docs synced after the OCO result: `findings.md` §4.7 + key finding 12 + limitations + next steps; D11 added; D8 annotated with its outcome; an update box added to the feasibility memo (it had promised OCO would test the NOx:CO₂ ratio); README stage and layout updated.

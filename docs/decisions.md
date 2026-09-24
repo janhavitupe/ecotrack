@@ -45,6 +45,8 @@ ones. If a decision is reversed, add a new entry that says so.
 This is the project's one comparison with a direct, non-inventory CO₂ observation, and it tests the base paper's largest error term: the NOx:CO₂ conversion.
 **Consequence for the ablation:** Experiment B becomes "does an OCO-3 constraint on cluster totals change the gridded map?", evaluated on these dates, rather than a per-cell feature comparison. Report n = 7 honestly; this is a case study, not a statistic.
 
+**D8 status (2026-09-24, after the exploratory run):** the mass-balance check found **no detectable Pune plume** (predicted 0.02–0.15 ppm vs 0.5–1 ppm noise and swath artefacts). OCO therefore does **not** test the NOx:CO₂ ratio as hoped; see **D11** for the proposed reframing (consistency + upper limit + detection threshold).
+
 **D8 addendum (2026-09-24):** OCO-2 adds one strong date, 2024-01-23: a glint track crossing C1 and C2 with 62 good soundings in the corridor, in the season OCO-3 misses. It is treated as a transect (upwind vs. downwind along the track), not a map. Direct-CO₂ dates: n = 8.
 
 ## D9 — Corridor built from the highway centreline plus Talegaon MIDC (2026-09-24)
