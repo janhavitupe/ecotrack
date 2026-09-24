@@ -57,3 +57,19 @@ This log is the raw material for the Methods chapter.
   - OCO-2: 60 corridor soundings on 2024-01-23 (was 62).
   - ERA5: 1,031 overpasses.
   The map step first failed with an Overpass 504; regenerated on retry, now with the centreline drawn. Memo updated to final draft.
+
+## 2026-09-24 (Phase 1 start)
+- TROPOMI cube: 1,004 usable overpasses (Oct 2019 – May 2024), 0.01° grid, 90 × 95 px over 73.35–74.30 E, 18.15–19.05 N (`src/ecotrack/acquire/tropomi_cube.py`). All matched to ERA5 within 30 min.
+- **Synthetic recovery test** (`tests/test_emg.py`, 2 seeds, 200 simulated overpasses): E recovered **+11–12%**, τ **−16–17%**, R² 0.99. Separated the bias: across-wind window truncation ~2%, averaging days with different wind speeds ~6%, remainder (2 km binning near the source) ~4%. This is a measured method bias; it goes into the uncertainty budget.
+- **City-scale EMG inversion** (`src/ecotrack/inversion/run_city.py`, 850 hPa wind, 2–8 m/s, DE with NP 300):
+  - Source (calm composite max, n = 187): **18.485 N, 73.855 E**, central Pune (Swargate/Camp), ~2 km south of the corridor tip. PCMC shows as a secondary NO₂ ridge along the corridor.
+  - **Main: E(NOx) = 0.52 kg/s [95% CI 0.49–0.56] (≈16.5 kt/yr at midday rate), τ = 1.7 h [1.55–1.82], x₀ = 25 km, w = 4.1 m/s, R² 0.99, n = 781.**
+  - Sensitivity: easterly regime 0.56 kg/s (τ 1.4 h), westerly 0.45 (τ 2.1 h); wind 2–4 m/s 0.48, 4–8 m/s 0.51; wind level 100 m 0.46, 10 m 0.35. **The wind level is the largest single sensitivity** (10 m surface wind is too slow for a ~1 km-deep plume, so 850 hPa is the physically preferred level).
+  - The line density rises again 50–60 km downwind: a secondary source (PCMC/Talegaon up the corridor in E-SE wind). A single EMG can't separate it, so cluster attribution needs flux divergence (D1).
+- **Flux-divergence emission map** (`src/ecotrack/inversion/divergence.py`, `run_divergence.py`; 968 overpasses, 850 hPa wind, τ = 1.68 h from EMG, background = 10th percentile of the mean column, NOx/NO₂ 1.32):
+  - Synthetic test (`tests/test_divergence.py`): source total recovered at **−4%** (0.48 vs 0.50 mol/s), stable across 15/25/35 km radii; no spurious source at the box corners (|total| < 10% of E).
+  - **Two distinct hotspots resolved:** central Pune (18.485 N, 73.855 E; matches the EMG calm-max source exactly) and **PCMC (18.625 N, 73.795 E, Pimpri–Chinchwad core, inside the corridor)**, 16.7 km apart. PCMC's peak intensity is 73% of Pune's. Within 8 km of each peak: Pune 0.147 kg/s, PCMC 0.111 kg/s.
+  - Zone totals (kg/s NOx, 95% bootstrap CI): Pune core outside the corridor 0.168 [0.163–0.177]; C1 0.057 [0.056–0.060]; C2 0.037 [0.035–0.039]; C3 0.025 [0.023–0.028]; **corridor 0.119 [0.115–0.124] (~3.8 kt/yr midday rate)**. The corridor zones are only 1–2 TROPOMI pixels wide, so emissions smear across zone edges; circle totals around the hotspots are the fairer comparison.
+  - **Consistency with EMG:** total within 25 km of the source = 0.57 kg/s vs EMG 0.52 (+9%). The cumulative total does **not** plateau (0.47 at 20 km → 0.70 at 35 km). Decomposition: the flux term plateaus at ~0.16 kg/s, but the lifetime (sink) term keeps growing (~70% of the 25 km total): NO₂ 30–35 km out is still ~24% above the p10 background. **Absolute FD totals depend on τ and the background choice.**
+  - Sensitivity (corridor): τ ×0.7 → 0.155; τ ×1.3 → 0.100; τ/0.84 (synthetic-bias corrected) → 0.106; background p5/p25 → 0.123/0.113; wind level 100 m → 0.119.
+  - Shares are robust: corridor share of the 25 km total 0.206–0.216 across all sensitivity runs (absolute 0.100–0.155 kg/s). Recorded in D10.

@@ -76,3 +76,19 @@ oco:
   good_quality_flag: 0
   search_pad_deg: 0.25        # also keep soundings this far outside the bbox (for background)
   min_good_soundings_per_day: 20   # a day is "usable" for enhancement analysis above this
+
+# Phase 1 — NO2 plume inversion (wind rotation + line density + EMG fit by Differential Evolution)
+inversion:
+  cube_box: {lon_min: 73.35, lat_min: 18.15, lon_max: 74.30, lat_max: 19.05}  # ~100 km, includes background
+  cube_res_deg: 0.01            # TROPOMI L3 grid in GEE (~1.1 km)
+  wind_level: "850"             # "10", "100" or "850" (hPa); sensitivity-tested
+  calm_max_ms: 2.0              # calm composite -> source location
+  windy_min_ms: 2.0             # rotated composite for the EMG fit
+  windy_max_ms: 8.0
+  source_search_radius_km: 15   # search for the calm-composite maximum around the Pune/PCMC centre
+  rot_res_km: 2.0               # rotated grid spacing
+  along_km: [-40, 60]           # upwind (-) to downwind (+) extent
+  across_halfwidth_km: 20       # line density integrates +/- this across the wind
+  nox_no2_ratio: 1.32           # NOx/NO2 at midday urban conditions (Beirle et al. 2011); a documented assumption
+  de: {popsize: 60, mutation: [0.5, 1.0], recombination: 0.7, maxiter: 2000, seed: 42}  # 60 x 5 params = NP 300
+  bootstrap: 200

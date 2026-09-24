@@ -57,3 +57,11 @@ This is the project's one comparison with a direct, non-inventory CO₂ observat
 **Not included:** the Chakan industrial area (off-corridor, to the NE). It is a possible upwind source on NE-wind days; note in Limitations.
 **Rejected alternative:** a routed driving line (OSRM) through the snapped points. It gave 42 km with only 46% on the highway (U-turns on the dual carriageway).
 First-corridor results are archived in `outputs/feasibility/v1_waypoint_corridor/`; G1 summaries, G2, G3 and ERA5 were rerun on the D9 corridor.
+
+## D10 — Flux divergence for spatial attribution; EMG for the city total (2026-09-24)
+**Evidence:** the single-source EMG fits well (R² 0.99), but its line density rises again 50–60 km downwind (PCMC up the corridor), so it can't separate sources. The flux-divergence map resolves two hotspots 16.7 km apart (central Pune; Pimpri–Chinchwad) and agrees with the EMG city total within 9% at 25 km. However, its absolute totals are dominated (~70%) by the lifetime term and depend on the background choice.
+**Decision:**
+- **City total** = EMG estimate (0.52 kg/s NOx), the base paper's method, with bootstrap CI and the synthetic bias (+12%) in the uncertainty budget.
+- **Spatial distribution** = flux-divergence map, used for **shares** between zones rather than absolute totals: corridor share, cluster shares, and the Pune-core vs PCMC ratio. Verified across the 6 sensitivity runs (τ ×0.7/×1.3/÷0.84, background p5/p25, 100 m wind): corridor share of the 25 km total 0.206–0.216 (±2.5%), C2/Pune-core ratio 0.212–0.231, while the absolute corridor total ranges 0.100–0.155 kg/s (−16% to +30%).
+- Report both estimators side by side. The agreement at matched area is the validation; the non-plateau is a stated limitation.
+**Consequence for Phase 3 (labels):** the city total is distributed to 1 km cells using flux-divergence shares, in place of (or compared with) the activity-weighted allocation in the proposal. That also helps D2: labels no longer depend on nighttime lights, NDBI or road density, which can therefore stay as model features without circularity.
