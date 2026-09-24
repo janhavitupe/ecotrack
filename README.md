@@ -7,7 +7,7 @@ Study period: October 2019 – May 2024, October–May seasons.
 - Proposal: [docs/EcoTrack_Project_Proposal.md](docs/EcoTrack_Project_Proposal.md)
 - **Findings to date: [docs/findings.md](docs/findings.md)**
 - Design decisions (changes from the proposal, with reasons): [docs/decisions.md](docs/decisions.md)
-- Current stage: **Phase 1 complete** (NO₂ inversion, NOx → CO₂, inventory comparison, OCO check, TROPOMI CO sector constraint). Headline: 2.99 Mt CO₂/yr ± 23% for Pune + PCMC. Next: guide review of D8/D11/D12, then Phase 2 data layers. See [docs/findings.md §8](docs/findings.md)
+- Current stage: **Phase 1: 1 item open** (the Phase 1 report; IQR outlier removal and the DE-settings test are done; see docs/findings.md §4.9). Done: (NO₂ inversion, NOx → CO₂, inventory comparison, OCO check, TROPOMI CO sector constraint). Headline: 2.98 Mt CO₂/yr ± 24% for Pune + PCMC. Next: Phase 1 report, guide review of D8/D11/D12/D13, then Phase 2 data layers. See [docs/findings.md §8](docs/findings.md)
 - Feasibility memo for the guide: [docs/feasibility_memo.md](docs/feasibility_memo.md) · Weeks 0–2 checklist: [docs/week1_checklist.md](docs/week1_checklist.md)
 - Research log: [docs/research_log.md](docs/research_log.md)
 

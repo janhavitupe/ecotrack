@@ -3,7 +3,7 @@
 **Project:** Meteorology-informed multi-source satellite estimation of urban fossil-fuel CO₂, Shivajinagar → Talegaon Dabhade corridor, Pune
 **Author:** Janhavi Tupe  **Date:** 2026-09-24  **Status:** Final draft for guide review
 
-> **Update after Phase 1 (2026-09-24):** the D8 check was run as exploratory work. **OCO-3/OCO-2 do not detect Pune's CO₂ plume**: the expected signal (0.02–0.15 ppm) is well below the sounding noise and swath artefacts (0.5–1 ppm). The data are consistent with the NO₂-based estimate (scale factor 1.0 ± 0.9) and give an upper limit of ~7–14 Mt CO₂/yr, but they **cannot** validate the NOx:CO₂ conversion as §3 below anticipated. Proposed reframing: **D11** in `docs/decisions.md`. **TROPOMI CO (D4) did constrain the ratio instead:** CO:NOx 21.1 vs EDGAR 16.0 → CO₂:NOx 181 (167–196) → **2.99 Mt CO₂/yr ± 23%** (was ± 32%); proposed **D12**. Full Phase 1 results: `docs/findings.md`.
+> **Update after Phase 1 (2026-09-24):** the D8 check was run as exploratory work. **OCO-3/OCO-2 do not detect Pune's CO₂ plume**: the expected signal (0.02–0.15 ppm) is well below the sounding noise and swath artefacts (0.5–1 ppm). The data are consistent with the NO₂-based estimate (scale factor 1.0 ± 0.9) and give an upper limit of ~7–14 Mt CO₂/yr, but they **cannot** validate the NOx:CO₂ conversion as §3 below anticipated. Proposed reframing: **D11** in `docs/decisions.md`. **TROPOMI CO (D4) did constrain the ratio instead:** CO:NOx 21.2 vs EDGAR 16.0 → CO₂:NOx 181 (167–197) → **2.98 Mt CO₂/yr ± 24%** (was ± 32%); proposed **D12**. (Numbers after IQR outlier removal, D13.) Full Phase 1 results: `docs/findings.md`.
 
 ---
 

@@ -110,3 +110,22 @@ This log is the raw material for the Methods chapter.
   - **Uncertainty budget revised: 31.5% → 23.1% (1σ).** The base paper's 25% representativeness term is replaced by the CO-scenario half-range (8.1%) plus an assumed 10% for EDGAR's per-sector ratios.
   - Caveats: secondary CO from VOC oxidation in the plume and the EMG +12% NOx bias would both raise the true CO:NOx further (toward more residential and a higher CO₂:NOx); the mixing model trusts EDGAR's per-sector ratios; residential CO₂ here is fossil only (EDGAR's framing), with biomass CO₂ excluded as biogenic.
 - Docs updated for D4/D12: findings §4.8 + key finding 13 + D12 row + limitations + next steps + reproduce/outputs; decisions D12; README stage; memo update box.
+- **Phase 1 completeness check against the proposal:** 3 items open: (1) IQR outlier removal (step 1) not implemented; (2) DE settings not sensitivity-tested (step 4); (3) Phase 1 report not written. Per-sub-zone line densities → cluster-scale flux divergence is a documented deviation (D1/D10). README corrected from 'Phase 1 complete' to 'substantively complete, 3 items open'; listed in findings §4.9.
+
+## 2026-09-24 (closing Phase 1 open items)
+- **IQR outlier removal** (proposal step 1), `src/ecotrack/qc.py`. Three variants were tested on the synthetic plume with 0.5% injected spikes (reference: clean E +11.5%, τ −16.4%; spikes with no filter +10.4% / −15.7%):
+  - temporal k=1.5 → E +7.7%, τ −20.8% (distorts the plume)
+  - domain k=1.5 → E −4.3%, τ −5.4% (clips the plume core; looks "better" only by accident)
+  - local k=1.5 → E +9.8%, τ −15.3% (≈ clean)
+- First chose "local" and started the full rerun. **Stopped it: "local" removed 28.96% of REAL pixels** (1.4% synthetic). Cause: GEE's 1 km L3 grid copies each ~3.5 × 5.5 km TROPOMI pixel into several cells, so local deviations are ~0 (median |dev| 0.66 µmol/m², ~2% of signal) except at footprint edges, which the fences flag. The synthetic noise (independent per cell) couldn't show this. **Lesson: check QC removal rates on real data, not only synthetic.**
+- Real-data removal rates (150 overpasses): local 29.4% (k=1.5) / 22.0% (k=3) / 13.9% (k=10); domain 4.2% / 0.7%; **temporal 2.4% (k=1.5) / 0.11% (k=3)**.
+- **Chosen: temporal, k = 3** (Tukey far-out): 0.11% of real pixels removed; on synthetic data it catches 92% of spikes with a 0.9% line-density change (local 1.8%, domain 7.3%). Config `tropomi.iqr`; applied to NO₂ in `load_cube()`. Tests rewritten (`tests/test_qc.py`, 3 tests); suite 11/11.
+- Pre-IQR Phase 1 outputs archived in `outputs/phase1/v1_before_iqr/`. The aborted local-filter run gave E(NOx) 0.527 vs 0.524 kg/s. That shows the inversion is insensitive to the filter, but a filter that removes 29% of the data isn't defensible.
+- **Full Phase 1 rerun with the temporal k=3 IQR filter** (`outputs/phase1_rerun_iqr.log`; 0.09% of pixels removed on the full cube):
+  - EMG main E(NOx) **0.522 kg/s [0.486–0.555]**, τ 1.67 h [1.55–1.81] (was 0.524 / 1.68). Easterly 0.561, westerly 0.442, 2–4 m/s 0.478, 4–8 m/s 0.506, 100 m 0.456, 10 m 0.347.
+  - Flux divergence: corridor 0.120 [0.116–0.125]; r25 0.570; shares 20.8–21.8% across sensitivity runs. Hotspots within 8 km: Pune 0.147, PCMC 0.112.
+  - CO₂ (EDGAR ratio) **2.83 Mt/yr ± 31.9%**; wind regime term 10.4 → 11.4%.
+  - OCO: β 2.00 ± 1.81 (25 km prior), 1.02 ± 0.94 (10 km prior); upper limits 14.1 / 7.3 Mt/yr unchanged; without the calm date 0.65 ± 1.93.
+  - CO: CO:NOx **21.2 [18.7–23.8]**; CO₂:NOx 181 (167–197); **2.98 Mt CO₂/yr ± 23.6%**.
+- **DE settings sensitivity (proposal step 4):** 36 fits (NP 150/300 × F dithered[0.5,1]/0.5/0.9 × CR 0.3/0.7/0.9 × 2 seeds), all converged to **E 0.5220 kg/s, τ 1.672 h; spread 1.4 × 10⁻⁶ relative**. The fit's optimum doesn't depend on the optimiser settings (`src/ecotrack/inversion/de_sensitivity.py`; vectorised cost for speed, same algorithm).
+- Docs updated: findings (all post-IQR numbers, DE result, D13 row, open-items checklist), README stage, memo box, decisions (D12 numbers note, D13). **Phase 1: only the report remains.**

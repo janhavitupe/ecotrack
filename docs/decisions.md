@@ -85,3 +85,16 @@ It is **not** an independent emission estimate and does **not** validate the EDG
 **Why it matters:** this is where multi-source data measurably improve the estimate (primary research question): adding TROPOMI CO cuts the dominant error term by about two thirds and the total from 31.5% to 23.1%. It also answers D11: OCO couldn't test the ratio, but CO can constrain it.
 **Caveats:** trusts EDGAR's per-sector CO:NOx and CO₂:NOx ratios; secondary CO from VOC oxidation and the EMG NOx bias would both push the true ratio higher; single-pair mixing is a simplification.
 **D4 status:** done. TROPOMI CO works as a source-type tracer for Pune.
+
+**D12 numbers after IQR filtering (2026-09-24):** CO:NOx 21.2 [18.7–23.8]; CO₂:NOx 181 (167–197); **2.98 Mt CO₂/yr ± 23.6%** (EDGAR-ratio variant 2.83 ± 31.9%).
+
+## D13 — IQR outlier removal: per-pixel time series, Tukey k = 3 (2026-09-24)
+**Proposal:** "IQR outlier removal" (Phase 1 step 1), method not specified.
+**Evidence:** on the synthetic plume with injected spikes (`tests/test_qc.py`):
+- "domain" (per-overpass whole-box fences) clips the plume core (line density −7%);
+- "local" (deviation from a 7 px median) looked best;
+- "temporal" k = 3 catches 92% of spikes with a 0.9% line-density change.
+
+On **real** data, "local" removed **29%** of pixels (22% even at k = 3). GEE's 1 km L3 grid copies each ~3.5 × 5.5 km TROPOMI pixel into several cells, so local deviations are ~0 except at footprint edges, which the fences flag.
+**Decision:** "temporal", k = 3 (Tukey far-out), applied to NO₂ when the cube is loaded. It removes **0.09%** of real pixels. Every Phase 1 result moved < 2% (city NOx 0.524 → 0.522 kg/s). Pre-filter results are archived in `outputs/phase1/v1_before_iqr/`.
+**Lesson for the Methods chapter:** QC choices were checked for removal rates on real data, not only on synthetic data.

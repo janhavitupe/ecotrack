@@ -116,8 +116,9 @@ def run(start: str, end: str, product: str = "no2"):
         print(f"  {m_start[:7]}: {n} overpasses saved")
 
 
-def load_cube(product: str = "no2"):
-    """Concatenate all monthly files -> (column[t, y, x] mol/m2, times (UTC), lat, lon, valid_fraction)."""
+def load_cube(product: str = "no2", apply_qc: bool = True):
+    """Concatenate all monthly files -> (column[t, y, x] mol/m2, times (UTC), lat, lon, valid_fraction).
+    For NO2, applies the IQR outlier filter from configs/study.yaml (tropomi.iqr) unless apply_qc=False."""
     files = sorted(glob.glob(str(PRODUCTS[product][1] / "*.npz")))
     if not files:
         raise FileNotFoundError(f"No {product} cube files; run python -m ecotrack.acquire.tropomi_cube --product {product}")
@@ -125,6 +126,11 @@ def load_cube(product: str = "no2"):
     no2 = np.concatenate([p["no2"] for p in parts])
     times = pd.to_datetime(np.concatenate([p["time_ms"] for p in parts]), unit="ms")
     frac = np.concatenate([p["valid_fraction"] for p in parts])
+    iqr = load_config()["tropomi"].get("iqr", {})
+    if product == "no2" and apply_qc and iqr.get("method", "none") != "none":
+        from ecotrack.qc import iqr_filter
+        no2, removed = iqr_filter(no2, iqr["method"], iqr["k"], iqr["size_px"])
+        print(f"IQR outlier filter ({iqr['method']}, k={iqr['k']}): removed {100 * removed:.2f}% of valid pixels")
     return no2, times, parts[0]["lat"], parts[0]["lon"], frac
 
 

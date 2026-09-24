@@ -68,6 +68,12 @@ tropomi:
   qa_min: 0.7                # applied only if the collection exposes a qa_value band
   scale_m: 1113.2            # native GEE L3 grid spacing
   min_valid_fraction: 0.5    # an overpass "counts" if >= this share of corridor pixels is valid
+  # Proposal step 1 IQR outlier removal, applied to the NO2 cube when loaded: "temporal" = each pixel
+  # against its own time series, Tukey far-out fences (k = 3). Removes 0.11% of real pixels; on synthetic
+  # data catches 92% of spikes and changes the line density by 0.9%. Rejected: "domain" (clips the plume
+  # core) and "local" (removes 29% of real pixels: GEE's 1 km L3 grid copies each ~3.5 x 5.5 km pixel
+  # into several cells, so it flags footprint edges, not glitches). See tests/test_qc.py. none = off.
+  iqr: {method: temporal, k: 3.0, size_px: 7}
 
 oco:
   products:

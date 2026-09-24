@@ -19,12 +19,12 @@
     "step_mol_m": 64.98383988338125,
     "e_co_mol_s": 240.273901232606,
     "e_co_kg_s": 6.730096000915417,
-    "ratio_co_nox_mol": 21.176011144844587,
+    "ratio_co_nox_mol": 21.101288021040272,
     "ratio_ci95": [
-      18.675250510383137,
-      23.828989066449097
+      18.609351741893693,
+      23.744904462981296
     ],
-    "ratio_se": 1.3725228953451025
+    "ratio_se": 1.3676797170179087
   },
   "sensitivity": {
     "H = 7.5 km": {
@@ -32,35 +32,35 @@
       "step_mol_m": 65.61295184518691,
       "e_co_mol_s": 242.60000547092758,
       "e_co_kg_s": 6.795250413241229,
-      "ratio_co_nox_mol": 21.381017219254154
+      "ratio_co_nox_mol": 21.305570696969646
     },
     "H = 9.5 km": {
       "n": 608,
       "step_mol_m": 64.39253421594907,
       "e_co_mol_s": 238.0875835297764,
       "e_co_kg_s": 6.66885702342739,
-      "ratio_co_nox_mol": 20.983324848897404
+      "ratio_co_nox_mol": 20.909281651158906
     },
     "no terrain correction": {
       "n": 608,
       "step_mol_m": 59.919376195946434,
       "e_co_mol_s": 221.54834654063052,
       "e_co_kg_s": 6.205591341437715,
-      "ratio_co_nox_mol": 19.525675620193528
+      "ratio_co_nox_mol": 19.456775983394564
     },
     "Oct-Jan only": {
       "n": 286,
       "step_mol_m": 67.43864711297789,
       "e_co_mol_s": 249.22344390362838,
       "e_co_kg_s": 6.9807735860850215,
-      "ratio_co_nox_mol": 21.964759379133106
+      "ratio_co_nox_mol": 21.88725302426804
     },
     "Feb-May only (fire season)": {
       "n": 322,
       "step_mol_m": 62.77041573498955,
       "e_co_mol_s": 232.19495877832958,
       "e_co_kg_s": 6.50380401487689,
-      "ratio_co_nox_mol": 20.463991343390184
+      "ratio_co_nox_mol": 20.39178070144146
     }
   },
   "edgar_2021_sectors": {
@@ -172,25 +172,25 @@
   },
   "edgar_high_co_share_of_nox": 0.10621300687539569,
   "edgar_city_co_nox_mol": 15.95862165236283,
-  "implied_high_co_share_of_nox": 0.18451647940762153,
-  "implied_share_clipped": 0.18451647940762153,
-  "implied_co2_nox_ratio": 187.77820362573658,
+  "implied_high_co_share_of_nox": 0.1833950220043043,
+  "implied_share_clipped": 0.1833950220043043,
+  "implied_co2_nox_ratio": 187.5306118935291,
   "implied_co2_nox_ratio_from_ci": [
-    179.49204499371848,
-    196.5687274378609
+    179.2736923685878,
+    196.29011686104553
   ],
   "edgar_co2_nox_ratio": 172.0659374093114,
   "scenarios": {
     "A: high-CO group vs rest": {
       "feasible": true,
-      "co2_nox": 187.77820362573658,
+      "co2_nox": 187.5306118935291,
       "co2_nox_ci": [
-        179.49204499371848,
-        196.5687274378609
+        179.2736923685878,
+        196.29011686104553
       ]
     },
     "B: industry vs transport": {
-      "fraction_a": 1.5415308989595038,
+      "fraction_a": 1.5304080798208752,
       "feasible": false,
       "co2_nox": 147.5779087012383,
       "co2_nox_ci": [
@@ -200,48 +200,48 @@
       "edgar_fraction_a": 0.7646220369078238
     },
     "C: residential vs industry": {
-      "fraction_a": 0.23729723349643536,
+      "fraction_a": 0.23581614169463602,
       "feasible": true,
-      "co2_nox": 180.74698260639997,
+      "co2_nox": 180.44095000003185,
       "co2_nox_ci": [
-        170.50498179188327,
-        191.61239757636164
+        170.23508981132196,
+        191.2680245222844
       ],
       "edgar_fraction_a": 0.13384564159436246
     },
     "D: residential vs transport": {
-      "fraction_a": 0.5653624534950104,
+      "fraction_a": 0.562053155916095,
       "feasible": true,
-      "co2_nox": 174.404179869578,
+      "co2_nox": 174.18895565930325,
       "co2_nox_ci": [
-        167.20126589548414,
-        182.0455236596056
+        167.0114583809675,
+        181.80333568008524
       ],
       "edgar_fraction_a": 0.3342139843720586
     }
   },
   "co2_nox_co_constrained": {
-    "central": 180.97645536723817,
+    "central": 180.72017251762142,
     "range_95": [
-      167.20126589548414,
-      196.5687274378609
+      167.0114583809675,
+      196.29011686104553
     ]
   },
-  "co2_mt_yr_co_constrained": 2.9812489472617796,
+  "co2_mt_yr_co_constrained": 2.9875693079333026,
   "co2_mt_yr_co_constrained_range_1sigma": [
-    2.276883859190035,
-    3.6856140353335243
+    2.296555608794673,
+    3.678583007071932
   ],
   "uncertainty_budget_rel_1sigma_revised": {
-    "EMG fit + sampling (bootstrap)": 0.032929661739904706,
-    "Wind level (850 hPa vs 100 m, half-difference)": 0.06367553856460732,
-    "Wind regime (E-SE vs W-NW, half-difference)": 0.11411165246066401,
+    "EMG fit + sampling (bootstrap)": 0.03337603820490109,
+    "Wind level (850 hPa vs 100 m, half-difference)": 0.06334885355006996,
+    "Wind regime (E-SE vs W-NW, half-difference)": 0.10359210934171456,
     "EMG method bias (synthetic test; systematic, kept uncorrected)": 0.12,
     "NOx/NO2 ratio (1.32 +/- 0.1)": 0.07575757575757576,
     "EDGAR CO2:NOx ratio (year-to-year + combustion-only choice)": 0.030635099429989474,
-    "CO2:NOx from TROPOMI CO scenarios (half-range of feasible 95% CIs)": 0.08113613862859725,
+    "CO2:NOx from TROPOMI CO scenarios (half-range of feasible 95% CIs)": 0.08100550722200968,
     "EDGAR per-sector ratios (assumed)": 0.1
   },
-  "uncertainty_total_rel_1sigma_revised": 0.23626510248957594,
-  "uncertainty_total_rel_1sigma_before": 0.31896414479193563
+  "uncertainty_total_rel_1sigma_revised": 0.23129629070150307,
+  "uncertainty_total_rel_1sigma_before": 0.3153348726227075
 }
