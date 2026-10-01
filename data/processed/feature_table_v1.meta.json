@@ -1,0 +1,7 @@
+{
+  "version": "v1",
+  "road_source": "GRIP4 (OSM fallback)",
+  "rows": 10720,
+  "cells": 268,
+  "months": 40
+}

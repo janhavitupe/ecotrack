@@ -41,6 +41,20 @@ def simulate(n_days=200, seed=0):
     return no2, u, v, ws, dx, dy
 
 
+@pytest.mark.parametrize("sloped,x_max", [(False, None), (True, 45)])
+def test_d19_configuration_recovers_emission(sloped, x_max):
+    """The D19 configuration (sloped background, fit to 45 km) must be no worse than the original."""
+    no2, u, v, ws, dx, dy = simulate(seed=0)
+    grid = RotatedGrid.from_config(INV)
+    sums, cnts = bin_days(no2, u, v, dx, dy, grid)
+    L, _ = line_density(sums, cnts, grid)
+    m = grid.along <= (x_max or np.inf)
+    fit = fit_emg(grid.along[m], L[m], DE, sloped=sloped)
+    e = emissions(fit["a"], fit["x0"], ws.mean(), nox_no2_ratio=1.0)
+    assert e.e_no2_mol_s == pytest.approx(TRUE_E_NO2, rel=0.20)
+    assert e.tau_h == pytest.approx(TRUE_TAU_H, rel=0.25)
+
+
 @pytest.mark.parametrize("seed", [0, 1])
 def test_recovers_emission_and_lifetime(seed):
     no2, u, v, ws, dx, dy = simulate(seed=seed)

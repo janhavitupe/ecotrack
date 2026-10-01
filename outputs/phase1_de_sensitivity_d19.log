@@ -1,0 +1,40 @@
+IQR outlier filter (temporal, k=3.0): removed 0.09% of valid pixels
+NP 180  F (0.5, 1.0)  CR 0.3  seed 1  E 0.6711 kg/s  tau 1.068 h  R2 0.9981  nfev   2127  NOT CONVERGED
+NP 180  F (0.5, 1.0)  CR 0.3  seed 2  E 0.6629 kg/s  tau 1.090 h  R2 0.9981  nfev   2050  NOT CONVERGED
+NP 180  F (0.5, 1.0)  CR 0.7  seed 1  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    479  ok
+NP 180  F (0.5, 1.0)  CR 0.7  seed 2  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    413  ok
+NP 180  F (0.5, 1.0)  CR 0.9  seed 1  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    260  ok
+NP 180  F (0.5, 1.0)  CR 0.9  seed 2  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    266  ok
+NP 180  F 0.5         CR 0.3  seed 1  E 0.6623 kg/s  tau 1.092 h  R2 0.9981  nfev   2022  NOT CONVERGED
+NP 180  F 0.5         CR 0.3  seed 2  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev   2022  NOT CONVERGED
+NP 180  F 0.5         CR 0.7  seed 1  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    265  ok
+NP 180  F 0.5         CR 0.7  seed 2  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    252  ok
+NP 180  F 0.5         CR 0.9  seed 1  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    183  ok
+NP 180  F 0.5         CR 0.9  seed 2  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    123  ok
+NP 180  F 0.9         CR 0.3  seed 1  E 0.6660 kg/s  tau 1.077 h  R2 0.9981  nfev   2127  NOT CONVERGED
+NP 180  F 0.9         CR 0.3  seed 2  E 0.6368 kg/s  tau 1.152 h  R2 0.9980  nfev   2218  NOT CONVERGED
+NP 180  F 0.9         CR 0.7  seed 1  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    824  ok
+NP 180  F 0.9         CR 0.7  seed 2  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    911  ok
+NP 180  F 0.9         CR 0.9  seed 1  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    506  ok
+NP 180  F 0.9         CR 0.9  seed 2  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    438  ok
+NP 360  F (0.5, 1.0)  CR 0.3  seed 1  E 0.6620 kg/s  tau 1.101 h  R2 0.9981  nfev   2113  NOT CONVERGED
+NP 360  F (0.5, 1.0)  CR 0.3  seed 2  E 0.6622 kg/s  tau 1.093 h  R2 0.9981  nfev   2022  NOT CONVERGED
+NP 360  F (0.5, 1.0)  CR 0.7  seed 1  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    463  ok
+NP 360  F (0.5, 1.0)  CR 0.7  seed 2  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    365  ok
+NP 360  F (0.5, 1.0)  CR 0.9  seed 1  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    221  ok
+NP 360  F (0.5, 1.0)  CR 0.9  seed 2  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    289  ok
+NP 360  F 0.5         CR 0.3  seed 1  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev   2022  NOT CONVERGED
+NP 360  F 0.5         CR 0.3  seed 2  E 0.6624 kg/s  tau 1.092 h  R2 0.9981  nfev   2050  NOT CONVERGED
+NP 360  F 0.5         CR 0.7  seed 1  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    234  ok
+NP 360  F 0.5         CR 0.7  seed 2  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    223  ok
+NP 360  F 0.5         CR 0.9  seed 1  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    126  ok
+NP 360  F 0.5         CR 0.9  seed 2  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    184  ok
+NP 360  F 0.9         CR 0.3  seed 1  E 0.6439 kg/s  tau 1.147 h  R2 0.9980  nfev   2211  NOT CONVERGED
+NP 360  F 0.9         CR 0.3  seed 2  E 0.6736 kg/s  tau 1.068 h  R2 0.9980  nfev   2022  NOT CONVERGED
+NP 360  F 0.9         CR 0.7  seed 1  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    854  ok
+NP 360  F 0.9         CR 0.7  seed 2  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    914  ok
+NP 360  F 0.9         CR 0.9  seed 1  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    389  ok
+NP 360  F 0.9         CR 0.9  seed 2  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    443  ok
+
+36 fits: E(NOx) 0.6368-0.6736 kg/s (spread 5.56% of main), tau 1.068-1.152 h (spread 7.68%); all converged: False
+Converged fits: 24 of 36, E spread 0.0003%; unconverged settings: ['NP 180 F (0.5, 1.0) CR 0.3', 'NP 180 F 0.5 CR 0.3', 'NP 180 F 0.9 CR 0.3', 'NP 360 F (0.5, 1.0) CR 0.3', 'NP 360 F 0.5 CR 0.3', 'NP 360 F 0.9 CR 0.3']

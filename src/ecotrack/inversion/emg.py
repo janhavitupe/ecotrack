@@ -101,23 +101,31 @@ def emg_unit(x, x0, mu, sigma):
     return np.where(z > 0, stable, direct) / (2 * x0)
 
 
-def emg_model(x, a, x0, mu, sigma, b):
-    return a * emg_unit(x, x0, mu, sigma) / 1000 + b  # a [mol] * f [1/km] / 1000 -> mol/m
+def emg_model(x, a, x0, mu, sigma, b, c=0.0):
+    """Line density model: a [mol] * f [1/km] / 1000 -> mol/m, plus background b (+ optional slope c per km, D19)."""
+    return a * emg_unit(x, x0, mu, sigma) / 1000 + b + c * x
 
 
 PARAMS = ("a", "x0", "mu", "sigma", "b")
+PARAMS_SLOPED = PARAMS + ("c",)
 
 
-def default_bounds(x, L):
+def param_names(sloped: bool):
+    return PARAMS_SLOPED if sloped else PARAMS
+
+
+def default_bounds(x, L, sloped: bool = False):
     lo, hi = np.nanmin(L), np.nanmax(L)
     span = max(hi - lo, 1e-12)
-    return [(0, span * 1000 * 300), (2, 150), (-15, 15), (1, 30), (lo - span, lo + span)]
+    b = [(0, span * 1000 * 300), (2, 150), (-15, 15), (1, 30), (lo - span, lo + span)]
+    return b + [(-span / 50, span / 50)] if sloped else b
 
 
-def fit_emg(x, L, de: dict, bounds=None):
+def fit_emg(x, L, de: dict, bounds=None, sloped: bool = False):
     ok = np.isfinite(L)
     x, L = x[ok], L[ok]
-    bounds = bounds or default_bounds(x, L)
+    bounds = bounds or default_bounds(x, L, sloped)
+    names = param_names(sloped)
     scale = np.nanmax(np.abs(L))
 
     def cost(p):
@@ -128,10 +136,11 @@ def fit_emg(x, L, de: dict, bounds=None):
         recombination=de["recombination"], maxiter=de["maxiter"], seed=de.get("seed"),
         tol=1e-10, polish=True,
     )
-    p = dict(zip(PARAMS, res.x))
+    p = dict(zip(names, res.x))
+    p.setdefault("c", 0.0)
     resid = L - emg_model(x, *res.x)
     p["r2"] = 1 - np.sum(resid**2) / np.sum((L - L.mean()) ** 2)
-    p["at_bound"] = [n for n, v, (lo, hi) in zip(PARAMS, res.x, bounds) if min(v - lo, hi - v) < 1e-3 * (hi - lo)]
+    p["at_bound"] = [n for n, v, (lo, hi) in zip(names, res.x, bounds) if min(v - lo, hi - v) < 1e-3 * (hi - lo)]
     return p
 
 

@@ -5,21 +5,29 @@
 **Author:** Janhavi Tupe · **Phase:** 1 of 8 (proposal weeks 1–4) · **Date:** 2026-09-24
 **Status:** complete. Three proposed design decisions (D8, D11, D12) await the guide's sign-off (§7).
 
+> **REVISION NOTICE (2026-10-01, D19).** After this report was written, a sloped-background test showed that the main
+> EMG fit window (to 60 km downwind) included PCMC/Talegaon as a second source, biasing city NOx **low by ~20%**.
+> The corrected method (fit to 45 km, sloped background) gives **NOx 0.663 kg/s [0.620–0.715], τ 1.09 h**;
+> **CO:NOx 16.7 (consistent with EDGAR's 16.0)**; **CO₂:NOx 163 (148–180)**; **fossil CO₂ 2.79 Mt/yr annual mean
+> [95%: 1.79–4.36]** (midday 3.39). The earlier finding "more household burning than EDGAR" is **withdrawn**.
+> The Summary below is updated; the body tables (§4) keep the pre-D19 numbers as the original record. See §10
+> (addendum) and `docs/findings.md` §4.0 for the corrected tables.
+
 ---
 
 ## Summary
 
 Phase 1 set out to reproduce the base paper's NO₂-based emission method (Xie et al., 2026) on the Pune corridor, as a standalone floor result. It did that, and went further: it added a second emission-mapping method, tested direct CO₂ satellite data, and used TROPOMI CO to constrain the method's largest error term.
 
-**Headline result.** Pune + Pimpri-Chinchwad emit **0.52 kg/s NOx** at midday [95% CI 0.49–0.56], with an NO₂ lifetime of **1.7 h**. That converts to **2.98 Mt fossil CO₂/yr ± 24% (1σ)**, expressed as a midday October–May rate.
+**Headline result (after D19).** Pune + Pimpri-Chinchwad emit **0.663 kg/s NOx** at midday [95% CI 0.620–0.715], with an NO₂ lifetime of **1.09 h**. That converts to **2.79 Mt fossil CO₂/yr as an annual mean [95%: 1.79–4.36]** (3.39 Mt/yr as the midday October–May rate).
 
 **Key findings**
-1. **The method was validated before it was trusted.** On synthetic plumes with known emissions, it recovers the emission within +12% (EMG, a measured bias), −4% (flux divergence) and −1.4% (CO step). The fit is insensitive to the optimiser settings (36 combinations, identical result) and to outlier removal (< 2% change).
-2. **The strongest source is central Pune, just south of the corridor.** A second, distinct hotspot sits on Pimpri–Chinchwad, 16.7 km away, at about 75% of Pune's strength. **The corridor emits 21% of the metro's NOx**, a share that is stable (±2.4%) across all sensitivity tests.
-3. **Two independent satellite methods agree within 9%** at a matched 25 km radius, and place the main source at the same pixel.
-4. **The two official inventories disagree by 3.2×** for the same area (EDGAR 3.6 vs ODIAC 11.8 Mt CO₂/yr). The satellite NOx is 22% below EDGAR's.
-5. **Direct CO₂ satellites (OCO-3/OCO-2) cannot detect Pune's plume.** The expected signal (0.02–0.15 ppm) is well below the instrument noise and artefacts (0.5–1 ppm). They give only an upper limit (7–14 Mt/yr) and a detection threshold (~8–15 Mt/yr).
-6. **TROPOMI CO does constrain the NOx → CO₂ conversion.** Pune's CO:NOx is 33% above EDGAR's, which requires more household/biomass-type combustion than EDGAR assumes. This narrows the CO₂:NOx ratio from a sector span of 115–393 to **167–197**, and cuts the total uncertainty from **±32% to ±24%**.
+1. **Every estimator was validated before it was trusted** (synthetic plumes: EMG +12%, a measured bias; flux divergence −4%; CO step −1.4%). Testing also exposed a fit-window bias, which was corrected (D19).
+2. **The strongest source is central Pune, just south of the corridor.** A second hotspot sits on Pimpri–Chinchwad. **The corridor emits ~21% of the metro's NOx**, stable to ±2.4%.
+3. **Two independent methods agree** on location, and within 19% on the 25 km total.
+4. **Inventories disagree 3.2×** (EDGAR 3.6 vs ODIAC 11.8 Mt CO₂/yr). Satellite NOx is 17–19% below EDGAR (annual basis). **ODIAC's value is outside the satellite 95% range.**
+5. **OCO-3/OCO-2 cannot detect Pune's plume**: an upper limit of 7–14 Mt/yr, not a measurement.
+6. **TROPOMI CO constrains the NOx → CO₂ ratio**: CO:NOx 16.7 (EDGAR 16.0) → CO₂:NOx **163 (148–180)** instead of the sector span 115–393. That cuts the dominant uncertainty term from 25% to ~10%.
 
 **Answer to the research question, for Phase 1:** combining satellite sources measurably improves the estimate. The improvement comes from **TROPOMI CO**, not from direct CO₂ observation, which for a city of Pune's size provides a bound rather than a measurement.
 
@@ -264,6 +272,21 @@ Re-splitting one pair of sectors at a time to match the observed ratio:
 1. Guide review of D8, D11 and D12.
 2. Diurnal/seasonal adjustment of the midday rate; a Monte Carlo version of the uncertainty budget.
 3. Phase 2 data layers on the 1 km grid: VIIRS, OSM roads, Sentinel-2 NDBI/NDVI (TROPOMI CO, EDGAR and ODIAC are already in hand).
+
+
+## 10. Addendum (2026-10-01): three results obtained after this report
+
+1. **Seasonal emissions are resolvable.** City NOx per season: 0.405 / 0.538 / 0.568 / 0.502 / 0.621 kg/s (2019–20 → 2023–24). The between-season spread is 2.3× the within-season uncertainty; the corridor share is stable at 19.7–22.8% (`run_seasonal.py`).
+2. **The pipeline detects COVID-19.** In a model-free check of the city NO₂ excess for 25 March – 31 May, it fell **−74% in 2020** (national lockdown) and **−29% in 2021** (Maharashtra restrictions) vs 2022–24. That's independent evidence that the method tracks real changes in emissions.
+3. **An NO₂-independent CO emission map works.** CO flux divergence (terrain-normalised, static patterns removed) gives a 25 km total of 248 mol/s, within 3% of the CO step method, and correlates r = 0.75 with the NO₂ map. The corridor holds **14.5%** of the city's CO vs **21.1%** of its NOx: an exploratory sign of **industrial corridor vs residential core**.
+
+4. **Annual-mean equivalent (D17).** EDGAR temporal profiles show the satellite's midday October–May window runs **~23% above the annual mean** (F = 1.20–1.23, driven by daytime road traffic ×1.6). **Annual mean: NOx 13.4–13.8 kt/yr; fossil CO₂ 2.42–2.49 Mt/yr.** On this like-for-like basis the satellite NOx is **~36% below EDGAR** (vs −22% when comparing the midday rate with EDGAR's annual mean).
+
+5. **Monte Carlo uncertainty (D18).** 200,000 draws through the whole chain: **annual 2.45 Mt CO₂/yr [95%: 1.54–3.90]**, midday 2.98 [1.94–4.54] (the medians reproduce the point estimates). **ODIAC's 11.8 Mt/yr is outside the satellite range in every variant**; EDGAR's 3.63 is just inside (outside if the known +12% method bias is corrected).
+
+6. **D19 correction (supersedes the numbers above where they differ).** A sloped-background test found that the 60 km fit window included a second source (PCMC/Talegaon), biasing NOx ~20% low. With the window at 45 km and a sloped background: **NOx 0.663 kg/s [0.620–0.715], τ 1.09 h; CO:NOx 16.7 (EDGAR 16.0); CO₂:NOx 163 (148–180); fossil CO₂ annual 2.79 Mt/yr [95%: 1.79–4.36], midday 3.39 [2.26–5.08]; satellite NOx vs EDGAR −17 to −19% (annual).** The "more household burning" interpretation of items above is withdrawn. Corrected tables: `docs/findings.md` §4.0.
+
+These feed the Phase 3 label design (`docs/phase3_design.md`, proposed D16). Details: `docs/findings.md` §4.9–4.12.
 
 ---
 

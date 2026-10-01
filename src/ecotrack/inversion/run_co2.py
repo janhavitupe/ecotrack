@@ -120,6 +120,13 @@ def run():
         "EDGAR CO2:NOx ratio (year-to-year + combustion-only choice)": float(np.hypot(ratios.std() / r_main, abs(r_comb - r_main) / r_main)),
         "EDGAR ratio representativeness (Xie et al. 2026 value, ~25%)": 0.25,
     }
+    # D19: EMG structure (background model and fit window). Half the spread of the two in-window variants
+    # (flat 45 km, sloped 30 km) around the main fit; the original flat-60 km fit is a documented outlier.
+    struct = [r["emission"]["e_nox_kg_s"] for r in city["results"]
+              if r.get("structure_variant") and "original" not in r["label"]]
+    if struct:
+        vals = struct + [e_nox]
+        budget["EMG structure: background model & fit window (D19)"] = (max(vals) - min(vals)) / 2 / e_nox
     total_rel = float(np.sqrt(sum(v**2 for v in budget.values())))
 
     summary = {

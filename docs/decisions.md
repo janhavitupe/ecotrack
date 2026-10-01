@@ -98,3 +98,53 @@ It is **not** an independent emission estimate and does **not** validate the EDG
 On **real** data, "local" removed **29%** of pixels (22% even at k = 3). GEE's 1 km L3 grid copies each ~3.5 × 5.5 km TROPOMI pixel into several cells, so local deviations are ~0 except at footprint edges, which the fences flag.
 **Decision:** "temporal", k = 3 (Tukey far-out), applied to NO₂ when the cube is loaded. It removes **0.09%** of real pixels. Every Phase 1 result moved < 2% (city NOx 0.524 → 0.522 kg/s). Pre-filter results are archived in `outputs/phase1/v1_before_iqr/`.
 **Lesson for the Methods chapter:** QC choices were checked for removal rates on real data, not only on synthetic data.
+
+## D14 — Chemistry proxy: TROPOMI HCHO + ERA5 temperature/radiation, not MERRA-2/CAMS O₃ (2026-10-01)
+**Proposal:** "Atmospheric chemistry proxy: O₃, VOC-related fields (MERRA-2 / CAMS)".
+**Problem:** reanalysis chemistry is coarse (~0.5°), much coarser than the 1 km grid. TROPOMI's O₃ product (checked in GEE: `COPERNICUS/S5P/OFFL/L3_O3`) is a *total* column dominated by the stratospheric ozone layer, so it carries almost no city-level photochemical information.
+**Decision:** use **TROPOMI tropospheric HCHO** (formaldehyde, the standard satellite indicator of reactive VOCs; `COPERNICUS/S5P/OFFL/L3_HCHO`, same QC and grid as NO₂) plus **ERA5 2 m temperature and surface solar radiation** at the overpass (the photochemistry drivers). These are the same pipeline and resolution as the other satellite layers.
+**Caveat:** HCHO is noisy for single overpasses, so monthly means are used; it's a proxy, not a chemistry model (proposal §9 already says so).
+
+## D15 — The 1 km grid: UTM 43N squares, kept if ≥ 50% inside the corridor (2026-10-01)
+**Decision:** 1 km × 1 km squares in UTM 43N, aligned to whole kilometres; a cell is kept if ≥ 50% of its area is inside the D9 corridor. **268 cells** (C1 91, C2 63, C3 114 by nearest waypoint), total 268 km² vs a corridor of 269 km². Each cell records its fraction inside the corridor, its cluster, and its distance to the Phase 1 source. Built by `src/ecotrack/grid.py` → `data/interim/grid/cells.csv` / `cells.geojson`.
+**Why UTM:** cells are true 1 km² everywhere, so per-km² densities (roads, emissions) are comparable across cells.
+
+## D16 — Phase 3 labels: seasonal flux-divergence labels + an NO₂-independent CO test + circularity-aware evaluation (2026-10-01, PROPOSED)
+**Evidence:** seasonal city NOx is resolvable (between/within-season ratio 2.3); the corridor share is stable (19.7–22.8%); monthly fits are too noisy.
+**Problem:** D10's flux-divergence-share labels are derived from NO₂, which is also a feature → circular for Experiment A, just as the proposal's activity-weighted labels are circular for Experiment D.
+**Proposal:**
+1. Primary label = seasonal city CO₂ (EMG × 181) × multi-year FD share.
+2. Test a CO-flux-divergence label (independent of NO₂).
+3. Remove each label's construction inputs from its features, or report that experiment as a "construction baseline".
+4. Evaluate on spatial blocks, cluster hold-out, aggregated seasonal totals, and season-to-season change.
+
+Full note: `docs/phase3_design.md`. **Awaiting the guide.**
+
+**D16 update (2026-10-01): L-co feasibility test passed** (`run_co_divergence.py`). Static-pattern removal is required (terrain × directional mean wind otherwise fakes −70 mol/s). Real data: 25 km total 248 mol/s vs the CO step 240 (1.03); r = 0.75 with the NO₂ map; corridor share 14.5% [10.9–18.7] vs 21.1% for NO₂. So the CO label is feasible at ~5 km scale, and the two tracers place different shares in the corridor (an exploratory industrial-vs-residential signal).
+
+## D17 — Report the annual-mean equivalent alongside the midday rate (2026-10-01)
+**Problem:** the satellite rate is a midday (11:30–13:30 IST), October–May rate, while inventories are annual means, so comparisons weren't like-for-like (a Phase 1 limitation).
+**Decision:** convert with E_annual = E_observed / F, where F = Σ sector NOx share × overpass-hour factor × weekday factor × Oct–May month factor. The factors come from the EDGAR temporal profiles (Crippa et al., 2020), matched on IPCC codes (India residential, region 7 otherwise), weighted by our real overpass-time, weekday and month distribution. **F = 1.231** (1.197 with a flat residential month profile, since EDGAR's India residential profile is heating-shaped and Pune mostly cooks). **Annual mean: NOx 13.4–13.8 kt/yr; fossil CO₂ 2.42–2.49 Mt/yr** (CO-constrained ratio). Both are reported; the satellite-vs-EDGAR NOx gap becomes −36% like-for-like. Code: `src/ecotrack/inversion/temporal_adjust.py`.
+
+## D18 — Monte Carlo uncertainty with explicit handling of the known method bias (2026-10-01)
+**Problem:** the RSS budget assumes independent, symmetric Gaussian errors and treats the EMG's *known* +11–12% overestimate as a symmetric uncertainty.
+**Decision:** a 200,000-draw Monte Carlo through the full chain (bootstrap E_NOx; wind level/regime; NOx/NO₂; CO-constrained CO₂:NOx; per-sector 10%; EDGAR year; temporal factor F for annual means), with lognormal multiplicative errors (`src/ecotrack/inversion/mc_budget.py`). The **headline** keeps the symmetric bias treatment (conservative): **annual 2.45 Mt CO₂/yr [95%: 1.54–3.90]; midday 2.98 [1.94–4.54]**. The **bias-corrected** variant (÷ 1 + b, b ~ N(0.115, 0.03)) is reported as a sensitivity: annual 2.20 [1.46–3.31].
+**Consequence:** ODIAC (11.8) lies outside the satellite 95% range in every variant; EDGAR (3.63) lies inside the symmetric range and outside the bias-corrected one.
+
+## D19 — EMG fit window ≤ 45 km downwind with a sloped background (2026-10-01)
+**Evidence:** the original main fit (flat background, fit to 60 km downwind) gave E(NOx) = 0.522 kg/s. A sloped background (B + c·x) on the same window gave 0.740 (+42%, τ 0.89 h). Investigating:
+- **Synthetic data** (true background flat): flat and sloped give the same E bias (+11–12%); the sloped model's τ is closer to the truth (−6% vs −16%). The sloped model is not biased.
+- **Real data, by fit window:** 60 km: flat 0.522 / sloped 0.740; **45 km: flat 0.591 / sloped 0.663**; 30 km: flat 0.609 / sloped 0.651.
+
+Beyond ~45 km the downwind profile contains **PCMC and Talegaon, a second source** (east-southeast winds), which violates the EMG's single-source assumption. With a flat background, the fit absorbs that tail as slow decay (long τ → low E). Inside 30–45 km both background models converge (0.59–0.66).
+**Decision:** fit the EMG up to **45 km downwind** with a **sloped background** (config `inversion.fit_along_max_km: 45`, `background_slope: true`). The remaining spread (flat 45 km, sloped 30 km) becomes a new budget term, *EMG structure (D19)*. The original flat-60 km fit is kept as a documented sensitivity case. Pre-D19 results are archived in `outputs/phase1/v2_before_d19/`. Synthetic recovery with the D19 configuration: E +11.3–11.5% (unchanged), τ −6 to −15%.
+**Consequence:** the city NOx rises ~20%. Every downstream number changes (CO₂, the CO:NOx ratio and so the CO₂:NOx ratio, the satellite-vs-EDGAR gap), so the whole chain is rerun. The flux-divergence *shares* (D10) are unaffected; FD absolute totals change through τ.
+
+## D20 — Roads: GRIP4 as a documented fallback for v1; OpenStreetMap for v2 (2026-10-01)
+**Problem:** the proposal specifies OpenStreetMap roads, but Overpass (and two mirrors) returned 504/429 for hours and Geofabrik was down. Only 16 of 35 tiles were downloaded after several resumable passes.
+**Decision:** feature table **v1** uses **GRIP4** (Global Roads Inventory Project, Meijer et al. 2018; GEE `projects/sat-io/open-datasets/GRIP4/South-East-Asia`). Types 1–2 → major, 3–4 → mid, 5 → minor, computed per cell in Earth Engine (`src/ecotrack/acquire/roads_grip.py`). The source is recorded in `feature_table_v1.meta.json`. **When the OSM download completes, v2** uses OSM as primary and keeps GRIP4 as `grip_*` cross-check columns.
+**Caveat:** GRIP4's local roads are sparse and older (source year ~2014): `road_minor_km` median 0.07 km/cell, so minor-road density is the weakest v1 feature.
+
+**D19 results (2026-10-01, full chain rerun):** main E(NOx) **0.663 kg/s [0.620–0.715]**, τ 1.09 h [0.96–1.23], R² 0.998. Quality-rule fallbacks: westerly regime (sloped τ 0.42 h, bootstrap 0.80–3.96 → flat 0.484) and season 2023–24 (sloped τ 0.75 h, bootstrap 0.75–2.37 → flat 0.663). The first D19 rerun without the rule gave a spurious ±52% budget. Budget structure term 5.4%; wind-level term drops to 0.8%. DE: all 24 converged fits identical (0.6627); the 12 CR = 0.3 runs didn't converge within maxiter for 6 parameters (within 3% of optimal cost). **Downstream:** CO:NOx 16.7 [14.7–18.8] (EDGAR 16.0); CO₂:NOx 163 (148–180); CO₂ midday 3.40 Mt/yr; annual MC **2.79 [1.79–4.36]**; satellite NOx annual −17 to −19% vs EDGAR (was −36%).
+
+**D12 status after D19:** the CO constraint stands (CO₂:NOx now 163, 95% 148–180, vs EDGAR 172), but its **interpretation is revised**: the pre-D19 conclusion "more household/biomass burning than EDGAR" came from an underestimated NOx and is **withdrawn**. Post-D19 CO:NOx agrees with EDGAR's within 4%, and all four sector scenarios are feasible.

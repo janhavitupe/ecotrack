@@ -1,0 +1,230 @@
+=== ecotrack.inversion.run_city
+IQR outlier filter (temporal, k=3.0): removed 0.09% of valid pixels
+1004 overpasses in cube, 1004 matched to ERA5 (level 850)
+Source (calm composite max, n=187): 18.485 N, 73.855 E
+MAIN: E(NOx) = 0.663 kg/s, tau = 1.09 h, R2 = 0.998
+  Easterly regime (from 45–180°)     n= 429  E = 0.600 kg/s  tau = 1.53 h  R2 = 1.00
+    [Westerly regime (from 225–360°)] sloped fit unconstrained (tau 0.42 h, boot [0.8043751698770623, 1.2069202918302562, 3.955495454342825]) -> flat background fallback
+  Westerly regime (from 225–360°)    n= 276  E = 0.484 kg/s  tau = 1.94 h  R2 = 0.98
+  Wind 2–4 m/s                       n= 416  E = 0.567 kg/s  tau = 1.47 h  R2 = 1.00
+  Wind 4–8 m/s                       n= 365  E = 0.695 kg/s  tau = 0.84 h  R2 = 1.00
+  Wind level 100 m                   n= 782  E = 0.673 kg/s  tau = 0.95 h  R2 = 1.00
+  Wind level 10 m                    n= 675  E = 0.556 kg/s  tau = 1.05 h  R2 = 1.00
+  Structure: flat background, 45 km  n= 781  E = 0.591 kg/s  tau = 1.46 h  R2 = 0.9975
+  Structure: sloped background, 30 km n= 781  E = 0.651 kg/s  tau = 0.85 h  R2 = 0.9987
+  Structure: original flat, 60 km    n= 781  E = 0.522 kg/s  tau = 1.67 h  R2 = 0.9908
+Saved D:\EcoTrack\outputs\phase1\city_fit.json and figures in D:\EcoTrack\outputs\phase1\figures
+=== ecotrack.inversion.run_divergence
+IQR outlier filter (temporal, k=3.0): removed 0.09% of valid pixels
+968 overpasses (wind <= 8.0 m/s), tau = 1.09 h from EMG
+
+EMG city estimate: 0.663 kg/s
+Flux divergence, total within R km of the source:
+   5 km: 0.087 kg/s  [0.084, 0.091]
+  10 km: 0.264 kg/s  [0.257, 0.275]
+  15 km: 0.453 kg/s  [0.440, 0.471]
+  20 km: 0.632 kg/s  [0.615, 0.656]
+  25 km: 0.787 kg/s  [0.761, 0.816]
+  30 km: 0.906 kg/s  [0.874, 0.940]
+  35 km: 1.001 kg/s  [0.963, 1.041]
+Zones:
+  C1 Shivajinagar–Kasarwadi        0.077 kg/s  [0.075, 0.080]  (2.4 kt/yr midday rate)
+  C2 PCMC                          0.050 kg/s  [0.048, 0.052]  (1.6 kt/yr midday rate)
+  C3 Dehu Road–Talegaon            0.038 kg/s  [0.036, 0.041]  (1.2 kt/yr midday rate)
+  Pune core (outside corridor)     0.217 kg/s  [0.210, 0.227]  (6.8 kt/yr midday rate)
+  corridor                         0.165 kg/s  [0.160, 0.171]  (5.2 kt/yr midday rate)
+Sensitivity (corridor total, kg/s): {'tau x0.7': 0.221, 'tau x1.3': 0.135, 'tau / 0.84 (synthetic-bias corrected)': 0.144, 'background p5': 0.171, 'background p25': 0.155, 'wind level 100': 0.164}
+Saved D:\EcoTrack\outputs\phase1\divergence_totals.json, divergence_map.npz and figures
+=== ecotrack.inversion.run_co2
+Comparison area: within 25 km of source (18.485, 73.855)
+Satellite NOx: 0.663 kg/s = 20.9 kt/yr (midday rate)
+EDGAR NOx (same area, 2019-22 mean): 21.1 kt/yr  -> satellite/EDGAR = 0.99
+EDGAR CO2/NOx ratio by year: {2019: 175.9, 2020: 165.5, 2021: 170.8, 2022: 176.1} mean 172.1; combustion-only 175.0
+EDGAR 2021 sectors (same area):
+  Industry (combustion)          NOx   13,479 t  CO2   1,548,077 t  ratio 115
+  Residential & commercial       NOx    2,083 t  CO2     819,005 t  ratio 393
+  Road transport                 NOx    4,149 t  CO2     723,788 t  ratio 174
+  Chemicals                      NOx        0 t  CO2     187,708 t  ratio -
+  Power generation               NOx      580 t  CO2     164,583 t  ratio 284
+  Refineries & transformation    NOx       15 t  CO2      37,069 t  ratio 2483
+  Non-energy use                 NOx        0 t  CO2      29,171 t  ratio -
+  Aviation (landing/take-off)    NOx       73 t  CO2      21,420 t  ratio 295
+  Agricultural soils             NOx      360 t  CO2      19,418 t  ratio 54
+  Solvents                       NOx        0 t  CO2      14,036 t  ratio -
+  Off-road / rail                NOx       82 t  CO2       7,707 t  ratio 94
+  Non-ferrous metals             NOx        0 t  CO2       1,442 t  ratio -
+  Non-metallic minerals          NOx        0 t  CO2         755 t  ratio -
+  Agricultural waste burning     NOx      144 t  CO2           0 t  ratio -
+
+SATELLITE fossil CO2: 3.60 Mt/yr (midday rate), ±31% (1 sigma) -> 2.49-4.71
+EDGAR CO2 (same area): 3.63 Mt/yr;  ODIAC (Oct-May, x12): 11.78 Mt/yr
+Zone CO2 (Mt/yr, via FD shares): {'corridor': 0.755, 'C1_shivajinagar_kasarwadi': 0.353, 'C2_pcmc': 0.227, 'C3_dehu_talegaon': 0.175, 'pune_core': 0.992}
+Corridor CO2 in inventories (Mt/yr): {'edgar': 1.154, 'odiac': 4.037}
+Uncertainty budget (1 sigma):
+  EMG fit + sampling (bootstrap)                                   3.6%
+  Wind level (850 hPa vs 100 m, half-difference)                   0.8%
+  Wind regime (E-SE vs W-NW, half-difference)                      8.8%
+  EMG method bias (synthetic test; systematic, kept uncorrected)  12.0%
+  NOx/NO2 ratio (1.32 +/- 0.1)                                     7.6%
+  EDGAR CO2:NOx ratio (year-to-year + combustion-only choice)      3.1%
+  EDGAR ratio representativeness (Xie et al. 2026 value, ~25%)    25.0%
+  EMG structure: background model & fit window (D19)               5.4%
+  TOTAL (root-sum-square)                                         30.9%
+=== ecotrack.inversion.run_oco_check
+*** Earth Engine *** Share your feedback by taking our Annual Developer Satisfaction Survey: https://google.qualtrics.com/jfe/form/SV_9oS0DRcPvElRMNw?source=python
+Prior: 1632 emitting cells within 25 km, total 114.0 kg CO2/s (3.60 Mt/yr)
+oco3 2019-10-14 08:52 IST  n= 167  wind 8.9 m/s from  98°  pred max 0.03 ppm,   0 soundings >0.05 ppm  beta = 23.46 ± 10.18  (SNR  2.3)  resid 0.87 ppm
+oco3 2020-04-21 15:31 IST  n= 208  wind 7.0 m/s from 288°  pred max 0.04 ppm,   0 soundings >0.05 ppm  beta = -21.64 ± 7.70  (SNR -2.8)  resid 0.51 ppm
+oco3 2020-12-20 15:16 IST  n= 890  wind 6.1 m/s from 100°  pred max 0.04 ppm,   0 soundings >0.05 ppm  beta = -10.37 ± 2.71  (SNR -3.8)  resid 0.82 ppm
+oco3 2020-12-24 13:42 IST  n= 917  wind 3.7 m/s from 122°  pred max 0.08 ppm, 146 soundings >0.05 ppm  beta =  8.60 ± 1.22  (SNR  7.1)  resid 0.70 ppm
+oco3 2021-01-01 10:34 IST  n= 252  wind 4.8 m/s from 159°  pred max 0.06 ppm,   5 soundings >0.05 ppm  beta =  6.80 ± 7.74  (SNR  0.9)  resid 1.10 ppm
+oco3 2022-01-27 14:03 IST  n= 397  wind 3.2 m/s from 113°  pred max 0.09 ppm,  94 soundings >0.05 ppm  beta =  2.18 ± 1.33  (SNR  1.6)  resid 0.63 ppm
+oco3 2022-11-21 16:04 IST  n= 247  wind 2.9 m/s from  66°  pred max 0.09 ppm,  62 soundings >0.05 ppm  beta = -15.62 ± 3.04  (SNR -5.1)  resid 0.83 ppm
+oco2 2024-01-23 13:51 IST  n= 230  wind 0.6 m/s from 106°  pred max 0.25 ppm, 125 soundings >0.05 ppm  beta =  1.29 ± 0.43  (SNR  3.0)  resid 0.55 ppm
+
+COMBINED (8 dates, inverse-variance): beta = 1.57 ± 1.44 (between-date chi2 14.2)  ->  OCO-based emission 5.67 ± 5.17 Mt/yr vs NO2-based 3.60
+=== ecotrack.inversion.run_oco_check --prior-radius 10 --tag _r10
+*** Earth Engine *** Share your feedback by taking our Annual Developer Satisfaction Survey: https://google.qualtrics.com/jfe/form/SV_9oS0DRcPvElRMNw?source=python
+Prior: 265 emitting cells within 10.0 km, total 114.0 kg CO2/s (3.60 Mt/yr)
+oco3 2019-10-14 08:52 IST  n= 167  wind 8.9 m/s from  98°  pred max 0.06 ppm,  13 soundings >0.05 ppm  beta =  8.75 ± 4.62  (SNR  1.9)  resid 0.88 ppm
+oco3 2020-04-21 15:31 IST  n= 208  wind 7.0 m/s from 288°  pred max 0.07 ppm,  55 soundings >0.05 ppm  beta = -6.33 ± 3.01  (SNR -2.1)  resid 0.52 ppm
+oco3 2020-12-20 15:16 IST  n= 890  wind 6.1 m/s from 100°  pred max 0.09 ppm, 105 soundings >0.05 ppm  beta = -2.85 ± 1.42  (SNR -2.0)  resid 0.83 ppm
+oco3 2020-12-24 13:42 IST  n= 917  wind 3.7 m/s from 122°  pred max 0.14 ppm, 184 soundings >0.05 ppm  beta =  3.88 ± 0.67  (SNR  5.8)  resid 0.70 ppm
+oco3 2021-01-01 10:34 IST  n= 252  wind 4.8 m/s from 159°  pred max 0.11 ppm,  38 soundings >0.05 ppm  beta =  1.24 ± 3.07  (SNR  0.4)  resid 1.10 ppm
+oco3 2022-01-27 14:03 IST  n= 397  wind 3.2 m/s from 113°  pred max 0.16 ppm,  89 soundings >0.05 ppm  beta = -0.17 ± 0.70  (SNR -0.2)  resid 0.64 ppm
+oco3 2022-11-21 16:04 IST  n= 247  wind 2.9 m/s from  66°  pred max 0.18 ppm,  65 soundings >0.05 ppm  beta = -7.99 ± 1.41  (SNR -5.7)  resid 0.82 ppm
+oco2 2024-01-23 13:51 IST  n= 230  wind 0.6 m/s from 106°  pred max 0.52 ppm,  77 soundings >0.05 ppm  beta =  0.92 ± 0.26  (SNR  3.5)  resid 0.54 ppm
+
+COMBINED (8 dates, inverse-variance): beta = 0.81 ± 0.74 (between-date chi2 11.1)  ->  OCO-based emission 2.90 ± 2.67 Mt/yr vs NO2-based 3.60
+=== ecotrack.inversion.run_co_ratio
+907 CO overpasses; 608 windy (2.0-8.0 m/s)
+D:\EcoTrack\.venv\Lib\site-packages\numpy\lib\_nanfunctions_impl.py:1215: RuntimeWarning: All-NaN slice encountered
+  return fnb._ureduce(a, func=_nanmedian, keepdims=keepdims,
+MAIN: CO step 64.98 mol/m -> E_CO 6.73 kg/s; CO:NOx = 16.68 mol/mol [14.71, 18.77]
+  H = 7.5 km                   n= 608  CO:NOx = 16.84
+  H = 9.5 km                   n= 608  CO:NOx = 16.53
+  no terrain correction        n= 608  CO:NOx = 15.38
+  Oct-Jan only                 n= 286  CO:NOx = 17.30
+  Feb-May only (fire season)   n= 322  CO:NOx = 16.12
+EDGAR 2021 sector CO:NOx (mol/mol) and CO2:NOx (t/t): {'IND': (9.94, 115), 'TRO': (1.95, 174), 'RCO': (77.9, 393), 'ENE': (0.38, 284), 'AGS': (None, 54), 'AWB': (40.9, 0)}
+High-CO group (by EDGAR's own ratios): ['RCO', 'AWB']
+
+EDGAR (within 25 km) CO:NOx = 15.96 mol/mol; high-CO group 75.51, low-CO group 8.88; EDGAR high-CO share of NOx 11%
+Implied high-CO share of NOx: 12% (EDGAR 11%)
+  A: high-CO group vs rest       feasible   CO2:NOx 173 [166-180]
+  B: industry vs transport       feasible   CO2:NOx 154 [148-169]  share 0.87 (EDGAR 0.76)
+  C: residential vs industry     feasible   CO2:NOx 162 [154-171]  share 0.15 (EDGAR 0.13)
+  D: residential vs transport    feasible   CO2:NOx 161 [156-167]  share 0.37 (EDGAR 0.33)
+CO-constrained CO2:NOx 163 (95% range 148-180) vs EDGAR 172 -> city CO2 3.40 Mt/yr (EDGAR-ratio estimate 3.60)
+Uncertainty (1 sigma): 30.9% -> 23.0%
+  EMG fit + sampling (bootstrap)                                       3.6%
+  Wind level (850 hPa vs 100 m, half-difference)                       0.8%
+  Wind regime (E-SE vs W-NW, half-difference)                          8.8%
+  EMG method bias (synthetic test; systematic, kept uncorrected)      12.0%
+  NOx/NO2 ratio (1.32 +/- 0.1)                                         7.6%
+  EDGAR CO2:NOx ratio (year-to-year + combustion-only choice)          3.1%
+  EMG structure: background model & fit window (D19)                   5.4%
+  CO2:NOx from TROPOMI CO scenarios (half-range of feasible 95% CIs)   9.9%
+  EDGAR per-sector ratios (assumed)                                   10.0%
+=== ecotrack.inversion.run_seasonal
+IQR outlier filter (temporal, k=3.0): removed 0.09% of valid pixels
+2019-20: n=161  E(NOx) 0.434 [0.370-0.511] kg/s  tau 1.52 h  R2 0.998  corridor share 22.4%  
+2020-21: n=135  E(NOx) 0.602 [0.533-0.699] kg/s  tau 1.48 h  R2 0.996  corridor share 20.1%  
+2021-22: n=165  E(NOx) 0.733 [0.646-0.877] kg/s  tau 0.88 h  R2 0.997  corridor share 22.1%  
+2022-23: n=158  E(NOx) 0.666 [0.617-0.732] kg/s  tau 1.33 h  R2 0.997  corridor share 20.0%  
+    [season 2023-24] sloped fit unconstrained (tau 0.75 h, boot [0.7493703351675377, 1.003986433013047, 2.3743184588410986]) -> flat background fallback
+2023-24: n=162  E(NOx) 0.663 [0.603-0.745] kg/s  tau 1.52 h  R2 0.996  corridor share 21.1%  
+
+Between-season SD 0.114 kg/s vs typical within-season 1-sigma 0.041 kg/s (ratio 2.8); corridor share 20.0-22.4%
+=== ecotrack.inversion.run_co_divergence
+D:\EcoTrack\.venv\Lib\site-packages\numpy\lib\_nanfunctions_impl.py:1215: RuntimeWarning: All-NaN slice encountered
+  return fnb._ureduce(a, func=_nanmedian, keepdims=keepdims,
+748 CO overpasses (wind <= 8.0 m/s); mean wind u -0.50, v 0.21 m/s
+Total within R km (mol/s): 10: 91, 15: 150, 20: 207, 25: 248, 30: 262, 35: 272
+25 km: 248 mol/s (6.94 kg/s) vs CO step 240 mol/s -> ratio 1.03; bootstrap 95% 217-280
+Corridor share: CO 14.5% [boot 10.9-18.7%] vs NO2 21.0%
+Cell-level correlation with the NO2 FD map (5 km smoothing, within 25 km): r = 0.73
+Top peaks (value, lat, lon): [('4.90e-07', 18.455, 73.835), ('3.33e-07', 18.825, 73.355), ('3.17e-07', 18.635, 73.355), ('2.65e-07', 18.505, 73.665)]
+=== ecotrack.inversion.temporal_adjust
+Overpass hours (IST): {12: 0.344, 13: 0.566, 14: 0.091}
+
+[EDGAR profiles] overall F = 1.231  (observed rate / annual mean)
+  IND                w 0.643  hour 1.08  week 0.999  month 1.00  -> 1.08   (region 7: 13 activities ['1A2a', '1A2b', '1A2c', '1A2d', '1A2e', '1A2f', '1A2f1', '1A2f2'], year 0)
+  TRO                w 0.198  hour 1.59  week 0.999  month 1.00  -> 1.60   (region 7: 4 activities ['1A3b', '1A3b_RES'], year 0)
+  RCO                w 0.099  hour 1.05  week 1.001  month 1.33  -> 1.39   (India: 1 activities ['1A4'], year 2022)
+  ENE                w 0.028  hour 1.13  week 0.999  month 0.97  -> 1.09   (region 7: 1 activities ['1A1a'], year 2017)
+  AGS                w 0.017  hour 1.61  week 1.000  month 1.01  -> 1.63   (region 7: 22 activities ['4D'], year 0)
+  AWB                w 0.007  hour 1.61  week 1.000  month 1.11  -> 1.79   (region 7: 1 activities ['4F'], year 0)
+  TNR_Other          w 0.004  hour 1.41  week 0.999  month 1.00  -> 1.42   (region 7: 2 activities ['1A3a2', '1A3c'], year 0)
+  TNR_Aviation_LTO   w 0.003  hour 1.41  week 0.999  month 1.00  -> 1.42   (region 7: 2 activities ['1A3a2', '1A3c'], year 0)
+  REF_TRF            w 0.001  hour 1.02  week 1.000  month 1.00  -> 1.02   (region 7: 1 activities ['1A1b'], year 0)
+  NOx: 20.9 kt/yr (midday Oct–May) -> 17.0 kt/yr annual mean; EDGAR 21.1
+  CO2: 2.76 Mt/yr annual (CO-constrained ratio); 2.92 with EDGAR ratio; EDGAR 3.63, ODIAC 11.8
+
+[flat residential month profile] overall F = 1.197  (observed rate / annual mean)
+  IND                w 0.643  hour 1.08  week 0.999  month 1.00  -> 1.08   (region 7: 13 activities ['1A2a', '1A2b', '1A2c', '1A2d', '1A2e', '1A2f', '1A2f1', '1A2f2'], year 0)
+  TRO                w 0.198  hour 1.59  week 0.999  month 1.00  -> 1.60   (region 7: 4 activities ['1A3b', '1A3b_RES'], year 0)
+  RCO                w 0.099  hour 1.05  week 1.001  month 1.00  -> 1.05   (flat)
+  ENE                w 0.028  hour 1.13  week 0.999  month 0.97  -> 1.09   (region 7: 1 activities ['1A1a'], year 2017)
+  AGS                w 0.017  hour 1.61  week 1.000  month 1.01  -> 1.63   (region 7: 22 activities ['4D'], year 0)
+  AWB                w 0.007  hour 1.61  week 1.000  month 1.11  -> 1.79   (region 7: 1 activities ['4F'], year 0)
+  TNR_Other          w 0.004  hour 1.41  week 0.999  month 1.00  -> 1.42   (region 7: 2 activities ['1A3a2', '1A3c'], year 0)
+  TNR_Aviation_LTO   w 0.003  hour 1.41  week 0.999  month 1.00  -> 1.42   (region 7: 2 activities ['1A3a2', '1A3c'], year 0)
+  REF_TRF            w 0.001  hour 1.02  week 1.000  month 1.00  -> 1.02   (region 7: 1 activities ['1A1b'], year 0)
+  NOx: 20.9 kt/yr (midday Oct–May) -> 17.5 kt/yr annual mean; EDGAR 21.1
+  CO2: 2.84 Mt/yr annual (CO-constrained ratio); 3.00 with EDGAR ratio; EDGAR 3.63, ODIAC 11.8
+=== ecotrack.inversion.mc_budget
+[symmetric]  percentiles 2.5 / 16 / 50 / 84 / 97.5
+  nox_midday_kt_yr    14.85 /  17.56 /  20.87 /  24.77 /  29.27
+  co2_midday_mt_yr     2.26 /   2.76 /   3.39 /   4.16 /   5.08
+  nox_annual_kt_yr    11.65 /  14.10 /  17.18 /  20.91 /  25.28
+  co2_annual_mt_yr     1.79 /   2.23 /   2.79 /   3.50 /   4.36
+  midday CO2 1-sigma range relative to median: -19% / +23%
+[bias-corrected]  percentiles 2.5 / 16 / 50 / 84 / 97.5
+  nox_midday_kt_yr    14.36 /  16.38 /  18.73 /  21.36 /  24.22
+  co2_midday_mt_yr     2.16 /   2.56 /   3.05 /   3.62 /   4.27
+  nox_annual_kt_yr    11.13 /  13.08 /  15.41 /  18.13 /  21.20
+  co2_annual_mt_yr     1.69 /   2.05 /   2.51 /   3.05 /   3.69
+  midday CO2 1-sigma range relative to median: -16% / +19%
+EDGAR 3.63 Mt inside the annual 95% range: [True, True]; ODIAC 11.8: [False, False]
+=== ecotrack.inversion.de_sensitivity
+IQR outlier filter (temporal, k=3.0): removed 0.09% of valid pixels
+NP 180  F (0.5, 1.0)  CR 0.3  seed 1  E 0.6711 kg/s  tau 1.068 h  R2 0.9981  nfev   2127  NOT CONVERGED
+NP 180  F (0.5, 1.0)  CR 0.3  seed 2  E 0.6629 kg/s  tau 1.090 h  R2 0.9981  nfev   2050  NOT CONVERGED
+NP 180  F (0.5, 1.0)  CR 0.7  seed 1  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    479  ok
+NP 180  F (0.5, 1.0)  CR 0.7  seed 2  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    413  ok
+NP 180  F (0.5, 1.0)  CR 0.9  seed 1  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    260  ok
+NP 180  F (0.5, 1.0)  CR 0.9  seed 2  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    266  ok
+NP 180  F 0.5         CR 0.3  seed 1  E 0.6623 kg/s  tau 1.092 h  R2 0.9981  nfev   2022  NOT CONVERGED
+NP 180  F 0.5         CR 0.3  seed 2  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev   2022  NOT CONVERGED
+NP 180  F 0.5         CR 0.7  seed 1  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    265  ok
+NP 180  F 0.5         CR 0.7  seed 2  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    252  ok
+NP 180  F 0.5         CR 0.9  seed 1  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    183  ok
+NP 180  F 0.5         CR 0.9  seed 2  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    123  ok
+NP 180  F 0.9         CR 0.3  seed 1  E 0.6660 kg/s  tau 1.077 h  R2 0.9981  nfev   2127  NOT CONVERGED
+NP 180  F 0.9         CR 0.3  seed 2  E 0.6368 kg/s  tau 1.152 h  R2 0.9980  nfev   2218  NOT CONVERGED
+NP 180  F 0.9         CR 0.7  seed 1  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    824  ok
+NP 180  F 0.9         CR 0.7  seed 2  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    911  ok
+NP 180  F 0.9         CR 0.9  seed 1  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    506  ok
+NP 180  F 0.9         CR 0.9  seed 2  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    438  ok
+NP 360  F (0.5, 1.0)  CR 0.3  seed 1  E 0.6620 kg/s  tau 1.101 h  R2 0.9981  nfev   2113  NOT CONVERGED
+NP 360  F (0.5, 1.0)  CR 0.3  seed 2  E 0.6622 kg/s  tau 1.093 h  R2 0.9981  nfev   2022  NOT CONVERGED
+NP 360  F (0.5, 1.0)  CR 0.7  seed 1  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    463  ok
+NP 360  F (0.5, 1.0)  CR 0.7  seed 2  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    365  ok
+NP 360  F (0.5, 1.0)  CR 0.9  seed 1  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    221  ok
+NP 360  F (0.5, 1.0)  CR 0.9  seed 2  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    289  ok
+NP 360  F 0.5         CR 0.3  seed 1  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev   2022  NOT CONVERGED
+NP 360  F 0.5         CR 0.3  seed 2  E 0.6624 kg/s  tau 1.092 h  R2 0.9981  nfev   2050  NOT CONVERGED
+NP 360  F 0.5         CR 0.7  seed 1  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    234  ok
+NP 360  F 0.5         CR 0.7  seed 2  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    223  ok
+NP 360  F 0.5         CR 0.9  seed 1  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    126  ok
+NP 360  F 0.5         CR 0.9  seed 2  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    184  ok
+NP 360  F 0.9         CR 0.3  seed 1  E 0.6439 kg/s  tau 1.147 h  R2 0.9980  nfev   2211  NOT CONVERGED
+NP 360  F 0.9         CR 0.3  seed 2  E 0.6736 kg/s  tau 1.068 h  R2 0.9980  nfev   2022  NOT CONVERGED
+NP 360  F 0.9         CR 0.7  seed 1  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    854  ok
+NP 360  F 0.9         CR 0.7  seed 2  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    914  ok
+NP 360  F 0.9         CR 0.9  seed 1  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    389  ok
+NP 360  F 0.9         CR 0.9  seed 2  E 0.6627 kg/s  tau 1.091 h  R2 0.9981  nfev    443  ok
+
+36 fits: E(NOx) 0.6368-0.6736 kg/s (spread 5.56% of main), tau 1.068-1.152 h (spread 7.68%); all converged: False
+ALL_DONE

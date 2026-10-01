@@ -32,7 +32,7 @@ from ecotrack.acquire.tropomi_cube import load_cube
 from ecotrack.config import DATA_INTERIM, OUTPUTS, load_config
 from ecotrack.geometry import corridor_polygon, waypoints
 from ecotrack.inversion.emg import (
-    PARAMS, RotatedGrid, as_dict, bin_days, default_bounds, emg_model, emissions, fit_emg,
+    PARAMS, PARAMS_SLOPED, RotatedGrid, as_dict, bin_days, default_bounds, emg_model, emissions, fit_emg, param_names,
     line_density, offsets_km,
 )
 
@@ -82,29 +82,53 @@ def locate_source(no2, calm, lat, lon, inv):
 
 
 # ----------------------------------------------------------------------------- fitting
+def fit_window(grid, inv):
+    """Along-wind bins used in the fit (D19: up to fit_along_max_km downwind)."""
+    return grid.along <= inv.get("fit_along_max_km", np.inf)
+
+
 def fit_subset(sel, sums, cnts, grid, ws, inv, label, n_boot=0, rng=None):
     L, field = line_density(sums[sel], cnts[sel], grid)
-    fit = fit_emg(grid.along, L, inv["de"])
+    m = fit_window(grid, inv)
+    sloped = bool(inv.get("background_slope", False))
+    fit = fit_emg(grid.along[m], L[m], inv["de"], sloped=sloped)
     w = float(np.mean(ws[sel]))
     e = emissions(fit["a"], fit["x0"], w, inv["nox_no2_ratio"])
-    out = {"label": label, "n_overpasses": int(sel.sum()), "fit": {k: float(fit[k]) for k in PARAMS + ("r2",)},
+    out = {"label": label, "n_overpasses": int(sel.sum()), "fit": {k: float(fit[k]) for k in PARAMS_SLOPED + ("r2",)},
+           "fit_along_max_km": float(inv.get("fit_along_max_km", grid.along.max())), "background_slope": sloped,
            "at_bound": fit["at_bound"], "emission": as_dict(e)}
     if n_boot:
         out["bootstrap"] = bootstrap(sel, sums, cnts, grid, ws, inv, fit, n_boot, rng)
+    # D19 quality rule: with fewer overpasses the background slope and the plume decay can become
+    # indistinguishable (e.g. westerly regime: tau 0.42 h, bootstrap 0.80-3.96 kg/s). A sloped fit is
+    # "unconstrained" if tau < 0.6 h or its bootstrap 95% range spans more than a factor 2; then that subset
+    # is refitted with the flat background over the same window (difference covered by the D19 structure term).
+    if sloped:
+        ci = out.get("bootstrap", {}).get("e_nox_kg_s_ci95")
+        unconstrained = e.tau_h < 0.6 or (ci is not None and ci[2] > 2 * ci[0])
+        if unconstrained:
+            flat_out, L, field, fit = fit_subset(sel, sums, cnts, grid, ws, {**inv, "background_slope": False}, label, n_boot, rng)
+            flat_out["fallback_flat"] = True
+            flat_out["unconstrained_sloped_fit"] = {"e_nox_kg_s": e.e_nox_kg_s, "tau_h": e.tau_h, "boot_ci95": ci}
+            print(f"    [{label}] sloped fit unconstrained (tau {e.tau_h:.2f} h, boot {ci}) -> flat background fallback")
+            return flat_out, L, field, fit
     return out, L, field, fit
 
 
 def bootstrap(sel, sums, cnts, grid, ws, inv, fit, n_boot, rng):
     idx = np.flatnonzero(sel)
-    x = grid.along
-    p0 = np.array([fit[k] for k in PARAMS])
-    bounds = default_bounds(x, line_density(sums[sel], cnts[sel], grid)[0])
+    m = fit_window(grid, inv)
+    sloped = bool(inv.get("background_slope", False))
+    x = grid.along[m]
+    p0 = np.array([fit[k] for k in param_names(sloped)])
+    bounds = default_bounds(x, line_density(sums[sel], cnts[sel], grid)[0][m], sloped)
     lo, hi = np.array(bounds).T
     draws = []
     for _ in range(n_boot):
         pick = rng.choice(idx, size=len(idx), replace=True)
         wts = np.bincount(pick, minlength=len(sums)).astype(float)
         L, _ = line_density(sums, cnts, grid, weights=wts)
+        L = L[m]
         ok = np.isfinite(L)
         scale = np.nanmax(np.abs(L))
         res = least_squares(lambda p: (emg_model(x[ok], *p) - L[ok]) / scale, np.clip(p0, lo, hi), bounds=(lo, hi))
@@ -149,8 +173,13 @@ def fig_line_density(grid, L, fit, res, name):
     x = grid.along
     xf = np.linspace(x[0], x[-1], 400)
     ax.plot(x, L * 1e3, "o", ms=5, color=BLUE, mec=SURFACE, mew=1, label="Observed line density")
-    ax.plot(xf, emg_model(xf, *[fit[k] for k in PARAMS]) * 1e3, color=ORANGE, label="EMG fit")
-    ax.axhline(fit["b"] * 1e3, color=INK2, lw=1, ls="--", label="Fitted background")
+    xmax = res.get("fit_along_max_km", x[-1])
+    xf = np.linspace(x[0], xmax, 400)
+    ax.plot(xf, emg_model(xf, *[fit[k] for k in PARAMS_SLOPED]) * 1e3, color=ORANGE, label="EMG fit")
+    ax.plot(xf, (fit["b"] + fit.get("c", 0.0) * xf) * 1e3, color=INK2, lw=1, ls="--", label="Fitted background")
+    if xmax < x[-1]:
+        ax.axvspan(xmax, x[-1], color=INK2, alpha=0.08, lw=0)
+        ax.text(xmax + 1, ax.get_ylim()[0], " not fitted\n (2nd source)", fontsize=8, color=INK2, va="bottom")
     e = res["emission"]
     ci = res.get("bootstrap", {}).get("e_nox_kg_s_ci95")
     txt = (f"E(NOx) = {e['e_nox_kg_s']:.2f} kg/s" + (f"  [{ci[0]:.2f}–{ci[2]:.2f}]" if ci else "")
@@ -234,6 +263,15 @@ def run():
         r, L, field, fit = fit_subset(sel, s_o, c_o, grid, ws_o, inv, f"Wind level {other} m")
         results.append(r); fig_line_density(grid, L, fit, r, f"level_{other}")
         print(f"  {r['label']:34s} n={r['n_overpasses']:4d}  E = {r['emission']['e_nox_kg_s']:.3f} kg/s  tau = {r['emission']['tau_h']:.2f} h  R2 = {fit['r2']:.2f}")
+
+    # D19 structure variants: the background model and the fit window (the spread enters the budget)
+    for label, over in (("Structure: flat background, 45 km", {"background_slope": False, "fit_along_max_km": 45}),
+                        ("Structure: sloped background, 30 km", {"background_slope": True, "fit_along_max_km": 30}),
+                        ("Structure: original flat, 60 km", {"background_slope": False, "fit_along_max_km": 60})):
+        r, L, field, fit = fit_subset(windy, sums, cnts, grid, ws, {**inv, **over}, label)
+        r["structure_variant"] = True
+        results.append(r)
+        print(f"  {label:34s} n={r['n_overpasses']:4d}  E = {r['emission']['e_nox_kg_s']:.3f} kg/s  tau = {r['emission']['tau_h']:.2f} h  R2 = {fit['r2']:.4f}")
 
     fig_sensitivity(results)
     summary = {"source_lat": lat0, "source_lon": lon0, "n_calm": int(calm.sum()), "wind_level": lvl,

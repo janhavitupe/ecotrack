@@ -96,6 +96,10 @@ inversion:
   along_km: [-40, 60]           # upwind (-) to downwind (+) extent
   across_halfwidth_km: 20       # line density integrates +/- this across the wind
   nox_no2_ratio: 1.32           # NOx/NO2 at midday urban conditions (Beirle et al. 2011); a documented assumption
+  # D19: fit the EMG only out to 45 km downwind (beyond that, PCMC/Talegaon add a second source that
+  # violates the single-source assumption and biased E low by ~20%), with a sloped background (B + c·x).
+  fit_along_max_km: 45
+  background_slope: true
   de: {popsize: 60, mutation: [0.5, 1.0], recombination: 0.7, maxiter: 2000, seed: 42}  # 60 x 5 params = NP 300
   bootstrap: 200
 
@@ -107,3 +111,15 @@ tropomi_co:
   solar_zenith_max: 70
   scale_m: 1113.2
   min_valid_fraction: 0.5
+
+# Phase 2 — the 1 km modelling grid and the feature table
+phase2:
+  cell_km: 1.0                 # UTM 43N cells
+  min_frac_in_corridor: 0.5    # keep a cell if >= half its area lies inside the corridor (D15)
+  # D14: chemistry proxy = TROPOMI HCHO (VOC indicator) + ERA5 temperature / solar radiation.
+  # TROPOMI O3 is a total column (stratosphere-dominated), so it is not used.
+  hcho: {collection: COPERNICUS/S5P/OFFL/L3_HCHO, band: tropospheric_HCHO_column_number_density,
+         cloud_fraction_max: 0.3, solar_zenith_max: 70}
+  viirs: {collection: NOAA/VIIRS/DNB/MONTHLY_V1/VCMSLCFG, band: avg_rad, min_cf_cvg: 1}
+  sentinel2: {collection: COPERNICUS/S2_SR_HARMONIZED, max_cloud_pct: 60,
+              keep_scl: [4, 5, 6, 7]}   # vegetation, bare, water, unclassified; drops cloud/shadow

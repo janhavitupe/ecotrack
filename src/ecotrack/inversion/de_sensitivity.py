@@ -22,11 +22,11 @@ from scipy.optimize import differential_evolution
 
 from ecotrack.acquire.tropomi_cube import load_cube
 from ecotrack.config import load_config
-from ecotrack.inversion.emg import (PARAMS, RotatedGrid, bin_days, default_bounds, emg_model, emissions,
+from ecotrack.inversion.emg import (PARAMS, RotatedGrid, bin_days, default_bounds, emg_model, emissions, param_names,
                                     line_density, offsets_km)
-from ecotrack.inversion.run_city import BLUE, FIG, INK, INK2, ORANGE, OUT, SURFACE, match_wind
+from ecotrack.inversion.run_city import BLUE, FIG, INK, INK2, ORANGE, OUT, SURFACE, fit_window, match_wind
 
-POPSIZE = [30, 60]                       # x 5 parameters -> NP 150, 300 (proposal: 300)
+POPSIZE = [30, 60]                       # x 5 parameters -> NP 150, 300 (proposal: 300); x 6 with the D19 slope
 MUTATION = [(0.5, 1.0), 0.5, 0.9]        # proposal: F in [0.5, 1.0] (dithered)
 RECOMBINATION = [0.3, 0.7, 0.9]          # proposal: CR 0.7
 SEEDS = [1, 2]
@@ -43,7 +43,8 @@ def main_line_density(cfg):
     dx, dy = offsets_km(lat, lon, city["source_lat"], city["source_lon"])
     s, c = bin_days(no2[sel], met[f"u{lvl}"].to_numpy()[sel], met[f"v{lvl}"].to_numpy()[sel], dx, dy, grid)
     L, _ = line_density(s, c, grid)
-    return grid.along, L, float(ws[sel].mean()), inv, city
+    m = fit_window(grid, inv)
+    return grid.along[m], L[m], float(ws[sel].mean()), inv, city
 
 
 def run():
@@ -51,22 +52,24 @@ def run():
     x, L, w, inv, city = main_line_density(cfg)
     ok = np.isfinite(L)
     x, L = x[ok], L[ok]
-    bounds = default_bounds(x, L)
+    sloped = bool(inv.get("background_slope", False))
+    names = param_names(sloped)
+    bounds = default_bounds(x, L, sloped)
     scale = np.nanmax(np.abs(L))
 
-    def cost(P):  # P: (5, S) population
-        a, x0, mu, sig, b = (P[i][:, None] for i in range(5))
-        return np.sum(((emg_model(x[None, :], a, x0, mu, sig, b) - L[None, :]) / scale) ** 2, axis=1)
+    def cost(P):  # P: (n_params, S) population
+        cols = [P[i][:, None] for i in range(len(names))]
+        return np.sum(((emg_model(x[None, :], *cols) - L[None, :]) / scale) ** 2, axis=1)
 
     rows = []
     for pop, mut, cr, seed in itertools.product(POPSIZE, MUTATION, RECOMBINATION, SEEDS):
         res = differential_evolution(cost, bounds, popsize=pop, mutation=mut, recombination=cr, seed=seed,
                                      maxiter=inv["de"]["maxiter"], tol=1e-10, polish=True, vectorized=True,
                                      updating="deferred")
-        p = dict(zip(PARAMS, res.x))
+        p = dict(zip(names, res.x))
         e = emissions(p["a"], p["x0"], w, inv["nox_no2_ratio"])
         resid = L - emg_model(x, *res.x)
-        rows.append({"NP": pop * 5, "F": str(mut), "CR": cr, "seed": seed, "e_nox_kg_s": e.e_nox_kg_s,
+        rows.append({"NP": pop * len(names), "F": str(mut), "CR": cr, "seed": seed, "e_nox_kg_s": e.e_nox_kg_s,
                      "tau_h": e.tau_h, "x0_km": p["x0"], "r2": float(1 - np.sum(resid**2) / np.sum((L - L.mean()) ** 2)),
                      "cost": float(res.fun), "nfev": int(res.nfev), "converged": bool(res.success)})
         r = rows[-1]
@@ -75,15 +78,24 @@ def run():
 
     e = np.array([r["e_nox_kg_s"] for r in rows])
     t = np.array([r["tau_h"] for r in rows])
+    conv = np.array([r["converged"] for r in rows])
+    # With the 6-parameter (D19 sloped) model, low-crossover runs (CR 0.3) can hit maxiter before converging;
+    # report the converged fits separately (they all reach the same optimum).
+    conv_stats = {"n_converged": int(conv.sum()),
+                  "e_spread_rel_converged": float((e[conv].max() - e[conv].min()) / e[conv].mean()) if conv.any() else None,
+                  "unconverged_settings": sorted({f"NP {r['NP']} F {r['F']} CR {r['CR']}" for r in rows if not r["converged"]})}
     ref = city["results"][0]["emission"]
     summary = {"n_fits": len(rows), "grid": {"NP": [p * 5 for p in POPSIZE], "F": [str(m) for m in MUTATION],
                                               "CR": RECOMBINATION, "seeds": SEEDS},
                "e_nox_kg_s": {"min": float(e.min()), "max": float(e.max()), "spread_rel": float((e.max() - e.min()) / ref["e_nox_kg_s"])},
                "tau_h": {"min": float(t.min()), "max": float(t.max()), "spread_rel": float((t.max() - t.min()) / ref["tau_h"])},
-               "all_converged": all(r["converged"] for r in rows), "reference_main_fit": ref, "fits": rows}
+               "all_converged": all(r["converged"] for r in rows), "converged_only": conv_stats,
+               "reference_main_fit": ref, "fits": rows}
     (OUT / "de_sensitivity.json").write_text(json.dumps(summary, indent=2))
     print(f"\n{len(rows)} fits: E(NOx) {e.min():.4f}-{e.max():.4f} kg/s (spread {100 * summary['e_nox_kg_s']['spread_rel']:.2f}% of main), "
           f"tau {t.min():.3f}-{t.max():.3f} h (spread {100 * summary['tau_h']['spread_rel']:.2f}%); all converged: {summary['all_converged']}")
+    print(f"Converged fits: {conv_stats['n_converged']} of {len(rows)}, E spread {100 * (conv_stats['e_spread_rel_converged'] or 0):.4f}%; "
+          f"unconverged settings: {conv_stats['unconverged_settings']}")
 
     fig, ax = plt.subplots(figsize=(7, 3.2))
     labels = [f"NP {r['NP']} · F {r['F']} · CR {r['CR']}" for r in rows]

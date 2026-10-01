@@ -109,8 +109,8 @@
   },
   {
     "name": "Talegaon Dabhade",
-    "lat": 18.7213,
-    "lon": 73.6873,
+    "lat": 18.710357, 
+    "lon": 73.674692,
     "category": "industrial_traffic",
     "status": "approx",
     "osm_lat": 18.7337107,
