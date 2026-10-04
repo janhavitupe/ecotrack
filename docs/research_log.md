@@ -212,3 +212,17 @@ This log is the raw material for the Methods chapter.
   - `requirements.txt` gains `openpyxl` (already used by temporal_adjust), `osmium` and `reportlab`.
   - **Docs:** findings §4b (v2 section, tables), §7 (two new limitations), §8 (next steps refreshed; it still quoted the pre-D19 2.98 Mt), §5 D20; decisions D20 "Resolved"; data dictionary (v2, `industrial_frac`); README; guide ch.3, 4, 7 (#38–39), 9 (6 terms), 11, 12 (§12.6 ending, new §12.9b, §12.11).
 - **Progress report PDF regenerated** after Phase 2 completion: 13 pages. Section 7 now covers feature table v2 (four feature maps incl. industrial land; the OSM bulk-download story and GRIP4 comparison), plus a new page with the spatial-variance-share chart and the correlation matrix. Status chart: Phase 2 done. Decisions row D20 and lessons updated; the "Finish Phase 2" next step removed.
+- **Progress report completeness audit** (the user asked whether the PDF follows everything). Checked the PDF text against decisions D1–D20, findings §1/§4.0, the mistake log and the proposal. **The 13-page version was a summary with gaps:**
+  - D3–D7 were missing;
+  - no limitations, references, synthetic-test table, Phase 3/D16 design or Experiments A–D;
+  - no fit details (850 hPa, DE settings, bootstrap, DE sensitivity, IQR/QC rules, study period);
+  - no robustness table (regimes, wind speeds, wind levels), zone shares, FD-vs-EMG comparison, annual conversion F, Monte Carlo table, OCO β, CO emission map, seasons, D19 quality rule, or the rejected lockdown EMG fit.
+
+  **Now 23 pages and covers all of these:**
+  - all 20 decisions with their status;
+  - 16 science-changing mistakes;
+  - a limitations table, references and a reproduce appendix;
+  - automatic figure numbering (21 figures);
+  - a new before/after uncertainty-budget chart (`outputs/report/figures/budget.png`): ratio term 25% → 14.1% (√(9.9² + 10²)), total 30.9% → 23.0%. This is the project's current answer to the research question.
+
+  Also fixed: findings §9 reproduce block (added `osm_pbf`, `progress_report`).

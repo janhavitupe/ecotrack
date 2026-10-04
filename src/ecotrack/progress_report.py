@@ -12,6 +12,7 @@ Usage:
 """
 
 import json
+import re
 
 import matplotlib
 
@@ -205,6 +206,26 @@ def fig_spatial_share():
     fig.tight_layout(); fig.savefig(FIG / "spatial_share.png", bbox_inches="tight"); plt.close(fig)
 
 
+def fig_budget():
+    # 1-sigma RSS terms (findings §4.0): EDGAR-ratio budget vs CO-constrained budget; all other terms identical
+    terms = ["CO₂:NOx ratio (sector mix)", "EMG method bias (synthetic test)", "Wind regime", "NOx/NO₂ factor (1.32 ± 0.1)",
+             "EMG structure (D19)", "Fit + sampling (bootstrap)", "EDGAR ratio year", "Wind level", "TOTAL (root-sum-square)"]
+    before = [25.0, 12.0, 8.8, 7.6, 5.4, 3.6, 3.1, 0.8, 30.9]
+    after = [float(np.hypot(9.9, 10.0)), 12.0, 8.8, 7.6, 5.4, 3.6, 3.1, 0.8, 23.0]
+    y = np.arange(len(terms))
+    fig, ax = plt.subplots(figsize=(7.5, 3.9))
+    ax.barh(y - 0.2, before, 0.38, color=INK2, label="NO₂ only (inventory ratio, base-paper approach)")
+    ax.barh(y + 0.2, after, 0.38, color=BLUE, label="NO₂ + TROPOMI CO (this project, D12)")
+    for i in range(len(terms)):
+        ax.text(before[i] + 0.3, i - 0.2, f"{before[i]:.1f}", va="center", fontsize=7, color=INK2)
+        ax.text(after[i] + 0.3, i + 0.2, f"{after[i]:.1f}", va="center", fontsize=7, color=BLUE)
+    ax.set_yticks(y, terms, fontsize=8); ax.invert_yaxis(); ax.grid(axis="y", visible=False)
+    ax.set_xlabel("Relative uncertainty (1σ, %)"); ax.set_xlim(0, 35)
+    ax.legend(frameon=False, fontsize=8, loc="upper left", bbox_to_anchor=(0, -0.2), ncol=1)
+    ax.set_title("Adding TROPOMI CO shrinks the largest error term: 30.9% → 23.0% overall", fontsize=10, loc="left")
+    fig.tight_layout(); fig.savefig(FIG / "budget.png", bbox_inches="tight"); plt.close(fig)
+
+
 def fig_status():
     phases = ["Feasibility (G1–G4)", "Phase 1: NO₂ → CO₂", "Phase 2: feature table", "Phase 3: labels",
               "Phase 4: feature tensor", "Phase 5: models A–D", "Phase 6: ablation", "Phase 7: validation", "Phase 8: write-up"]
@@ -257,12 +278,15 @@ def build_pdf():
     def bullets(items):
         return [Paragraph(c2(t), S["bullet"], bulletText="•") for t in items]
 
+    fig_no = [0]
+
     def img(path, width=W, cap=None):
         from reportlab.lib.utils import ImageReader
         iw, ih = ImageReader(str(path)).getSize()
         out = [Image(str(path), width=width, height=width * ih / iw)]
         if cap:
-            out.append(P(cap, "cap"))
+            fig_no[0] += 1
+            out.append(P(f"Figure {fig_no[0]}. " + re.sub(r"^Figure( \d+)?\.\s*", "", cap), "cap"))
         return KeepTogether(out)
 
     def table(rows, widths, head=True):
@@ -309,7 +333,7 @@ def build_pdf():
               P("A 33 km strip along the Old Mumbai–Pune Highway where factories (MIDC Bhosari, Chinchwad, Talegaon) and heavy traffic sit "
                 "side by side. The corridor is the highway centreline ± 3.5 km plus Talegaon MIDC (269 km²), divided into 268 grid cells "
                 "of 1 km and three clusters."),
-              img(FIG / "study_area.png", width=W * 0.66, cap="Figure 2. The corridor, its 1 km grid coloured by cluster, the ten waypoints, the main "
+              img(FIG / "study_area.png", width=W * 0.56, cap="Figure 2. The corridor, its 1 km grid coloured by cluster, the ten waypoints, the main "
                   "emission source found in Phase 1 (central Pune, just south of the corridor) and the second hotspot (Pimpri–Chinchwad)."),
               table([["Dataset", "What it measures", "Used for"],
                      ["TROPOMI (Sentinel-5P)", "NO2, CO, HCHO columns; daily, ~3.5 × 5.5 km", "Emissions, sector mix, chemistry proxy"],
@@ -320,6 +344,14 @@ def build_pdf():
                      ["OpenStreetMap / GRIP4", "Roads, places, industrial land", "Corridor geometry, road density"],
                      ["SRTM", "Ground height", "Terrain correction for CO"]],
                     [3.6 * cm, 6.8 * cm, W - 10.4 * cm]),
+              Spacer(1, 8),
+              P("<b>Study period:</b> October 2019 – May 2024, October–May only (five dry seasons, 40 months; D7). It starts after "
+                "TROPOMI's pixel-size change (August 2019) and avoids monsoon cloud. There is no monsoon season, so no full annual cycle "
+                "is observed."),
+              P("<b>Quality control:</b> TROPOMI pixels with cloud fraction above 0.3 or a sun more than 70° from overhead are dropped; an "
+                "overpass is used only if at least half the corridor is valid. Remaining outliers are removed per pixel against its own "
+                "5-year history (Tukey far-out fences, k = 3; D13). This removes 0.09% of pixels and changes every result by less than 2%. "
+                "Result: 1,004 usable NO2 days and 907 CO days."),
               PageBreak()]
 
     # ---------------------------------------------------------------- 3 feasibility
@@ -345,11 +377,38 @@ def build_pdf():
                 f"before decaying. Result: <b>{E:.3f} kg/s NOx</b> [95% CI {ci[0]:.3f}–{ci[2]:.3f}], lifetime <b>{tau:.2f} h</b>."),
               img(P1 / "line_density_main.png", cap="Figure 5. Line density (blue dots) and the fitted plume curve (orange), fitted up to 45 km "
                   "downwind. The grey band is excluded because a second source sits there (see section 6)."),
+              P("<b>Details of the fit.</b> Winds are ERA5 at 850 hPa (about 1.5 km up, inside the mixed layer), matched to each overpass hour. "
+                "Days with 2–8 m/s wind are used (781 overpasses); calm days (&lt; 2 m/s) are kept for Step 1. The rotated images are binned at "
+                "2 km, summed ±20 km across the wind, and fitted from 40 km upwind to 45 km downwind. NO2 is converted to NOx with the "
+                "standard factor 1.32. The fit uses Differential Evolution (a global optimiser: 300 candidate solutions, mutation 0.5–1.0, "
+                "crossover 0.7) and 200 bootstrap resamples of the days for the 95% interval. A test of 36 optimiser settings found that "
+                "every converged run lands on the identical answer (0.6627 kg/s), so the result does not depend on the settings."),
+              P("<b>How robust is it?</b> The same fit on subsets of days and with other choices:"),
+              table([["Run", "Days", "NOx (kg/s) [95% CI]", "Lifetime (h)"],
+                     ["<b>Main: 850 hPa wind, 2–8 m/s, ≤ 45 km, sloped background</b>", "781", "<b>0.663 [0.620–0.715]</b>", "1.09"],
+                     ["Easterly winds only / westerly winds only", "429 / 276", "0.600 / 0.484", "1.53 / 1.94"],
+                     ["Light (2–4 m/s) / stronger (4–8 m/s) wind", "416 / 365", "0.567 / 0.695", "1.47 / 0.84"],
+                     ["Wind taken at 100 m / at 10 m", "782 / 675", "0.673 / 0.556", "0.95 / 1.05"],
+                     ["Flat background 45 km / sloped 30 km / original flat 60 km", "781", "0.591 / 0.651 / 0.522", "1.46 / 0.85 / 1.67"]],
+                    [7.6 * cm, 2.2 * cm, 4.2 * cm, W - 14 * cm]),
+              Spacer(1, 6),
+              img(P1 / "sensitivity.png", width=W * 0.8, cap="Figure. Every variant of the fit with its 95% interval. The spread between "
+                  "easterly and westerly days and the background/window choice are carried into the uncertainty budget."),
               PageBreak(),
               P("<b>Step 3, where exactly?</b> A second method (flux divergence) maps emission pixel by pixel: what flows out minus what "
                 "flows in, plus what chemistry destroys. It finds two hotspots 16.7 km apart: central Pune and Pimpri–Chinchwad. "
                 "<b>The corridor produces about 21% of the metro's NOx</b>, a share stable to ±2.4% in every test."),
-              img(P1 / "divergence_map.png", width=W * 0.7, cap="Figure 6. Emission map from flux divergence. Red = emitting."),
+              img(P1 / "divergence_map.png", width=W * 0.62, cap="Figure 6. Emission map from flux divergence. Red = emitting."),
+              table([["Zone", "Share of NOx within 25 km"],
+                     ["Central Pune core", "27.6%"], ["<b>Whole corridor</b>", "<b>21.0%</b> (stable to ±2.4% in every test and season)"],
+                     ["C1 Shivajinagar–Kasarwadi", "9.8%"], ["C2 PCMC", "6.3%"], ["C3 Dehu Road–Talegaon", "4.9%"]],
+                    [6 * cm, W - 6 * cm]),
+              PageBreak(),
+              P("<b>Do the two methods agree?</b> Flux divergence totals grow with the radius drawn around the source; at 25 km they give "
+                "0.787 kg/s, 19% above the plume fit. Totals depend on the assumed lifetime, so flux divergence is used for <i>where</i> "
+                "(shares), and the plume fit for <i>how much</i> (D10)."),
+              img(P1 / "divergence_vs_emg.png", width=W * 0.75, cap="Figure. Flux-divergence total vs radius (blue) against the plume-fit "
+                  "city total (orange)."),
               PageBreak()]
 
     # ---------------------------------------------------------------- 5 CO2
@@ -359,31 +418,71 @@ def build_pdf():
                 "and stays up. After removing the Western Ghats terrain imprint, the step gives a CO:NOx of <b>16.7</b>, close to the "
                 "inventory's 16.0, and narrows the CO2:NOx ratio to <b>163 (148–180)</b>."),
               img(P1 / "co_step.png", cap="Figure 7. The CO 'step' over Pune: upwind plateau (left) to downwind plateau (right)."),
-              P("<b>Uncertainty</b> was propagated with a Monte Carlo (200,000 simulations) through every step, and the satellite's "
-                "busy midday window was converted to an annual mean with published hour-by-hour emission profiles."),
+              P("<b>This is the core answer to the research question so far.</b> With the inventory ratio alone (the base paper's "
+                "approach), the ratio is a 25% error term. Measuring the sector mix with TROPOMI CO cuts it to about 14% "
+                "(scenario spread 9.9% plus an assumed 10% for the inventory's per-sector ratios), and the total from 30.9% to 23.0%."),
+              img(FIG / "budget.png", cap="Figure. Uncertainty budget term by term, before and after adding TROPOMI CO."),
+              PageBreak(),
+              P("<b>From midday to a yearly figure.</b> TROPOMI sees Pune at about 13:30 on October–May days, when traffic and industry are "
+                "busy. Published hour-by-hour, weekday and monthly emission profiles (Crippa et al. 2020), weighted by the actual "
+                "overpass days, give a factor F = 1.20–1.23. Dividing by it gives the annual mean: NOx 17.0–17.5 kt/yr (EDGAR 21.1)."),
+              P("<b>Uncertainty</b> was propagated with a Monte Carlo (200,000 random draws of every input):"),
+              table([["Fossil CO2 (Mt/yr)", "Median", "68% range", "95% range"],
+                     ["Midday October–May rate", "3.39", "2.76–4.16", "2.26–5.08"],
+                     ["<b>Annual mean (headline)</b>", "<b>2.79</b>", "2.23–3.50", "<b>1.79–4.36</b>"],
+                     ["Annual mean, with the measured +12% method bias removed", "2.51", "2.05–3.05", "1.69–3.69"]],
+                    [7.4 * cm, 2.4 * cm, 3.2 * cm, W - 13 * cm]),
+              Spacer(1, 6),
               img(P1 / "mc_budget.png", cap="Figure 8. Fossil CO2 for Pune + PCMC: median, 68% and 95% ranges. EDGAR (dashed) is inside; "
                   "ODIAC (11.8, off the chart) is far outside."),
+              img(P1 / "co2_city_comparison.png", width=W * 0.7, cap="Figure. The two inventories disagree 3.2× for the same area (ODIAC units "
+                  "were checked: tonnes of carbon, converted ×44/12). The satellite estimate sides clearly with EDGAR."),
               PageBreak(),
               P("<b>Can CO2 satellites confirm it?</b> Not yet: Pune's CO2 plume (~0.02–0.15 ppm) is 10–20× smaller than the noise and "
                 "scan-stripe artefacts of OCO-3/OCO-2. The 8 snapshots are consistent with our estimate but only set an upper limit "
-                "(about 7–14 Mt/yr). <b>So multi-satellite data help through CO, not through direct CO2.</b>"),
+                "(about 7–14 Mt/yr). A scaling factor β (observed ÷ predicted plume) comes out 0.81 ± 0.74 (EDGAR implies 1.01): "
+                "consistent, but too uncertain to be a measurement (D11). <b>So multi-satellite data help through CO, not through direct CO2.</b>"),
               img(P1 / "oco_dates_r10.png", cap="Figure 9. OCO soundings on the 8 dates (colour) vs the predicted Pune plume (contours). "
                   "The stripes are instrument artefacts larger than the plume."),
+              P("<b>A second, independent emission map from CO.</b> The flux-divergence method also works on CO once the terrain imprint is "
+                "removed: its 25 km total is within 3% of the CO step, and the map matches the NO2 map (r = 0.75). The corridor holds "
+                "<b>14.5% of the city's CO but 21.0% of its NOx</b>, an early sign of an industrial corridor (more NOx per CO) versus a "
+                "residential core. This map does not use NO2 at all, which matters for Phase 3."),
+              img(P1 / "co_divergence_map.png", width=W * 0.6, cap="Figure. CO emission map from flux divergence (terrain-normalised)."),
               PageBreak()]
 
     # ---------------------------------------------------------------- 6 validation & correction
     story += [P("6. Testing the method, and a correction it caught", "h1"),
               P("Every method was first run on <b>fake data with a known answer</b>: a simulated city on the real grid with real-like "
-                "winds and noise. The plume fit recovers emissions within +12% (a measured, systematic bias kept in the uncertainty), "
-                "flux divergence within −4%, the CO step within −1.4%."),
+                "winds and noise (13 automated tests in tests/):"),
+              table([["Method", "Recovered vs truth", "Notes"],
+                     ["Plume fit (EMG)", "Emission +11 to +12%; lifetime −16%", "Same in both random seeds, so systematic. Causes: "
+                      "across-wind window ~2%, mixing wind speeds ~6%, 2 km bins ~4%. Kept in the uncertainty budget."],
+                     ["Flux divergence", "−4%", "Stable at 15, 25 and 35 km; no false sources"],
+                     ["CO step", "−1.4%", "Terrain alone gives ≈ 0 after correction"],
+                     ["Outlier filter (D13)", "Line density changed 0.9%", "Catches 92% of injected spikes"],
+                     ["CO flux divergence", "Passes with Pune's real winds", "With random winds it passed too easily; the real-wind test "
+                      "exposed a −70 mol/s terrain artefact, now removed"]],
+                    [3.4 * cm, 4.4 * cm, W - 7.8 * cm]),
+              Spacer(1, 8),
               P("A robustness test (letting the background slope) then changed the answer by 42%. Investigating showed the original fit "
                 "reached 60 km downwind, where <b>PCMC and Talegaon add a second source</b> that the single-source model misread. "
                 "Fitting only to 45 km fixed it: both background shapes agree, and NOx rose ~20%. Everything downstream was rerun, and one "
-                "earlier conclusion that depended on the low value (\"more household burning than the inventory\") was withdrawn."),
+                "earlier conclusion that depended on the low value (\"more household burning than the inventory\") was withdrawn. "
+                "The fix had its own side effect: on small subsets the 6-parameter fit became unstable, so a quality rule sends such "
+                "fits (lifetime &lt; 0.6 h or a bootstrap range wider than ×2) back to a flat background."),
               img(FIG / "d19.png", cap="Figure 10. City NOx by fit window and background shape. Inside 30–45 km the two agree (decision D19)."),
               P("<b>Does the method see real changes?</b> A model-free check (city minus rural NO2) for late March–May of each year:"),
               img(FIG / "covid.png", cap="Figure 11. The 2020 national lockdown (−74%) and the 2021 Maharashtra restrictions (−29%) are both "
                   "detected, in the right order, plus growth to 2024."),
+              P("(The plume fit on the 2020 lockdown weeks alone was rejected: R² 0.62, a parameter at its limit and an 8.8 h lifetime. "
+                "When a model's assumptions fail, a simpler model-free measurement is used instead.)"),
+              PageBreak(),
+              P("<b>Seasons.</b> NOx can be resolved season by season (differences between seasons are 2.8× the uncertainty within one): "
+                "0.43 kg/s in 2019–20, rising to 0.60–0.73 afterwards. The corridor's share stays between 20% and 22.4% in every season. "
+                "Winds reverse with the season: east-southeast in October–March (Pune's plume blows up the corridor), west-northwest in "
+                "April–May."),
+              img(P1 / "seasonal.png", width=W * 0.8, cap="Figure. City NOx per season with 95% intervals; dashed: all seasons together."),
               PageBreak()]
 
     # ---------------------------------------------------------------- 7 phase 2
@@ -410,19 +509,81 @@ def build_pdf():
                       "boundary layer, sunlight and temperature; two wind descriptors). Industrial land is nearly independent of everything."),
               PageBreak()]
 
-    # ---------------------------------------------------------------- 8 decisions & lessons
-    story += [P("8. Key decisions and lessons", "h1"),
-              P("Twenty design decisions are recorded with their evidence (docs/decisions.md). The most important:"),
-              table([["#", "Decision", "Why"],
-                     ["D1/D10", "Measure the city total with the plume fit; split it by area with flux-divergence shares", "Waypoints are closer than one satellite pixel; shares are robust"],
-                     ["D9", "Corridor built on the real highway + Talegaon MIDC", "Proposal waypoints up to 4.4 km off"],
-                     ["D11", "OCO used as an upper limit, not a measurement", "Pune's CO2 plume is below detection"],
-                     ["D12", "CO2:NOx ratio constrained by TROPOMI CO", "Largest error term; CO reveals the sector mix"],
-                     ["D13", "Outlier filter: each pixel vs its own history", "Other filters clipped the plume or removed 29% of data"],
-                     ["D17/D18", "Annual-mean conversion; Monte Carlo uncertainty", "Like-for-like comparison; honest ranges"],
-                     ["D19", "Fit only to 45 km downwind, sloped background", "A second source biased NOx ~20% low"],
-                     ["D14/D15/D20", "HCHO as chemistry proxy; 1 km UTM grid; OSM roads via a bulk file (GRIP4 as fallback and cross-check)", "Data availability and quality"]],
-                    [2.5 * cm, 7.4 * cm, W - 9.9 * cm]),
+    # ---------------------------------------------------------------- 8 phase 3 plan
+    story += [P("8. The plan for Phase 3 and the machine-learning experiments", "h1"),
+              P("The machine-learning phases need a CO2 value (a <i>label</i>) for every cell and season. There is no ground truth at 1 km, "
+                "so labels must be built, and the main risk is <b>circularity</b>: if a label is built from a layer that is also a model "
+                "input, the model just learns the recipe back and looks better than it is (D2). The proposal's activity-weighted label had "
+                "exactly this problem for Experiment D."),
+              P("<b>Proposed design (D16, awaiting the guide):</b>"),
+              *bullets(["<b>Primary label:</b> seasonal city CO2 (plume fit × CO-constrained ratio) × each cell's flux-divergence share: "
+                        "268 cells × 5 seasons = 1,340 labelled samples.",
+                        "<b>Independent label:</b> the same with the CO emission map (feasibility passed: within 3% of the CO step, r = 0.75 "
+                        "with NO2). It does not use NO2, so it tests Experiment A fairly.",
+                        "<b>Circularity rule:</b> a label's construction inputs are removed from that experiment's features, or the "
+                        "experiment is reported as a 'construction baseline'.",
+                        "<b>Evaluation:</b> spatial blocks, holding out a whole cluster, aggregated seasonal totals, and season-to-season "
+                        "change. Tree models (XGBoost, Random Forest) with a ridge-regression floor; bootstrap intervals on the differences "
+                        "between experiments; a shuffled-feature negative control (D5)."]),
+              Spacer(1, 6),
+              table([["Experiment", "Inputs", "Question"],
+                     ["A", "TROPOMI NO2 only", "Baseline: the base paper's single-tracer approach on the corridor"],
+                     ["B", "A + TROPOMI CO (proposed; the proposal said OCO-3, which is too sparse to be a per-cell input, D11)",
+                      "Does a second tracer of combustion type add skill?"],
+                     ["C", "B + weather (wind, boundary layer, temperature, sunlight, HCHO)", "Does transport and chemistry context help?"],
+                     ["D", "C + human activity (night lights, roads, NDBI, NDVI, industrial land)", "Does ground context separate industry from traffic?"]],
+                    [2.2 * cm, 7.4 * cm, W - 9.6 * cm]),
+              PageBreak()]
+
+    # ---------------------------------------------------------------- 9 decisions
+    story += [P("9. All design decisions", "h1"),
+              P("Every change from the proposal is recorded with its evidence in docs/decisions.md. Status: <b>A</b> = adopted, "
+                "<b>P</b> = proposed, awaiting the guide's sign-off."),
+              table([["#", "Decision", "Why", ""],
+                     ["D1", "Estimate emissions per cluster, not per waypoint", "Waypoints are closer together than one TROPOMI pixel", "A"],
+                     ["D2", "A layer used to build a label may not also be a model input", "Otherwise the model learns the recipe (circularity)", "A"],
+                     ["D3", "OCO-3 as an independent observed target", "Only real CO2 observation; weight set by G1 (later replaced by D8/D11)", "A→D8"],
+                     ["D4", "Add TROPOMI CO as a source-type tracer", "CO:NOx differs by sector", "A"],
+                     ["D5", "Tree models instead of a U-Net; spatial cross-validation", "~270 cells × 40 months is too small and autocorrelated for deep learning", "A"],
+                     ["D6", "ERA5 hourly winds matched to each overpass", "Finer than MERRA-2", "A"],
+                     ["D7", "October 2019 – May 2024, October–May only", "After TROPOMI's pixel change; avoids monsoon cloud", "A"],
+                     ["D8", "OCO used at city scale on its 8 dates, not per cell", "Too sparse for a per-cell feature", "P"],
+                     ["D9", "Corridor on the real highway + Talegaon MIDC", "Proposal waypoints up to 4.4 km off", "A"],
+                     ["D10", "Plume fit for the total; flux divergence for shares", "FD totals depend on lifetime; shares are robust", "A"],
+                     ["D11", "OCO is an upper limit, not a measurement", "Pune's CO2 plume is 10–20× below noise", "P"],
+                     ["D12", "CO2:NOx ratio constrained by TROPOMI CO (163, 148–180)", "Largest error term (25% → ~14%)", "P"],
+                     ["D13", "Outlier filter: each pixel vs its own history, k = 3", "Other variants clipped the plume or removed 29% of data", "A"],
+                     ["D14", "Chemistry proxy: HCHO + temperature + sunlight", "Reanalysis ozone is ~50 km; TROPOMI O3 is mostly stratospheric", "A"],
+                     ["D15", "1 km UTM grid, cells ≥ 50% inside the corridor (268)", "True 1 km squares; loses almost no area", "A"],
+                     ["D16", "Phase 3 labels: seasonal FD label + independent CO label", "Avoid circularity; monthly fits too noisy", "P"],
+                     ["D17", "Report an annual-mean equivalent", "Like-for-like comparison with annual inventories", "A"],
+                     ["D18", "Monte Carlo uncertainty; method bias handled explicitly", "Honest, non-symmetric ranges", "A"],
+                     ["D19", "Fit ≤ 45 km downwind with a sloped background", "A second source biased NOx ~20% low", "P"],
+                     ["D20", "Roads: GRIP4 fallback (v1), OpenStreetMap (v2)", "OSM servers overloaded; solved with a bulk file", "A"]],
+                    [1.3 * cm, 6.6 * cm, W - 9.2 * cm, 1.3 * cm]),
+              PageBreak()]
+
+    # ---------------------------------------------------------------- 10 mistakes & lessons
+    story += [P("10. What went wrong, and how it was caught", "h1"),
+              P("Thirty-nine problems are logged in the research log and learning guide. The ones that changed the science:"),
+              table([["Problem", "How it was caught", "Fix"],
+                     ["Proposal waypoints up to 4.4 km off; Talegaon MIDC outside the corridor", "Checked against OpenStreetMap (G4)", "Corridor rebuilt on the highway (D9)"],
+                     ["Coverage check counted images, not days (439 'overpasses' in a month)", "Impossible number", "Count distinct days"],
+                     ["Plume fit biased +12%", "Synthetic test", "Causes measured; kept in the budget"],
+                     ["ODIAC 2.6× EDGAR", "Surprising number → units checked", "Tonnes of carbon → ×44/12; real 3.2× disagreement remains"],
+                     ["Expected OCO to confirm CO2", "Predicted plume vs noise", "Reported as an upper limit (D11)"],
+                     ["Assumed road transport is a high-CO sector", "EDGAR's own ratios", "Groups defined by the data"],
+                     ["CO map peaked over the coast, not Pune", "Map inspection", "Terrain normalisation + static-pattern removal"],
+                     ["Outlier filter removed 29% of real data", "Real-data removal rate checked", "Per-pixel history filter: 0.09%"],
+                     ["Phase 1 declared complete too early", "Checked against the proposal's list", "Three missing items done"],
+                     ["Fit window included a second source", "Robustness test changed NOx by 42%", "D19; everything rerun; one conclusion withdrawn"],
+                     ["Lockdown plume fit degenerate", "R² 0.62, 8.8 h lifetime", "Model-free check instead"],
+                     ["Synthetic CO test too easy (random winds)", "Re-run with Pune's real winds", "Static-pattern removal"],
+                     ["Emission profiles matched by name, silently wrong", "Printed what was matched", "Matched on IPCC codes"],
+                     ["Earth Engine outputs blank; ERA5 missing for 7,560 rows", "Missing-data audit", "Named outputs; sample at 1 km"],
+                     ["OSM servers down for days", "Progress stuck at 16/35 tiles", "Bulk Geofabrik file"],
+                     ["A 'share' above 100%", "A fraction can't exceed 1", "Consistent variance definition"]],
+                    [6.2 * cm, 4.6 * cm, W - 10.8 * cm]),
               Spacer(1, 10), P("<b>Lessons that shaped the work</b>", "h2")]
     story += bullets(["Test every method on fake data with a known answer before trusting it, and use realistic conditions (Pune's real winds).",
                       "Check outputs against physics: 439 'overpasses' in a month, 29% 'outliers' or a 2.6× unit mismatch were all bugs.",
@@ -432,8 +593,26 @@ def build_pdf():
                       "Write everything down: a research log, a decision record and a findings document were kept throughout."])
     story += [PageBreak()]
 
-    # ---------------------------------------------------------------- 9 status & next
-    story += [P("9. Where the project stands, and what comes next", "h1"),
+    # ---------------------------------------------------------------- 11 limitations
+    story += [P("11. Limitations (stated openly)", "h1"),
+              table([["Limitation", "Effect", "How it is handled"],
+                     ["Midday, October–May observations only", "Not a true annual total", "Annual mean via published emission profiles (±~10%)"],
+                     ["Plume-fit bias +12% (synthetic)", "Total may be slightly high", "In the budget; bias-corrected variant reported"],
+                     ["Choice of wind level", "0.56–0.67 kg/s across levels", "850 hPa justified; sensitivity reported"],
+                     ["Corridor zones are only 1–2 TROPOMI pixels wide", "Emission smears across zone edges", "Shares used; 1 km map is a downscaling"],
+                     ["Central Pune (largest source) lies outside the corridor", "Transported NO2 enters the corridor", "Separate Pune-core zone"],
+                     ["NOx/NO2 = 1.32 assumed", "Scales all NOx", "±0.1 in the budget (7.6%)"],
+                     ["CO-constrained ratio still uses EDGAR's per-sector ratios", "Residual ratio error", "Assumed 10% term"],
+                     ["OCO cannot see the Pune plume", "No direct CO2 test", "Upper limit only"],
+                     ["Inventories disagree 3.2×", "No reliable 'truth'", "Both reported; neither used as truth"],
+                     ["OpenStreetMap is a 2026 snapshot", "Roads/industry assumed constant 2019–24", "Stated assumption"],
+                     ["CO, HCHO, weather barely vary between 1 km cells", "They can only explain timing", "Documented before modelling; spatial CV"],
+                     ["Labels are constructed, not observed", "Risk of circularity", "D2/D16 rules; independent CO label"]],
+                    [5.6 * cm, 4.6 * cm, W - 10.2 * cm]),
+              PageBreak()]
+
+    # ---------------------------------------------------------------- 12 status & next
+    story += [P("12. Where the project stands, and what comes next", "h1"),
               img(FIG / "status.png", cap="Figure 15. Progress by phase."),
               P("<b>Next steps</b>", "h2")]
     story += bullets(["<b>Guide review and sign-off</b> of the open decisions: OCO's role (D8/D11), the CO-constrained ratio (D12), "
@@ -447,7 +626,33 @@ def build_pdf():
               P("<b>Questions for the guide:</b> (1) Is the seasonal flux-divergence label acceptable, given its link to NO2 is stated? "
                 "(2) Should the CO-based label become a second label? (3) Is seasonal resolution (1,340 labelled samples) enough? "
                 "(4) Should Experiment B be redefined around TROPOMI CO, since OCO cannot be a per-cell feature?", "box"),
-              P("Full detail: docs/phase1_report.md, docs/findings.md, docs/decisions.md, docs/phase3_design.md, and the learning guide in docs/guide/.", "cap")]
+              P("Full detail: docs/phase1_report.md, docs/findings.md, docs/decisions.md, docs/phase3_design.md, and the learning guide in docs/guide/.", "cap"),
+              PageBreak()]
+
+    # ---------------------------------------------------------------- references
+    story += [P("References", "h1")]
+    story += bullets([
+        "Xie et al. (2026). TROPOMI NO2 and Differential Evolution inversion of urban emissions (Shandong). <i>Remote Sensing</i>. Base paper.",
+        "Beirle, S. et al. (2011). Megacity emissions and lifetimes of nitrogen oxides probed from space. <i>Science</i> 333, 1737–1739.",
+        "Beirle, S. et al. (2019). Pinpointing nitrogen oxide emissions from space. <i>Science Advances</i> 5, eaax9800.",
+        "Nassar, R. et al. (2017). Quantifying CO2 emissions from individual power plants from space. <i>Geophys. Res. Lett.</i> 44, 10045–10053.",
+        "Crippa, M. et al. (2020). High resolution temporal profiles in the Emissions Database for Global Atmospheric Research. <i>Scientific Data</i> 7, 121.",
+        "Crippa, M. et al. EDGAR v8.0 / v8.1 (European Commission JRC).",
+        "Oda, T. &amp; Maksyutov, S. ODIAC fossil fuel CO2 emission dataset (v2024).",
+        "Meijer, J. R. et al. (2018). Global patterns of current and future road infrastructure. <i>Environ. Res. Lett.</i> 13, 064006 (GRIP4).",
+        "Storn, R. &amp; Price, K. (1997). Differential Evolution. <i>J. Global Optimization</i> 11, 341–359.",
+        "Data: Copernicus Sentinel-5P TROPOMI; ECMWF ERA5; NASA OCO-2/OCO-3 Lite v11 (GES DISC); NOAA VIIRS DNB; Copernicus Sentinel-2; "
+        "SRTM; OpenStreetMap contributors (Geofabrik extract, ODbL)."])
+    story += [Spacer(1, 14), P("Appendix: how to reproduce everything", "h2"),
+              P("All settings live in configs/study.yaml. From the project folder, with the virtual environment active, run in order:")]
+    story += bullets(["<b>Feasibility:</b> g4_verify_waypoints, g4_map, g2_tropomi_coverage, g3_no2_signal, g1_oco_soundings "
+                      "(python -m ecotrack.feasibility.&lt;name&gt;), then acquire.era5_overpass.",
+                      "<b>Phase 1:</b> acquire.tropomi_cube; inversion.run_city; inversion.run_divergence; acquire.edgar, acquire.odiac; "
+                      "inversion.run_co2; inversion.run_oco_check; acquire.tropomi_cube --product co; acquire.dem; inversion.run_co_ratio; "
+                      "inversion.de_sensitivity; inversion.run_seasonal; inversion.run_co_divergence; inversion.temporal_adjust; inversion.mc_budget.",
+                      "<b>Phase 2:</b> grid; acquire.grid_layers_gee; acquire.roads_grip; acquire.osm_pbf (after downloading the Geofabrik "
+                      "file); features.",
+                      "<b>Tests:</b> python -m pytest (13 tests). <b>This report:</b> python -m ecotrack.progress_report."])
 
     def footer(canvas, doc):
         canvas.saveState()
@@ -464,7 +669,7 @@ def build_pdf():
 
 def run():
     FIG.mkdir(parents=True, exist_ok=True)
-    for f in (fig_pipeline, fig_study_area, fig_coverage, fig_covid, fig_d19, fig_cells, fig_spatial_share, fig_status):
+    for f in (fig_pipeline, fig_study_area, fig_coverage, fig_covid, fig_d19, fig_cells, fig_spatial_share, fig_budget, fig_status):
         f()
     build_pdf()
 

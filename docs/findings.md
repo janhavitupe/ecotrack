@@ -806,9 +806,12 @@ python -m ecotrack.inversion.run_seasonal ; python -m ecotrack.inversion.run_co_
 python -m ecotrack.inversion.mc_budget
 # Phase 2
 python -m ecotrack.grid ; python -m ecotrack.acquire.grid_layers_gee
-python -m ecotrack.acquire.roads_osm     # may need several runs (resumable); else:
-python -m ecotrack.acquire.roads_grip
-python -m ecotrack.features
+python -m ecotrack.acquire.roads_grip                       # GRIP4 roads (cross-check columns)
+# download data/raw/osm/western-zone-<date>.osm.pbf from Geofabrik (check its .md5), then:
+python -m ecotrack.acquire.osm_pbf                          # OSM roads + industrial land (v2)
+python -m ecotrack.features                                 # feature table v2
+# Illustrated progress report (docs/EcoTrack_Progress_Report.pdf)
+python -m ecotrack.progress_report
 # Method tests
 python -m pytest
 ```
