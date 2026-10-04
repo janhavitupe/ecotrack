@@ -14,7 +14,7 @@ A quick map first:
 | SRTM | Ground height | Radar map | Terrain correction for CO |
 | EDGAR | Emissions by sector | Inventory | NOx→CO₂ ratio, comparison |
 | ODIAC | Fossil CO₂ emissions | Inventory | Comparison |
-| OpenStreetMap | Roads, places, industrial land | Crowd-sourced map | Corridor geometry; roads (v2) |
+| OpenStreetMap | Roads, places, industrial land | Crowd-sourced map | Corridor geometry; roads + industrial land (v2, Geofabrik extract) |
 | TROPOMI HCHO | Formaldehyde column | Satellite | Chemistry/VOC proxy (Phase 2, D14) |
 | VIIRS DNB | Night-time lights | Satellite | Human activity (Phase 2) |
 | Sentinel-2 | Surface reflectance → NDVI, NDBI | Satellite | Vegetation / built-up (Phase 2) |
@@ -310,6 +310,7 @@ Used to convert our midday October–May rate to an annual mean (D17).
 | TROPOMI HCHO, VIIRS | 40 months × 268 cells (monthly means) |
 | Sentinel-2 | 5 seasons × 40–47 scenes |
 | GRIP4 roads | 268 cells (lengths per class) |
+| OSM Geofabrik extract | 1 file, 221 MB (India western zone) → 36,082 road ways + 223 industrial areas in the box |
 | OSM | 10 places, the highway (134 road segments), 259 industrial areas |
 
 Total on disk: tens of MB, because we only kept the Pune box.

@@ -1,0 +1,28 @@
+{
+  "version": "v2",
+  "road_source": "OpenStreetMap",
+  "osm_extract": "western-zone-261003.osm.pbf",
+  "rows": 10720,
+  "cells": 268,
+  "months": 40,
+  "features": [
+    "no2",
+    "co_norm",
+    "hcho",
+    "ws850",
+    "wd850",
+    "blh_m",
+    "frac_ese",
+    "t2m_k",
+    "ssrd_j_m2",
+    "viirs_rad",
+    "ndvi",
+    "ndbi",
+    "road_major_km",
+    "road_mid_km",
+    "road_minor_km",
+    "road_total_km",
+    "industrial_frac"
+  ],
+  "sha256": "de0200d69d8923e92b2c17cbafcbc964e1be7129be27c9733f88ffc254851598"
+}

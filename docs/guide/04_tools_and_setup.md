@@ -70,7 +70,8 @@ src/ecotrack/
 │   ├── edgar.py           EDGAR NOx / CO / CO₂, clipped
 │   ├── odiac.py           ODIAC, clipped via the GHG Center API
 │   ├── grid_layers_gee.py Phase 2: VIIRS, HCHO, ERA5 t2m/radiation (monthly), Sentinel-2 NDVI/NDBI (seasonal) per cell
-│   ├── roads_osm.py       Phase 2: OSM road length per cell (cached tiles, mirror rotation)
+│   ├── roads_osm.py       Phase 2: OSM roads via the Overpass API (superseded: servers overloaded)
+│   ├── osm_pbf.py         Phase 2: OSM roads + industrial land from a Geofabrik .osm.pbf file (used for v2)
 │   └── roads_grip.py      Phase 2: GRIP4 road length per cell in Earth Engine (fallback, D20)
 ├── feasibility/           ── go/no-go checks (chapter 5) ──
 │   ├── g1_oco_soundings.py      count OCO soundings over Pune

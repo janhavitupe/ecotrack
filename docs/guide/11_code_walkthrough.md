@@ -69,10 +69,12 @@ PHASE 1 (chapter 6) — run in this order                     │ │ │ │ �
 PHASE 2 (chapter 12)
   grid.py ──────────────────► data/interim/grid/cells.csv, cells.geojson
   acquire/grid_layers_gee.py ◄── cells.geojson ──► layers_monthly.csv (VIIRS, HCHO, ERA5), layers_seasonal.csv (NDVI, NDBI)
-  acquire/roads_osm.py ◄── cells ──► layers_roads.csv (OSM; tiles cached in data/interim/osm_road_tiles/)
+  acquire/osm_pbf.py ◄── cells + data/raw/osm/*.osm.pbf ──► layers_roads.csv, layers_landuse.csv (OSM, v2)
+  (acquire/roads_osm.py: the earlier Overpass route, superseded)
   acquire/roads_grip.py ◄── cells.geojson ──► layers_roads_grip.csv (GRIP4 fallback)
   features.py ◄── cells + both cubes + DEM + ERA5 + all layers + EDGAR + ODIAC
-       └─► data/processed/feature_table_v1.csv (+ .meta.json) ; outputs/phase2/qa_*
+       └─► data/processed/feature_table_v2.csv (+ .meta.json with SHA-256) ; outputs/phase2/qa_*_v2
+  progress_report.py ◄── all results ──► docs/EcoTrack_Progress_Report.pdf
 ```
 
 **Library files** (not run by themselves; they hold reusable functions):

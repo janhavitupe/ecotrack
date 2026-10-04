@@ -613,7 +613,7 @@ The +11–12% EMG synthetic bias is a *known* overestimate, so it is handled two
 
 ---
 
-## 4b. Phase 2 — multi-source feature table (v1 built; OSM roads pending)
+## 4b. Phase 2 — multi-source feature table (**complete: v2 frozen**, 2026-10-04)
 
 **Goal (proposal Phase 2):** every data layer on one 1 km grid → a frozen table with one row per cell per month.
 
@@ -630,7 +630,8 @@ The +11–12% EMG synthetic bias is a *known* overestimate, so it is handled two
 | `t2m_k`, `ssrd_j_m2` | ERA5 at 07 UTC, photochemistry drivers (D14) | monthly | ✅ |
 | `viirs_rad` | VIIRS DNB monthly radiance (stray-light corrected) | monthly | ✅ |
 | `ndvi`, `ndbi` | Sentinel-2 SR median, SCL-masked (40–47 scenes per season) | seasonal | ✅ |
-| `road_major/mid/minor/total_km` | **GRIP4** (Meijer et al. 2018, via GEE) as a documented fallback; OpenStreetMap download (preferred) still retrying | static | ✅ v1 (GRIP4); OSM → v2 when complete |
+| `road_major/mid/minor/total_km` | **v2: OpenStreetMap** (Geofabrik extract `western-zone-261003.osm.pbf`, read locally); v1: GRIP4 fallback (D20) | static | ✅ v2 (OSM; GRIP4 kept as `grip_*`) |
+| `industrial_frac` | **v2, new:** share of the cell under OSM `landuse=industrial` (MIDC estates), the proposal's "industrial-land fraction" | static | ✅ v2 |
 | `ref_edgar_*`, `ref_odiac_*` | Inventories: **reference only, never features** (§5 rule, D2) | annual / monthly | ✅ |
 | OCO-3 XCO₂ | – | – | not a feature (too sparse, D11) |
 
@@ -654,6 +655,47 @@ The +11–12% EMG synthetic bias is a *known* overestimate, so it is handled two
 - EDGAR is blocky: ~16 distinct values over 268 cells, a visible illustration of inventory coarseness.
 
 ![Feature histograms (QA)](../outputs/phase2/qa_histograms.png)
+
+### Feature table v2 (final Phase 2 deliverable, 2026-10-04)
+
+`data/processed/feature_table_v2.csv`: **10,720 rows, 17 features, 0 missing**. The meta file records the OSM extract and the CSV's **SHA-256** (`de0200d6…`). A rebuild gave the identical hash, so the table is deterministic. v1 is kept unchanged.
+
+**How OSM was finally obtained.** Overpass was still failing (504; 16 of 35 tiles after days). Geofabrik was back, so the whole **India western-zone extract** (221 MB, MD5 checked) was downloaded and read locally with `pyosmium` (`src/ecotrack/acquire/osm_pbf.py`, 2.5 minutes, no server needed). It gave **36,082 road ways** and **223 industrial areas** in the box.
+
+**OSM vs GRIP4 roads (per cell, 268 cells):**
+
+| Class | OSM median (km) | GRIP4 median (km) | Spearman |
+|---|---|---|---|
+| major | 0.79 | 0.25 | 0.84 |
+| mid | 1.08 | 0.88 | 0.70 |
+| minor | **4.20** | **0.07** | 0.59 |
+| total | 7.31 | 2.62 | 0.78 |
+
+GRIP4 ranks major roads similarly (0.84) but misses almost all local streets: OSM has ~60× more minor road. This confirms the v1 caveat. 170 of 268 cells contain a major road (GRIP4: 145).
+
+**Industrial land.** The corridor mean is 5.3%; 19 cells are > 25% industrial. The top cells are exactly the known estates: MIDC Bhosari (18.65 N, 73.82 E; 97%), the Chinchwad/Akurdi belt (18.66 N, 73.79 E) and Talegaon MIDC (18.79 N, 73.69 E). By cluster: C2 PCMC 10.4%, C1 4.6%, C3 3.1%. Its correlation with every other feature is ≤ 0.4 (VIIRS), so **it adds information no other feature carries**.
+
+**Correlation QA** (Spearman, `outputs/phase2/qa_correlation_v2.png`). Pairs with |r| ≥ 0.8:
+- road_minor–road_total 0.93 (total is mostly minor roads);
+- blh–ssrd 0.90 and t2m–ssrd 0.80 (all driven by season);
+- wd850–frac_ese −0.84 (two descriptions of the same wind).
+
+These are expected and matter for **interpreting** the ML ablation (correlated features share importance), not for dropping columns now.
+
+**Where does each feature vary: between cells or between months?** This is the share of variance that is spatial:
+
+| Feature | Spatial share | What it means |
+|---|---|---|
+| roads, industrial_frac | 1.00 | static by construction |
+| NDVI, NDBI | 0.97 | mostly spatial (land cover) |
+| VIIRS | 0.89 | mostly spatial, with a growth trend |
+| **NO₂** | **0.34** | two-thirds temporal (season, weather) |
+| **CO, HCHO** | **0.02** | almost purely temporal at 1 km |
+| ERA5 weather | 0.00 | one ERA5 cell covers the corridor |
+
+**Consequence for Phases 4–6:** at 1 km, the *where* comes almost entirely from the activity layers (VIIRS, NDBI, roads, industry) and partly from NO₂. CO, HCHO and weather tell the model *when*, not *where*. Experiment B (+CO) can therefore only improve the temporal skill of the labels, and spatial-block cross-validation is essential so the model can't memorise static cell properties. This is recorded here before any model is trained, so it can't be read as a post-hoc excuse.
+
+![Feature correlations (v2)](../outputs/phase2/qa_correlation_v2.png)
 
 **Bugs fixed on the way (details in the research log):**
 1. Earth Engine names a single-band reduction `mean` → VIIRS/HCHO were blank → outputs now named explicitly.
@@ -686,7 +728,7 @@ The +11–12% EMG synthetic bias is a *known* overestimate, so it is handled two
 | D17 | Report the annual-mean equivalent (÷ F = 1.20–1.23, EDGAR temporal profiles) alongside the midday rate | The satellite samples a busy window; inventories are annual |
 | D18 | Monte Carlo uncertainty (200k draws, lognormal); headline symmetric, bias-corrected as sensitivity | Asymmetric ranges; known EMG bias handled explicitly |
 | D19 | EMG fit window ≤ 45 km + sloped background; unconstrained-fit fallback; structure term in the budget | The 60 km window included a second source → NOx biased ~20% low |
-| D20 | Roads: GRIP4 fallback for feature table v1; OSM for v2 | OSM servers overloaded for hours |
+| D20 | Roads: GRIP4 fallback for feature table v1; OSM for v2 (done 2026-10-04 via a Geofabrik extract) | OSM servers overloaded for hours |
 
 Full reasoning for each is in [decisions.md](decisions.md).
 
@@ -726,14 +768,17 @@ Full reasoning for each is in [decisions.md](decisions.md).
 | TROPOMI CO terrain imprint (~6%) larger than Pune's signal | Could fake or hide the CO step | Air-mass normalisation + static-pattern removal; synthetic test −1.4% / ≈0 with terrain only |
 | Secondary CO (VOC oxidation) and EDGAR's per-sector ratios | CO:NOx → CO₂:NOx mapping | Both push toward a higher ratio; 10% term assumed |
 | D8 not yet approved | Changes Experiment B's meaning | **Awaiting guide review** |
+| OSM is a 2026 snapshot used for 2019–2024 | Roads/industry built after 2019 counted for all years | Stated assumption; static layers vary little at 1 km over 5 years |
+| CO, HCHO and weather barely vary between 1 km cells (spatial share ≤ 2%) | They can't help the model locate emissions, only time them | Documented before modelling (§4b); spatial CV in Phases 4–6 |
 
 ---
 
 ## 8. Next steps
 
-1. **Send the Phase 1 report (with addendum) and the Phase 3 design note to the guide; get sign-off on D8/D11/D12/D16.** OCO: non-detection with an upper limit. CO: constrained ratio, headline 2.98 Mt/yr ± 24% (midday) ≈ 2.4–2.5 Mt/yr annual mean.
-2. **Finish Phase 2:** OSM roads (download in progress, servers overloaded) → freeze feature table v1 → final QA; then Phase 3 per the guide's answer on D16.
-3. **Optional:** per-swath offsets in the OCO regression; a sloped background in the EMG fit (the residuals at both ends suggest a regional gradient); a wider across-wind window for the CO step.
+1. **Send the progress report PDF, the Phase 1 report and the Phase 3 design note to the guide; get sign-off on D8/D11/D12/D16/D19.** Headline (post-D19): 2.79 Mt fossil CO₂/yr annual mean [95%: 1.79–4.36].
+2. ~~Finish Phase 2~~ **Done (2026-10-04):** feature table v2 (OSM roads + industrial land, GRIP4 cross-check, correlation QA, SHA-256).
+3. **Phase 3 (labels)** per the guide's answer on D16; then Phase 4 (feature tensor: standardise, spatial-block folds).
+4. **Optional:** per-swath offsets in the OCO regression; a wider across-wind window for the CO step. (The sloped EMG background was done as D19.)
 
 ---
 

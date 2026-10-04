@@ -94,6 +94,8 @@
 
 **GES DISC**: the NASA data centre serving the OCO files.
 
+**Geofabrik**: a German company/server that republishes the OpenStreetMap database daily as regional files (.osm.pbf). Used for feature table v2 when the Overpass API was overloaded.
+
 **GeoJSON**: a JSON format for map shapes.
 
 **Glint mode**: OCO looking at the sun's reflection, used over water; our OCO-2 day was glint.
@@ -127,6 +129,8 @@
 **Line density (L(x))**: the rotated plume summed across the wind at each downwind distance (mol/m).
 
 **Lite file**: NASA's simplified OCO product, one file per day.
+
+**MD5 checksum**: a short fingerprint of a file published next to a download; recomputing it (`md5sum`) proves the file arrived complete and unaltered.
 
 **MIDC**: Maharashtra Industrial Development Corporation industrial estates (Bhosari, Chinchwad, Talegaon).
 
@@ -167,6 +171,8 @@
 **Overpass API**: OSM's database-query service.
 
 **Oversampling**: gridding coarse pixels onto a finer grid, so neighbouring cells repeat values (GEE L3).
+
+**PBF (.osm.pbf)**: OpenStreetMap's compact binary file format; read in Python with pyosmium (`import osmium`).
 
 **PCMC**: Pimpri-Chinchwad Municipal Corporation, the twin city northwest of Pune.
 
@@ -214,6 +220,8 @@
 
 **Sentinel-5P (S5P)**: the European satellite carrying TROPOMI.
 
+**SHA-256**: a cryptographic fingerprint of a file; any change, even one digit, gives a different hash. Stored in `feature_table_v2.meta.json` to prove the frozen table is unchanged.
+
 **Shares (flux-divergence shares)**: each zone's fraction of the total; robust (±2.4%).
 
 **Sink term**: (V − V_bg)/τ, the NO₂ destroyed per second per area.
@@ -223,6 +231,10 @@
 **Solar zenith angle**: the sun's angle from overhead; > 70° is excluded.
 
 **Sounding**: one OCO measurement.
+
+**Spatial variance share**: the fraction of a feature's variance that is between cells (where) rather than between months (when). 1 = purely spatial (roads), 0 = purely temporal (ERA5 weather).
+
+**Spearman correlation**: correlation computed on ranks instead of raw values; robust to skewed data and outliers. Used in the v2 correlation QA.
 
 **SRTM**: the Shuttle Radar Topography Mission height map.
 

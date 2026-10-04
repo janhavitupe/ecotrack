@@ -10,3 +10,6 @@ earthengine-api
 matplotlib
 scipy
 pytest
+openpyxl
+osmium
+reportlab

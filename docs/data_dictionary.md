@@ -1,7 +1,9 @@
-# EcoTrack — Data Dictionary: Feature Table v1
+# EcoTrack — Data Dictionary: Feature Table v2 (current) and v1
 
-**File:** `data/processed/feature_table_v1.csv`, built by `python -m ecotrack.features`
-(road source recorded in `feature_table_v1.meta.json`).
+**File:** `data/processed/feature_table_v2.csv`, built by `python -m ecotrack.features`
+(meta file `feature_table_v2.meta.json`: road source, OSM extract, feature list, SHA-256 of the CSV).
+**v1** (`feature_table_v1.csv`, GRIP4 roads, 16 features) is kept unchanged as the earlier frozen version.
+**v2 changes:** roads from OpenStreetMap (Geofabrik extract), the new `industrial_frac` column, and `grip_road_*_km` cross-check columns.
 **Shape:** 10,720 rows = **268 grid cells × 40 months** (October–May, Oct 2019 – May 2024).
 **One row** = one 1 km × 1 km grid cell in one month.
 **Grid:** UTM 43N (EPSG:32643) squares, ≥ 50% inside the corridor (D15); `data/interim/grid/cells.csv` / `cells.geojson`.
@@ -55,7 +57,8 @@ All four overpass-matched variables are the same for every cell in a month: the 
 | `road_major_km` | Feature | Length of major roads in the cell | **v1: GRIP4** types 1–2 (highways, primary), the OSM fallback. **v2: OpenStreetMap** motorway/trunk/primary (+ links). The source is recorded in `feature_table_*.meta.json` | km per cell (= km/km²) | static |
 | `road_mid_km` | Feature | Secondary + tertiary roads | v1: GRIP4 types 3–4; v2: OSM | km | static |
 | `road_minor_km` | Feature | Local roads | v1: GRIP4 type 5 (**sparse coverage: median 0.07 km/cell**); v2: OSM residential/unclassified/living_street | km | static |
-| `road_total_km` | Feature | Sum of the three | OSM | km | static |
+| `road_total_km` | Feature | Sum of the three | as above | km | static |
+| `industrial_frac` | Feature (v2) | Share of the cell covered by industrial land | OSM `landuse=industrial` polygons (Geofabrik extract), merged so overlaps count once, intersected with the cell in UTM | 0 … 1 | static |
 
 **Cross-check columns (v2 only):** `grip_road_*_km`, the GRIP4 values when OSM is the primary source.
 

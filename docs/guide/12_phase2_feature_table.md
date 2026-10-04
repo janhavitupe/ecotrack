@@ -106,6 +106,23 @@ The proposal says OpenStreetMap roads. What happened:
 **Decision D20:** feature table **v1 uses GRIP4**, with the source recorded. When the OSM download completes, **v2**
 will use OSM and keep GRIP4 as `grip_*` cross-check columns.
 
+**How it ended (2026-10-04).** Three days later Overpass was *still* returning 504, but Geofabrik was back. Geofabrik
+publishes the whole OpenStreetMap database cut into regions, as one file per region per day, in the compact
+**`.osm.pbf`** format. Instead of asking a busy server for small pieces, we downloaded the **India western zone**
+(221 MB) once:
+1. `curl -L -o data/raw/osm/western-zone-<date>.osm.pbf https://download.geofabrik.de/asia/india/western-zone-latest.osm.pbf`.
+2. Check the file against the **MD5 checksum** Geofabrik publishes next to it, which proves it arrived complete.
+3. `python -m ecotrack.acquire.osm_pbf` reads it with **pyosmium** (`pip install osmium`). It scans every object,
+   keeps road ways of our classes inside the box, and assembles `landuse=industrial` **areas** (polygons, including
+   multipolygon relations). Then it clips both to the cells exactly as before. It takes 2.5 minutes with no server.
+
+Lesson: **when an API is the bottleneck, look for a bulk download of the same data.** The dated file also makes the
+snapshot reproducible, which a live API is not.
+
+**The comparison (why it was worth it):** OSM and GRIP4 agree on where the big roads are (Spearman 0.84), but GRIP4
+has almost no local streets: median minor road 0.07 km per cell vs **4.2 km in OSM**. So v1's minor-road column was
+nearly empty, and v2 fixes it.
+
 ## 12.7 Step 5 — Atmosphere, weather and inventories from our own files (`features.py`)
 
 - **NO₂ and CO per cell-month**: from the Phase 1 cubes (NO₂ IQR-filtered; CO terrain-normalised), as the monthly
@@ -138,6 +155,36 @@ What the histograms told us (all sensible):
 `feature_table_v1.meta.json`. Every column is described in `docs/data_dictionary.md`. The table is **committed to git**
 (unlike raw/interim data), because it's a frozen deliverable and some of its sources can change over time.
 
+## 12.9b Version 2: the final Phase 2 table (2026-10-04)
+
+`data/processed/feature_table_v2.csv`: **10,720 rows, 17 features, 0 missing.** What changed:
+- **Roads from OpenStreetMap** (12.6), with GRIP4 kept as `grip_road_*_km` so anyone can compare.
+- **New feature `industrial_frac`**: the share of each cell covered by OSM `landuse=industrial`. The proposal
+  lists "industrial-land fraction" for the Phase 3 weights. Overlapping polygons are merged first, so no area is
+  counted twice. **Check it makes sense:** the top cells are MIDC Bhosari (97% industrial), the Chinchwad/Akurdi belt
+  and Talegaon MIDC, exactly the estates anyone in Pune would name.
+- **Freezing properly:** the meta file stores the **SHA-256** hash of the CSV, a fingerprint that changes if even one
+  digit changes. Rebuilding gave the identical hash, so the build is deterministic.
+
+**Two new QA checks, and what they teach:**
+1. **Correlation matrix** (`qa_correlation_v2.png`, Spearman = correlation of ranks, robust to skewed data). The
+   strongly related pairs are the expected ones:
+   - minor ↔ total roads (0.93);
+   - boundary layer ↔ sunlight (0.90), temperature ↔ sunlight (0.80);
+   - wind direction ↔ east-wind fraction (−0.84).
+   We keep them all, but when the ML ablation says which inputs matter, correlated inputs **share** the credit,
+   which is important to remember when interpreting it.
+2. **Spatial variance share**: for each feature, how much of its variation is *between cells* (where) rather than
+   *between months* (when).
+   - Roads, industry, NDVI/NDBI, VIIRS: ~0.9–1.0 (mostly where).
+   - NO₂: 0.34.
+   - CO and HCHO: **0.02**. Their 1 km variations are tiny next to their seasonal swings.
+   - Weather: 0, since one ERA5 cell covers the corridor.
+
+   **So:** at 1 km the model can only learn *where* emissions are from the activity layers (and partly NO₂). CO,
+   HCHO and weather help with *when*. We wrote this down **before** training any model. That is honest, and it
+   shapes Phase 4: spatial-block cross-validation, so the model can't just memorise each cell.
+
 ## 12.10 Other snags met along the way
 - **Windows console encoding:** printing "→" crashed when the output was piped (the cp1252 console has no such
   character). Prints were switched to ASCII.
@@ -145,5 +192,5 @@ What the histograms told us (all sensible):
   the pip cache (5 GB) and temp files. Keep several GB free on C:, because Windows needs it for memory paging.
 
 ## 12.11 What's left in Phase 2
-- OSM roads → feature table **v2**.
-- Then Phase 3 builds the labels (design in `docs/phase3_design.md`, decision D16, awaiting the guide).
+- Nothing: **Phase 2 is complete** with feature table v2.
+- Next, Phase 3 builds the labels (design in `docs/phase3_design.md`, decision D16, awaiting the guide).

@@ -196,12 +196,21 @@ helped, but too slowly (16/35 tiles).
 
 **37. Asking Earth Engine for the newest image of all of Sentinel-2** hung the check. Filter by place and date first.
 
+**38. Waiting days for an overloaded API when a bulk file existed.** Overpass kept failing (16 of 35 tiles). The
+Geofabrik regional extract (one 221 MB file, MD5-checked) gave the same OpenStreetMap data in 2.5 minutes of local
+reading. Lesson: when a query service is the bottleneck, look for a bulk download of the same data.
+
+**39. A "share" above 100%.** The first spatial-variance-share output gave 1.004 for static roads, which is impossible
+for a fraction. The cause: the between-cell variance used n − 1 = 267 in the denominator and the total variance used
+n − 1 = 10,719 (pandas' default sample variance). Fix: population variance (`ddof=0`) for both, which gives exactly 1.000.
+Caught because a fraction can't exceed 1.
+
 ## Small tooling issues (for completeness)
 - Git Bash sometimes choked on long inline Python heredocs. Scripts were written to files instead.
 - Matplotlib titles were clipped by long axis labels. The fix was to anchor titles to the figure (`suptitle`).
 - A mistyped memory path ("JANHAV" for "JANHAVI"). Retried.
 
-## The pattern across all 37
+## The pattern across all 39
 Almost every problem was caught by one of three habits:
 1. **Sanity-check numbers against physics** (439 overpasses? 29% outliers? a 2.6× mismatch?).
 2. **Test methods on synthetic data with known answers**, and check real-data behaviour too.
