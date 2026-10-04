@@ -185,6 +185,13 @@ What the histograms told us (all sensible):
    HCHO and weather help with *when*. We wrote this down **before** training any model. That is honest, and it
    shapes Phase 4: spatial-block cross-validation, so the model can't just memorise each cell.
 
+**A third lesson, from writing the Phase 2 report:** NDBI came out highest in the rural Talegaon cluster and
+*negatively* related to NO₂ and night lights. Why? NDBI compares short-wave infrared (B11) with near-infrared (B8).
+Concrete reflects more SWIR than NIR, but **so do dry soil and harvested fields**, and our study period is the dry
+season. So in Pune, October–May, NDBI partly measures "dry and bare", not "built". We keep the column but don't trust
+it as a built-up measure; roads, industrial land and night lights are the reliable activity layers.
+Lesson: **check that a feature means what its name says**, by comparing it with layers you trust.
+
 ## 12.10 Other snags met along the way
 - **Windows console encoding:** printing "→" crashed when the output was piped (the cp1252 console has no such
   character). Prints were switched to ASCII.

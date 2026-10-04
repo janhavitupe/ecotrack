@@ -205,12 +205,16 @@ for a fraction. The cause: the between-cell variance used n − 1 = 267 in the d
 n − 1 = 10,719 (pandas' default sample variance). Fix: population variance (`ddof=0`) for both, which gives exactly 1.000.
 Caught because a fraction can't exceed 1.
 
+**40. A feature that didn't mean what its name said.** NDBI ("built-up index") was highest in rural C3 and negatively
+correlated with NO₂ and night lights. Dry-season bare soil reflects SWIR like concrete. Caught only when writing the
+per-cluster table for the Phase 2 report. Lesson: sanity-check each feature against layers you trust.
+
 ## Small tooling issues (for completeness)
 - Git Bash sometimes choked on long inline Python heredocs. Scripts were written to files instead.
 - Matplotlib titles were clipped by long axis labels. The fix was to anchor titles to the figure (`suptitle`).
 - A mistyped memory path ("JANHAV" for "JANHAVI"). Retried.
 
-## The pattern across all 39
+## The pattern across all 40
 Almost every problem was caught by one of three habits:
 1. **Sanity-check numbers against physics** (439 overpasses? 29% outliers? a 2.6× mismatch?).
 2. **Test methods on synthetic data with known answers**, and check real-data behaviour too.

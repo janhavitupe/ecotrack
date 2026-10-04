@@ -507,6 +507,9 @@ def build_pdf():
               img(OUTPUTS / "phase2" / "qa_correlation_v2.png", width=W * 0.72,
                   cap="Figure 14. Correlation between features. Only expected pairs are strongly related (minor vs total roads; "
                       "boundary layer, sunlight and temperature; two wind descriptors). Industrial land is nearly independent of everything."),
+              P("<b>A caveat found in QA:</b> the 'built-up index' NDBI is highest in rural Talegaon and is negatively related to NO2 and "
+                "night lights. In the dry season, bare soil reflects infrared like concrete, so NDBI is not a reliable built-up measure "
+                "here; roads, industrial land and night lights are the dependable activity layers."),
               PageBreak()]
 
     # ---------------------------------------------------------------- 8 phase 3 plan
@@ -565,7 +568,7 @@ def build_pdf():
 
     # ---------------------------------------------------------------- 10 mistakes & lessons
     story += [P("10. What went wrong, and how it was caught", "h1"),
-              P("Thirty-nine problems are logged in the research log and learning guide. The ones that changed the science:"),
+              P("Forty problems are logged in the research log and learning guide. The ones that changed the science:"),
               table([["Problem", "How it was caught", "Fix"],
                      ["Proposal waypoints up to 4.4 km off; Talegaon MIDC outside the corridor", "Checked against OpenStreetMap (G4)", "Corridor rebuilt on the highway (D9)"],
                      ["Coverage check counted images, not days (439 'overpasses' in a month)", "Impossible number", "Count distinct days"],
@@ -582,7 +585,8 @@ def build_pdf():
                      ["Emission profiles matched by name, silently wrong", "Printed what was matched", "Matched on IPCC codes"],
                      ["Earth Engine outputs blank; ERA5 missing for 7,560 rows", "Missing-data audit", "Named outputs; sample at 1 km"],
                      ["OSM servers down for days", "Progress stuck at 16/35 tiles", "Bulk Geofabrik file"],
-                     ["A 'share' above 100%", "A fraction can't exceed 1", "Consistent variance definition"]],
+                     ["A 'share' above 100%", "A fraction can't exceed 1", "Consistent variance definition"],
+                     ["NDBI highest in rural cells", "Per-cluster table vs trusted layers", "Documented as a caveat"]],
                     [6.2 * cm, 4.6 * cm, W - 10.8 * cm]),
               Spacer(1, 10), P("<b>Lessons that shaped the work</b>", "h2")]
     story += bullets(["Test every method on fake data with a known answer before trusting it, and use realistic conditions (Pune's real winds).",
@@ -607,6 +611,7 @@ def build_pdf():
                      ["Inventories disagree 3.2×", "No reliable 'truth'", "Both reported; neither used as truth"],
                      ["OpenStreetMap is a 2026 snapshot", "Roads/industry assumed constant 2019–24", "Stated assumption"],
                      ["CO, HCHO, weather barely vary between 1 km cells", "They can only explain timing", "Documented before modelling; spatial CV"],
+                     ["NDBI confused by dry bare soil", "'Built-up' highest in rural C3", "Caveat for Experiment D"],
                      ["Labels are constructed, not observed", "Risk of circularity", "D2/D16 rules; independent CO label"]],
                     [5.6 * cm, 4.6 * cm, W - 10.2 * cm]),
               PageBreak()]
@@ -626,7 +631,7 @@ def build_pdf():
               P("<b>Questions for the guide:</b> (1) Is the seasonal flux-divergence label acceptable, given its link to NO2 is stated? "
                 "(2) Should the CO-based label become a second label? (3) Is seasonal resolution (1,340 labelled samples) enough? "
                 "(4) Should Experiment B be redefined around TROPOMI CO, since OCO cannot be a per-cell feature?", "box"),
-              P("Full detail: docs/phase1_report.md, docs/findings.md, docs/decisions.md, docs/phase3_design.md, and the learning guide in docs/guide/.", "cap"),
+              P("Full detail: docs/phase1_report.md, docs/phase2_report.md, docs/findings.md, docs/decisions.md, docs/phase3_design.md, and the learning guide in docs/guide/.", "cap"),
               PageBreak()]
 
     # ---------------------------------------------------------------- references

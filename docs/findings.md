@@ -697,6 +697,10 @@ These are expected and matter for **interpreting** the ML ablation (correlated f
 
 ![Feature correlations (v2)](../outputs/phase2/qa_correlation_v2.png)
 
+**NDBI caveat (found while writing the Phase 2 report).** NDBI is highest in the *rural* C3 cluster (0.05 vs 0.00 in C1) and correlates **negatively** with NO₂ (−0.28) and night lights (−0.33). In the dry season, bare soil and dry fields reflect short-wave infrared like concrete, a known NDBI weakness. So NDBI is not a reliable built-up indicator here. Roads, industrial land and VIIRS are the dependable activity layers, and Experiment D's NDBI importance must be read with this caveat.
+
+Full write-up: [phase2_report.md](phase2_report.md).
+
 **Bugs fixed on the way (details in the research log):**
 1. Earth Engine names a single-band reduction `mean` → VIIRS/HCHO were blank → outputs now named explicitly.
 2. ERA5 reduced at 27.8 km left 7,560 cells empty → sampled at 1 km.
@@ -770,6 +774,7 @@ Full reasoning for each is in [decisions.md](decisions.md).
 | D8 not yet approved | Changes Experiment B's meaning | **Awaiting guide review** |
 | OSM is a 2026 snapshot used for 2019–2024 | Roads/industry built after 2019 counted for all years | Stated assumption; static layers vary little at 1 km over 5 years |
 | CO, HCHO and weather barely vary between 1 km cells (spatial share ≤ 2%) | They can't help the model locate emissions, only time them | Documented before modelling (§4b); spatial CV in Phases 4–6 |
+| NDBI confused by dry bare soil | "Built-up" highest in rural C3; negative correlation with NO₂/VIIRS | Caveat for Experiment D; roads/industry/VIIRS are the reliable activity layers |
 
 ---
 

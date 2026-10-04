@@ -226,3 +226,6 @@ This log is the raw material for the Methods chapter.
   - a new before/after uncertainty-budget chart (`outputs/report/figures/budget.png`): ratio term 25% → 14.1% (√(9.9² + 10²)), total 30.9% → 23.0%. This is the project's current answer to the research question.
 
   Also fixed: findings §9 reproduce block (added `osm_pbf`, `progress_report`).
+- **Phase 2 report written** (`docs/phase2_report.md`; the user noticed it was missing; Phase 1 had one). It follows the Phase 1 report's structure: summary, objective, grid, layers table, roads/D20, results (column groups, meta/SHA, per-cluster means), QA (incl. correlation and spatial-variance share), deviations, limitations, implications for Phases 3–6, next steps, reproducibility, references.
+  - **New finding while writing it: NDBI caveat.** NDBI is highest in rural C3 (0.054 vs C1 0.001, C2 0.027) and Spearman −0.28 with NO₂ and −0.33 with VIIRS. Dry-season bare soil has high SWIR, so NDBI is not a reliable built-up indicator here. It was added to findings §4b and §7, guide ch.12 and ch.7 (#40), and the progress-report PDF (Phase 2 page, limitations, mistakes table). README links the Phase 2 report.
+  - Other per-cluster numbers: NO₂ 67.2/64.5/49.2 µmol/m²; VIIRS 24.4/27.4/10.0; roads 10.5/14.6/4.9 km; industrial 4.6/10.4/3.1%. NO₂ overpasses per cell-month 6–32 (median 25).
