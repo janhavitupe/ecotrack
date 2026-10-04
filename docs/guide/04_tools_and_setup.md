@@ -50,6 +50,7 @@ downloaded whole TROPOMI files.
 | **earthengine-api** (`ee`) | Talks to Google Earth Engine |
 | **earthaccess** | Searches and streams NASA data (OCO) |
 | **pytest** | Runs the automated tests in `tests/` |
+| **openpyxl** | Reads the EDGAR temporal-profile Excel file (D17) |
 
 ## 4.4 The code, file by file
 
@@ -58,6 +59,8 @@ src/ecotrack/
 ├── config.py              loads configs/study.yaml; defines folder paths
 ├── geometry.py            waypoints, corridor polygon (highway ± 3.5 km + Talegaon MIDC), cluster zones
 ├── qc.py                  IQR outlier filter (3 variants; we use "temporal", k = 3)
+├── grid.py                Phase 2: the 1 km UTM grid (268 cells), load_cells()
+├── features.py            Phase 2: assembles feature table v1 (cell × month) + QA
 ├── acquire/               ── getting data ──
 │   ├── ee_utils.py        Earth Engine login, geometries, the TROPOMI cloud/zenith mask
 │   ├── tropomi_gee.py     first test export (week 1)
@@ -65,7 +68,10 @@ src/ecotrack/
 │   ├── era5_overpass.py   wind + boundary layer for each overpass
 │   ├── dem.py             SRTM elevation on the cube grid
 │   ├── edgar.py           EDGAR NOx / CO / CO₂, clipped
-│   └── odiac.py           ODIAC, clipped via the GHG Center API
+│   ├── odiac.py           ODIAC, clipped via the GHG Center API
+│   ├── grid_layers_gee.py Phase 2: VIIRS, HCHO, ERA5 t2m/radiation (monthly), Sentinel-2 NDVI/NDBI (seasonal) per cell
+│   ├── roads_osm.py       Phase 2: OSM road length per cell (cached tiles, mirror rotation)
+│   └── roads_grip.py      Phase 2: GRIP4 road length per cell in Earth Engine (fallback, D20)
 ├── feasibility/           ── go/no-go checks (chapter 5) ──
 │   ├── g1_oco_soundings.py      count OCO soundings over Pune
 │   ├── g2_tropomi_coverage.py   usable TROPOMI days per month
@@ -80,6 +86,10 @@ src/ecotrack/
     ├── run_co2.py         NOx → CO₂, EDGAR/ODIAC comparison, uncertainty budget
     ├── run_oco_check.py   OCO-3/OCO-2 plume-scaling check
     ├── run_co_ratio.py    TROPOMI CO step → CO:NOx → sector mix → CO₂:NOx
+    ├── run_seasonal.py    EMG per season + flux-divergence corridor share (Phase 3 groundwork)
+    ├── run_co_divergence.py CO flux-divergence map (an NO₂-independent emission map, D16)
+    ├── temporal_adjust.py midday Oct–May rate → annual mean with EDGAR temporal profiles (D17)
+    ├── mc_budget.py       Monte Carlo uncertainty (D18)
     └── de_sensitivity.py  36 DE settings test
 tests/
 ├── test_emg.py            fake plume → does EMG recover the known emission?
@@ -116,7 +126,10 @@ examiner can see every choice in one file. Section by section:
   - `rot_res_km: 2`, `along_km: [-40, 60]`, `across_halfwidth_km: 20` (rotated-grid geometry);
   - `nox_no2_ratio: 1.32`;
   - `de: {popsize 60, mutation [0.5, 1.0], recombination 0.7, maxiter 2000, seed 42}`;
-  - `bootstrap: 200`.
+  - `bootstrap: 200`;
+  - `fit_along_max_km: 45` and `background_slope: true` (D19).
+- `tropomi_co`: the CO collection and QC (solar zenith ≤ 70°).
+- `phase2`: `cell_km: 1`, `min_frac_in_corridor: 0.5` (D15), and the HCHO, VIIRS and Sentinel-2 collections and their QC (D14).
 
 ## 4.6 Git in five commands
 

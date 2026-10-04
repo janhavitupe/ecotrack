@@ -190,3 +190,10 @@ This log is the raw material for the Methods chapter.
 - Guide ch.8 (replication) updated to the current post-D19 expected outputs and Level 2 hand calculations; ch.6 gets a reading note (§6.5–6.10 use the original numbers to teach the arithmetic) and the summary renumbered to §6.13 with current values.
 - DE sensitivity rerun (D19): **24 of 36 converged, E spread 0.0003%**; all 12 unconverged runs used CR = 0.3 (6-parameter model, maxiter reached). Guide ch.6 section order fixed (6.11 D19, 6.12 annual mean, 6.13 summary).
 - `data/processed/feature_table_v1.csv` (+ meta) is committed as a frozen deliverable; raw/interim stay ignored. Guide ch.3 updated accordingly.
+
+## 2026-10-04
+- **Docs completeness audit** (user asked whether all docs reflect the full process). The core records (research log, decisions D1–D20, findings) were complete; **the learning guide lagged**: written before Phase 2 and the later Phase 1 work, and only patched for D19. Fixed:
+  - **new guide chapter 12** (Phase 2 step by step: grid, availability checks, D14, GEE layers + 2 bugs, the roads saga + GRIP4/D20, features, QA, snags);
+  - ch.0 (index); ch.3 (HCHO, VIIRS, Sentinel-2, GRIP4, EDGAR CO, EDGAR temporal profiles); ch.4 (new code files, openpyxl, config keys);
+  - ch.6 (§6.14 seasons + COVID, §6.15 CO map); ch.7 (mistakes #28–37); ch.9 (~22 new terms); ch.10 (Q29–Q34); ch.11 (full pipeline incl. Phase 2, reading order 10 sessions);
+  - findings §9 and Phase 1 report Appendix A gain the newer scripts.

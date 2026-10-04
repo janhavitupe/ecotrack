@@ -385,6 +385,35 @@ annual NOx = 16.5 / 1.23 = 13.4 kt/yr ;  annual CO₂ = 13.4 × 181 / 1000 ≈ 2
 The factors come from EDGAR's published temporal profiles (Crippa et al., 2020). Caveat: EDGAR's India
 residential month profile assumes winter heating, which Pune hardly does. A flat profile gives F = 1.20.
 
+## 6.14 Seasons and the COVID-19 check (added later)
+
+**Seasonal fits** (`run_seasonal.py`): the same EMG fit, done separately for each October–May season. Current
+values (after D19): 0.434 / 0.602 / 0.733 / 0.666 / 0.663 kg/s for 2019–20 … 2023–24. The spread *between*
+seasons is 2.8× the uncertainty *within* a season, so seasons are genuinely different: the time variation is real,
+not noise. That's why Phase 3 can use **seasonal** labels.
+
+**COVID check, deliberately model-free:** the mean NO₂ within 10 km of the source minus the mean in a rural ring
+35–45 km away, for 25 March – 31 May of each year:
+```
+2020 (lockdown) 7.8 · 2021 (restrictions) 21.5 · 2022 27.3 · 2023 29.3 · 2024 34.3   µmol/m²
+→ 2020 is −74% and 2021 −29% vs the 2022–24 mean
+```
+The satellite sees both lockdown periods in the right order of severity. (We first tried the EMG on the 2020 window
+alone: it gave −84% but with R² 0.62 and a 8.8 h lifetime. A degenerate fit, because the plume was too weak, so it
+wasn't used. The model-free check is the trustworthy one.)
+
+## 6.15 A CO-based emission map (added later; D16 feasibility)
+
+The flux-divergence idea of §6.7, applied to **CO** instead of NO₂ (`run_co_divergence.py`). CO doesn't decay, so there's
+no sink term: E = divergence of the flux only. **The trap:** Pune's winds blow mostly from one direction, and the
+fixed terrain pattern × that mean wind fakes a divergence. On synthetic data with *Pune's real winds*, the raw version
+gave a −70 mol/s fake source from terrain alone. Removing each pixel's long-term mean (as in §6.10) fixes it (≈ 0),
+with a −12% bias.
+
+Real result: 248 mol/s within 25 km vs 240 from the CO step (agreement within 3%); pattern correlation with the NO₂
+map r = 0.75; **the corridor holds 14.5% of the city's CO but 21.0% of its NOx**. That's an exploratory sign of an
+industrial corridor (low CO per NOx) next to a residential core (high CO per NOx).
+
 ## 6.13 Summary of every number, in one place (current, after D19)
 
 | Quantity | Value |

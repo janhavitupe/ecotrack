@@ -304,6 +304,8 @@ python -m ecotrack.inversion.run_co2           # NOx -> CO2, inventories, budget
 python -m ecotrack.inversion.run_oco_check --prior-radius 10 --tag _r10
 python -m ecotrack.inversion.run_co_ratio      # TROPOMI CO constraint
 python -m ecotrack.inversion.de_sensitivity    # 36 DE settings
+python -m ecotrack.inversion.run_seasonal ; python -m ecotrack.inversion.run_co_divergence
+python -m ecotrack.inversion.temporal_adjust ; python -m ecotrack.inversion.mc_budget   # annual mean (D17), Monte Carlo (D18)
 python -m pytest
 ```
 

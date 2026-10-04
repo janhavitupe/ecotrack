@@ -151,6 +151,36 @@ The plume fit originally reached 60 km downwind, which included a second source 
 ~20% low. A sloped-background robustness test exposed it. We fixed the window, reran everything, and withdrew a
 conclusion that had depended on the biased number (D19).
 
+**Q29. How did you build the Phase 2 feature table?**
+A 1 km UTM grid over the corridor (268 cells, kept if ≥ 50% inside), then every layer averaged onto the cells per month:
+- NO₂ and terrain-normalised CO from our TROPOMI cubes;
+- HCHO, VIIRS and ERA5 temperature/radiation from Earth Engine;
+- Sentinel-2 NDVI/NDBI per season;
+- roads.
+
+The result is 10,720 rows, 16 features, 0 missing, with QA histograms and spot checks. Inventories are kept as reference columns, never features.
+
+**Q30. Why HCHO and not ozone as the chemistry proxy?**
+TROPOMI ozone is a total column dominated by the stratosphere, so it says almost nothing about city chemistry, and
+reanalysis chemistry is ~50 km. HCHO tracks reactive VOCs on the same grid. Temperature and sunlight drive the chemistry (D14).
+
+**Q31. Your roads come from GRIP4, not OpenStreetMap as proposed. Why?**
+The OSM servers (and mirrors, and Geofabrik) were overloaded for hours; caching and mirrors only got 16 of 35 tiles.
+GRIP4 is a published global road dataset available inside Earth Engine. v1 uses it and records the source; v2 will use
+OSM with GRIP4 as a cross-check. Its weakness is sparse local roads (D20).
+
+**Q32. How did you convert the midday satellite rate to an annual figure?**
+EDGAR's published temporal profiles, weighted by Pune's sector mix and our actual overpass hours and months, give
+F ≈ 1.23: midday October–May runs ~23% above the annual mean, mostly because daytime traffic is ×1.6.
+
+**Q33. Why a Monte Carlo instead of root-sum-square?**
+It multiplies the real input distributions through the whole chain, keeps values positive, and gives asymmetric ranges.
+It also lets us show the known +12% method bias both uncorrected (headline) and corrected (sensitivity).
+
+**Q34. How do you know the seasonal differences are real?**
+The between-season spread (0.43–0.73 kg/s) is 2.8× the within-season bootstrap uncertainty, and an independent model-free
+check sees the 2020 lockdown (−74%) and the 2021 restrictions (−29%).
+
 **Q28. What comes next?**
 Phase 2: gridded human-activity layers (night-lights, roads, Sentinel-2). Phase 3: labels from the
 satellite flux-divergence shares, which avoids the circularity of labelling with the same proxies

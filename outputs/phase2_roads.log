@@ -245,3 +245,102 @@ RuntimeError: Overpass failed on all mirrors for one tile; rerun later (finished
   tile 18.65,73.69: 1039 ways (total unique 23642)
     attempt 1 via overpass-api.de: HTTP Error 429: Too Many Requests
     attempt 2 via overpass.kumi.systems: HTTP Error 504: Gateway Timeout
+    attempt 3 via overpass.private.coffee: The read operation timed out
+    attempt 4 via overpass-api.de: HTTP Error 504: Gateway Timeout
+    attempt 5 via overpass.kumi.systems: The read operation timed out
+    attempt 6 via overpass.private.coffee: The read operation timed out
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "D:\EcoTrack\src\ecotrack\acquire\roads_osm.py", line 131, in <module>
+    run()
+  File "D:\EcoTrack\src\ecotrack\acquire\roads_osm.py", line 99, in run
+    els, cached = fetch_tile(lat0, lon0, min(lat0 + TILE_DEG, n), min(lon0 + TILE_DEG, e))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\EcoTrack\src\ecotrack\acquire\roads_osm.py", line 82, in fetch_tile
+    els = _query(q, cache)
+          ^^^^^^^^^^^^^^^^
+  File "D:\EcoTrack\src\ecotrack\acquire\roads_osm.py", line 63, in _query
+    raise RuntimeError("Overpass failed on all mirrors for one tile; rerun later (finished tiles are cached)")
+RuntimeError: Overpass failed on all mirrors for one tile; rerun later (finished tiles are cached)
+--- pass 3 failed; tiles cached; retrying
+  tile 18.50,73.64: 175 ways (total unique 175) [cached]
+  tile 18.50,73.69: 346 ways (total unique 514) [cached]
+  tile 18.50,73.74: 1025 ways (total unique 1522) [cached]
+  tile 18.50,73.79: 2714 ways (total unique 4211) [cached]
+  tile 18.50,73.84: 3387 ways (total unique 7532) [cached]
+  tile 18.55,73.64: 144 ways (total unique 7672) [cached]
+  tile 18.55,73.69: 561 ways (total unique 8216) [cached]
+  tile 18.55,73.74: 2348 ways (total unique 10517) [cached]
+  tile 18.55,73.79: 2114 ways (total unique 12589) [cached]
+  tile 18.55,73.84: 1578 ways (total unique 14124) [cached]
+  tile 18.60,73.64: 281 ways (total unique 14405) [cached]
+  tile 18.60,73.69: 920 ways (total unique 15292) [cached]
+  tile 18.60,73.74: 3296 ways (total unique 18527) [cached]
+  tile 18.60,73.79: 2478 ways (total unique 20913) [cached]
+  tile 18.60,73.84: 1552 ways (total unique 22433) [cached]
+  tile 18.65,73.64: 211 ways (total unique 22633) [cached]
+  tile 18.65,73.69: 1039 ways (total unique 23642) [cached]
+    attempt 1 via overpass-api.de: HTTP Error 504: Gateway Timeout
+    attempt 1 via overpass-api.de: HTTP Error 504: Gateway Timeout
+  tile 18.65,73.74: 1843 ways (total unique 25381)
+    attempt 1 via overpass-api.de: HTTP Error 504: Gateway Timeout
+    attempt 2 via overpass.kumi.systems: HTTP Error 504: Gateway Timeout
+    attempt 3 via overpass.private.coffee: The read operation timed out
+    attempt 4 via overpass-api.de: HTTP Error 504: Gateway Timeout
+    attempt 5 via overpass.kumi.systems: The read operation timed out
+    attempt 6 via overpass.private.coffee: The read operation timed out
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "D:\EcoTrack\src\ecotrack\acquire\roads_osm.py", line 131, in <module>
+    run()
+  File "D:\EcoTrack\src\ecotrack\acquire\roads_osm.py", line 99, in run
+    els, cached = fetch_tile(lat0, lon0, min(lat0 + TILE_DEG, n), min(lon0 + TILE_DEG, e))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\EcoTrack\src\ecotrack\acquire\roads_osm.py", line 82, in fetch_tile
+    els = _query(q, cache)
+          ^^^^^^^^^^^^^^^^
+  File "D:\EcoTrack\src\ecotrack\acquire\roads_osm.py", line 63, in _query
+    raise RuntimeError("Overpass failed on all mirrors for one tile; rerun later (finished tiles are cached)")
+RuntimeError: Overpass failed on all mirrors for one tile; rerun later (finished tiles are cached)
+--- pass 4 failed; tiles cached; retrying
+  tile 18.50,73.64: 175 ways (total unique 175) [cached]
+  tile 18.50,73.69: 346 ways (total unique 514) [cached]
+  tile 18.50,73.74: 1025 ways (total unique 1522) [cached]
+  tile 18.50,73.79: 2714 ways (total unique 4211) [cached]
+  tile 18.50,73.84: 3387 ways (total unique 7532) [cached]
+  tile 18.55,73.64: 144 ways (total unique 7672) [cached]
+  tile 18.55,73.69: 561 ways (total unique 8216) [cached]
+  tile 18.55,73.74: 2348 ways (total unique 10517) [cached]
+  tile 18.55,73.79: 2114 ways (total unique 12589) [cached]
+  tile 18.55,73.84: 1578 ways (total unique 14124) [cached]
+  tile 18.60,73.64: 281 ways (total unique 14405) [cached]
+  tile 18.60,73.69: 920 ways (total unique 15292) [cached]
+  tile 18.60,73.74: 3296 ways (total unique 18527) [cached]
+  tile 18.60,73.79: 2478 ways (total unique 20913) [cached]
+  tile 18.60,73.84: 1552 ways (total unique 22433) [cached]
+  tile 18.65,73.64: 211 ways (total unique 22633) [cached]
+  tile 18.65,73.69: 1039 ways (total unique 23642) [cached]
+  tile 18.65,73.74: 1843 ways (total unique 25381) [cached]
+    attempt 1 via overpass-api.de: HTTP Error 429: Too Many Requests
+    attempt 2 via overpass.kumi.systems: The read operation timed out
+    attempt 3 via overpass.private.coffee: HTTP Error 504: Gateway Timeout
+    attempt 4 via overpass-api.de: HTTP Error 504: Gateway Timeout
+    attempt 5 via overpass.kumi.systems: HTTP Error 504: Gateway Timeout
+    attempt 6 via overpass.private.coffee: HTTP Error 504: Gateway Timeout
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "D:\EcoTrack\src\ecotrack\acquire\roads_osm.py", line 131, in <module>
+    run()
+  File "D:\EcoTrack\src\ecotrack\acquire\roads_osm.py", line 99, in run
+    els, cached = fetch_tile(lat0, lon0, min(lat0 + TILE_DEG, n), min(lon0 + TILE_DEG, e))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\EcoTrack\src\ecotrack\acquire\roads_osm.py", line 82, in fetch_tile
+    els = _query(q, cache)
+          ^^^^^^^^^^^^^^^^
+  File "D:\EcoTrack\src\ecotrack\acquire\roads_osm.py", line 63, in _query
+    raise RuntimeError("Overpass failed on all mirrors for one tile; rerun later (finished tiles are cached)")
+RuntimeError: Overpass failed on all mirrors for one tile; rerun later (finished tiles are cached)
+--- pass 5 failed; tiles cached; retrying

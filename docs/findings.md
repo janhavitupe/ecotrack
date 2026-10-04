@@ -759,6 +759,11 @@ python -m ecotrack.inversion.run_co_ratio
 python -m ecotrack.inversion.de_sensitivity
 python -m ecotrack.inversion.run_seasonal ; python -m ecotrack.inversion.run_co_divergence ; python -m ecotrack.inversion.temporal_adjust
 python -m ecotrack.inversion.mc_budget
+# Phase 2
+python -m ecotrack.grid ; python -m ecotrack.acquire.grid_layers_gee
+python -m ecotrack.acquire.roads_osm     # may need several runs (resumable); else:
+python -m ecotrack.acquire.roads_grip
+python -m ecotrack.features
 # Method tests
 python -m pytest
 ```

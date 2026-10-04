@@ -58,9 +58,21 @@ PHASE 1 (chapter 6) — run in this order                     │ │ │ │ �
   4 inversion/run_oco_check.py ◄── divergence_map + co2_summary + OCO soundings ◄──────┘
        └─► outputs/phase1/oco_check.json                                  │
   5 inversion/run_co_ratio.py ◄── CO cube + DEM + EDGAR + city_fit + co2_summary
-       └─► outputs/phase1/co_ratio.json   (the headline 2.98 Mt/yr)
-  6 inversion/de_sensitivity.py ◄── cube + ERA5 + city_fit
-       └─► outputs/phase1/de_sensitivity.json
+       └─► outputs/phase1/co_ratio.json   (CO:NOx, CO₂:NOx, revised budget)
+  6 inversion/run_seasonal.py ◄── cube + ERA5 + city_fit   └─► seasonal.json
+  7 inversion/run_co_divergence.py ◄── CO cube + DEM + ERA5 + co_ratio + divergence_map   └─► co_divergence.json
+  8 inversion/temporal_adjust.py ◄── co2_summary + co_ratio + EDGAR temporal profiles   └─► temporal_adjust.json
+  9 inversion/mc_budget.py ◄── city_fit + co2_summary + co_ratio + temporal_adjust
+       └─► outputs/phase1/mc_budget.json   (the headline: 2.79 Mt/yr annual [1.79–4.36])
+ 10 inversion/de_sensitivity.py ◄── cube + ERA5 + city_fit   └─► de_sensitivity.json
+
+PHASE 2 (chapter 12)
+  grid.py ──────────────────► data/interim/grid/cells.csv, cells.geojson
+  acquire/grid_layers_gee.py ◄── cells.geojson ──► layers_monthly.csv (VIIRS, HCHO, ERA5), layers_seasonal.csv (NDVI, NDBI)
+  acquire/roads_osm.py ◄── cells ──► layers_roads.csv (OSM; tiles cached in data/interim/osm_road_tiles/)
+  acquire/roads_grip.py ◄── cells.geojson ──► layers_roads_grip.csv (GRIP4 fallback)
+  features.py ◄── cells + both cubes + DEM + ERA5 + all layers + EDGAR + ODIAC
+       └─► data/processed/feature_table_v1.csv (+ .meta.json) ; outputs/phase2/qa_*
 ```
 
 **Library files** (not run by themselves; they hold reusable functions):
@@ -73,11 +85,12 @@ PHASE 1 (chapter 6) — run in this order                     │ │ │ │ �
 | `acquire/ee_utils.py` | Earth Engine login, `tropomi_qc()`, corridor as an EE geometry | every GEE script |
 | `inversion/emg.py` | rotation, binning, line density, EMG, DE fit, emission formula | run_city, run_divergence, run_co_ratio, de_sensitivity, tests |
 | `inversion/divergence.py` | mean flux, divergence, emission map, area sums | run_divergence, tests |
-| `inversion/run_city.py` | `match_wind()`, plot colours | the later run_* scripts reuse these |
+| `inversion/run_city.py` | `match_wind()`, `fit_subset()` (incl. the D19 window/slope and quality rule), `fit_window()`, plot colours | the later run_* scripts reuse these |
+| `grid.py` | `load_cells()` | Phase 2 scripts |
 
 ---
 
-## 11.3 Reading order (8 sessions)
+## 11.3 Reading order (10 sessions)
 
 Each session: read the file, then do the "try it" exercise in §11.4. Have chapter 6 open alongside.
 
@@ -92,8 +105,12 @@ Each session: read the file, then do the "try it" exercise in §11.4. Have chapt
 | 7 | `inversion/divergence.py` → `run_divergence.py` → `run_co2.py` | 64 + 177 + 209 | The map, the zones, and the NOx → CO₂ conversion. |
 | 8 | `run_co_ratio.py` (+ `tests/test_co_step.py`), then `run_oco_check.py` | 245 + 212 | The CO breakthrough and the OCO check. |
 
+| 9 | `run_seasonal.py`, `temporal_adjust.py`, `mc_budget.py` | ~100 each | Seasons, midday → annual, Monte Carlo: short scripts built on the earlier ones. |
+| 10 | `grid.py` → `acquire/grid_layers_gee.py` → `features.py` (chapter 12) | 100 + 130 + 190 | Phase 2: how the feature table is assembled and QA'd. |
+
 Skip until later: `g1_oco_soundings.py` (mostly download logistics), `g4_map.py` (mostly HTML),
-`tropomi_gee.py` (a week-1 test), `de_sensitivity.py` (a loop around `fit_emg`).
+`tropomi_gee.py` (a week-1 test), `de_sensitivity.py` (a loop around `fit_emg`), `roads_osm.py` / `roads_grip.py`
+(download logistics), `run_co_divergence.py` (an exploratory map).
 
 ---
 

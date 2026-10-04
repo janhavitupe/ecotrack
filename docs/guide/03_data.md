@@ -14,7 +14,12 @@ A quick map first:
 | SRTM | Ground height | Radar map | Terrain correction for CO |
 | EDGAR | Emissions by sector | Inventory | NOx→CO₂ ratio, comparison |
 | ODIAC | Fossil CO₂ emissions | Inventory | Comparison |
-| OpenStreetMap | Roads, places, industrial land | Crowd-sourced map | Corridor geometry |
+| OpenStreetMap | Roads, places, industrial land | Crowd-sourced map | Corridor geometry; roads (v2) |
+| TROPOMI HCHO | Formaldehyde column | Satellite | Chemistry/VOC proxy (Phase 2, D14) |
+| VIIRS DNB | Night-time lights | Satellite | Human activity (Phase 2) |
+| Sentinel-2 | Surface reflectance → NDVI, NDBI | Satellite | Vegetation / built-up (Phase 2) |
+| GRIP4 | Road network | Published dataset | Roads in feature table v1 (D20) |
+| EDGAR temporal profiles | Hourly/weekly/monthly emission patterns | Inventory tables | Midday → annual (D17) |
 
 ---
 
@@ -229,6 +234,44 @@ rejected (chapter 7).
 
 ---
 
+## 3.7b Datasets added in later work
+
+**TROPOMI HCHO (formaldehyde)**: same instrument and Earth Engine L3 pipeline as NO₂
+(`COPERNICUS/S5P/OFFL/L3_HCHO`, band `tropospheric_HCHO_column_number_density`, mol/m²; QC cloud ≤ 0.3, solar
+zenith ≤ 70°). HCHO is made when VOCs (volatile organic compounds, from vehicles, solvents, vegetation) are
+oxidised, so it's the standard satellite indicator of reactive VOCs. Used as the **chemistry proxy** (D14),
+because TROPOMI's O₃ product is a *total* column dominated by the stratosphere. Typical Pune value ~2.4 × 10⁻⁴ mol/m².
+
+**VIIRS Day/Night Band (night lights)**: the VIIRS instrument on the Suomi-NPP satellite photographs the Earth at
+night; brightness tracks human activity. We use NOAA's **monthly stray-light-corrected composite**
+(`NOAA/VIIRS/DNB/MONTHLY_V1/VCMSLCFG`): `avg_rad` in nW/cm²/sr, plus `cf_cvg` (how many cloud-free nights went
+into the month; zero → masked). Pune corridor: 2–63, median rising 15.6 (2019) → 23.6 (2024).
+
+**Sentinel-2 (Copernicus, ESA)**: two satellites taking 10–60 m multispectral images every ~5 days. We use the
+surface-reflectance product `COPERNICUS/S2_SR_HARMONIZED`:
+- bands B4 (red), B8 (near-infrared), B11 (short-wave infrared);
+- the **SCL** scene-classification band, to drop cloud and shadow pixels.
+
+From these: **NDVI** = (B8 − B4)/(B8 + B4) (vegetation) and **NDBI** = (B11 − B8)/(B11 + B8) (built-up). These are
+seasonal medians of 40–47 scenes per season.
+
+**GRIP4 (Global Roads Inventory Project v4)**: Meijer et al. (2018), Environmental Research Letters 13, 064006. A
+harmonised global road map built from national datasets and OSM, hosted in Earth Engine's community catalogue
+(`projects/sat-io/open-datasets/GRIP4/South-East-Asia`). The road type `GP_RTP` runs from 1 highway, 2 primary,
+3 secondary and 4 tertiary to 5 local. Used for feature table v1 when the OSM servers were overloaded (D20). Sources ~2014;
+local roads sparse.
+
+**EDGAR CO (v8.1 AP)**: same download and format as EDGAR NOx; used for the sector CO:NOx ratios (D4/D12).
+
+**EDGAR temporal profiles** (Crippa et al., 2020, Scientific Data 7, 121): how each sector's emissions vary by
+**hour** (per month and day type), **weekday** and **month**, per country/region.
+- `EDGAR_temporal_profiles_r1.xlsx`: monthly profiles. India has its own only for residential (1A4) and fires;
+  other sectors use world region 7.
+- `auxiliary_tables.rar`: `hourly_profiles.csv`, `weekly_profiles.csv`, `weekdays.csv`, `weekenddays.csv`. Extracted
+  with Windows' built-in `tar.exe`.
+
+Used to convert our midday October–May rate to an annual mean (D17).
+
 ## 3.8 Formats, grids and where each file lives
 
 | Format | What it is | Where we met it |
@@ -264,6 +307,9 @@ rejected (chapter 7).
 | EDGAR | 3 gases × (4 years totals + 19 sectors for 2021) |
 | ODIAC | 35 months |
 | SRTM | 1 map |
+| TROPOMI HCHO, VIIRS | 40 months × 268 cells (monthly means) |
+| Sentinel-2 | 5 seasons × 40–47 scenes |
+| GRIP4 roads | 268 cells (lengths per class) |
 | OSM | 10 places, the highway (134 road segments), 259 industrial areas |
 
 Total on disk: tens of MB, because we only kept the Pune box.

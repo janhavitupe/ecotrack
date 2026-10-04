@@ -262,6 +262,56 @@
 
 **Waypoint**: one of the 10 named places along the corridor.
 
+**Annual-mean equivalent**: the satellite midday October–May rate divided by F (D17), for comparison with annual inventories.
+
+**Background slope (c)**: the extra EMG parameter in D19: a background that changes linearly with distance (B + c·x).
+
+**Bilinear interpolation**: estimating a value at a point from the four surrounding grid values (used to put NO₂/CO on cell centres).
+
+**Cell (grid cell)**: one 1 km × 1 km square of the Phase 2 grid; 268 of them.
+
+**Converged (optimiser)**: the DE population has settled on one answer before the iteration limit.
+
+**F (temporal factor)**: how much higher emissions are in our overpass hours and months than on average (1.20–1.23).
+
+**Fallback (flat)**: the D19 quality rule. An unconstrained sloped fit is refitted with a flat background.
+
+**Feature table**: the Phase 2 table, one row per cell per month, with all the input variables (v1: 10,720 rows).
+
+**Fit window**: how far downwind the EMG is fitted (45 km after D19).
+
+**GRIP4**: Global Roads Inventory Project, a published global road map; used for roads in feature table v1.
+
+**HCHO**: formaldehyde, a satellite indicator of reactive VOCs; our chemistry proxy (D14).
+
+**IPCC code**: standard emission-category codes (e.g. 1A3b = road transport), used to match EDGAR profiles.
+
+**Lognormal**: a distribution of a quantity whose logarithm is normal; always positive, skewed. Used in the Monte Carlo.
+
+**Model-free check**: a test that doesn't rely on fitting a model (e.g. city-minus-rural NO₂ for COVID).
+
+**Monte Carlo**: estimating uncertainty by simulating the calculation many times with randomly drawn inputs (200,000 draws).
+
+**NDBI**: Normalized Difference Built-up Index, (SWIR − NIR)/(SWIR + NIR), from Sentinel-2 bands B11 and B8.
+
+**NDVI**: Normalized Difference Vegetation Index, (NIR − red)/(NIR + red), from Sentinel-2 bands B8 and B4.
+
+**Overpass API / mirror**: OSM's query servers; mirrors are copies run by other organisations.
+
+**Quality rule**: the D19 check that flags a sloped fit as unconstrained (τ < 0.6 h or a bootstrap range > ×2).
+
+**SCL**: Sentinel-2's Scene Classification Layer (cloud, shadow, vegetation, water…), used to mask clouds.
+
+**Second source**: emissions downwind of the main city (PCMC/Talegaon) that broke the single-source EMG assumption (D19).
+
+**Temporal profile**: how emissions are spread over hours, weekdays and months (EDGAR; Crippa et al. 2020).
+
+**Unconstrained fit**: a fit whose parameters the data can't pin down (e.g. slope vs decay trade-off).
+
+**VIIRS DNB**: the night-time light sensor on Suomi-NPP; monthly radiance in nW/cm²/sr.
+
+**VOC**: volatile organic compounds, reactive gases (from fuels, solvents, plants) that drive urban photochemistry.
+
 **x₀**: see e-folding distance.
 
 **XCO₂**: column-averaged CO₂ mole fraction (ppm), what OCO measures.

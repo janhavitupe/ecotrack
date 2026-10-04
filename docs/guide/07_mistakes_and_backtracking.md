@@ -157,12 +157,51 @@ averages across areas of very different size.
 - **Fix:** a quality rule (τ < 0.6 h or bootstrap range > ×2 → refit with a flat background).
 - The DE test also showed CR = 0.3 doesn't converge in time with 6 parameters. All converged runs still agree exactly.
 
+## Later Phase 1 analyses and Phase 2
+
+**28. The lockdown EMG fit was degenerate.** For 25 Mar – 31 May 2020 alone, the EMG gave −84%, but with R² 0.62, a
+parameter at its bound and an 8.8 h lifetime. The plume was too weak to fit.
+- **Response:** don't use it; switch to a **model-free** check (city minus rural NO₂ excess): −74% (2020), −29% (2021).
+- **Lesson:** when a model's assumptions fail, use a simpler, assumption-free measurement.
+
+**29. A synthetic test that was too kind.** The CO flux-divergence test passed with random wind directions, but
+Pune's real winds mostly blow one way, and then fixed terrain fakes a −70 mol/s source.
+- **Fix:** test with the **real wind record**, and remove static patterns.
+- **Lesson:** synthetic tests must mimic the real conditions that matter.
+
+**30. EDGAR temporal profiles: name matching failed silently.** The first version matched sectors by *name*, fell back to
+"flat" for most of them, and matched agricultural soils to "rice cultivation".
+- **Fix:** match on IPCC codes (India for residential, region 7 otherwise).
+- **Lesson:** print what was actually matched.
+
+**31. Windows reserved names.** A folder called `aux` can't be created on Windows (`aux`, `con`, `nul` and `prn` are reserved).
+Renamed to `edgar_aux_tables`. The `.rar` file was opened with Windows' built-in `tar.exe`.
+
+**32. Earth Engine names single-band outputs `mean`.** VIIRS and HCHO came back blank for every cell.
+- **Fix:** `setOutputs([name])`.
+- **Lesson:** look at the first rows of every new output before running the full job.
+
+**33. Sampling a coarse raster at its native scale over small polygons.** ERA5 (27.8 km) reduced over 1 km cells
+left 7,560 of 10,720 rows empty, because most cells contain no pixel centre.
+- **Fix:** sample at 1 km.
+
+**34. The OpenStreetMap servers were overloaded for hours.** Smaller tiles, caching, mirrors and lighter queries all
+helped, but too slowly (16/35 tiles).
+- **Response:** a published fallback (GRIP4, inside Earth Engine), documented as D20, with OSM kept as the plan for v2.
+- **Lesson:** don't let one external service block the whole project; have a documented plan B.
+
+**35. The C: drive filled up again (76 MB)**, and Windows refused to start Python. Fixed by clearing the pip cache and temp files.
+
+**36. Windows console encoding.** Printing "→" crashed when the output was piped (cp1252). Prints were switched to ASCII.
+
+**37. Asking Earth Engine for the newest image of all of Sentinel-2** hung the check. Filter by place and date first.
+
 ## Small tooling issues (for completeness)
 - Git Bash sometimes choked on long inline Python heredocs. Scripts were written to files instead.
 - Matplotlib titles were clipped by long axis labels. The fix was to anchor titles to the figure (`suptitle`).
 - A mistyped memory path ("JANHAV" for "JANHAVI"). Retried.
 
-## The pattern across all 27
+## The pattern across all 37
 Almost every problem was caught by one of three habits:
 1. **Sanity-check numbers against physics** (439 overpasses? 29% outliers? a 2.6× mismatch?).
 2. **Test methods on synthetic data with known answers**, and check real-data behaviour too.
