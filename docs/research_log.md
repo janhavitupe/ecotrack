@@ -291,3 +291,62 @@ This log is the raw material for the Methods chapter.
 - `tests/test_tensor.py` (circular wind mean; fold balance and reproducibility): 17 tests pass.
 - **Analysis plan updated** (still a draft, to be frozen): input SHA-256s, regional ceilings, the L-co corridor focus, §4.1 15 km with reasoning, robustness at 10/20 km, PCMC counts, §10 history table.
 - **Docs:** new `docs/phase4_report.md`, guide ch.14; decisions D22 results + D23; findings §1 item 18, §4d, §5, §7, §8, §9; data dictionary (model table); README; guide ch.0, 4, 7 (#41–44), 9 (6 terms), 10 (Q40–Q43), 11.
+- **Analysis plan finalised for freezing** (user: "next").
+  - **Range check, no models** (tree models can't predict above their training maximum): the corridor-transfer and PCMC splits have no test row above their training max. **Block fold 3** (holding the central-Pune peak) has 139 of 2,890 test rows above its training max, so it gets per-fold reporting, the pooled comparison is repeated without fold 3, and ridge is shown for that fold.
+  - **Test-set block counts:** corridor 7 blocks but uneven (117/55/44/31/14/4/3 cells); **PCMC only 2 blocks (58 + 5 cells)**, so it is a descriptive case study with no significance claim.
+  - **Gaps closed** (each would otherwise have been a post-hoc choice):
+    - primary model = Random Forest (ridge and XGBoost as robustness);
+    - **four primary hypotheses H1–H4**; everything else is secondary;
+    - spatial and temporal skill and N1 defined precisely;
+    - leave-one-season-out scores temporal skill only;
+    - the L-co experiment list and the residual-target scope.
+  - Status set to **FROZEN**; it takes effect with the user's commit, before any training.
+- **Phase 5 code written** (`src/ecotrack/experiments.py`).
+  - It checks the model table's SHA-256 against the plan and refuses to run unless the plan says FROZEN.
+  - A `--smoke` mode replaces the labels with random noise and uses 20-tree models, so the plumbing can be tested without revealing any real result.
+- **The smoke test caught a flaw in the decision rule.** On pure-noise labels, 4 of 5 primary contrasts came out "SIGNIFICANT" (H1 −0.028, H2a +0.061, H2b +0.082, H3 −0.021).
+  - **Cause:** on noise, a model's out-of-sample error grows with how much its predictions vary, and that differs between feature sets. A 1-feature RF (A) can't decorrelate its trees, so it varies more than a 2-feature RF (B), and B "beats" A on noise.
+  - The block bootstrap resamples only the test blocks, so it measures this systematic model-variance difference very precisely and calls it significant. On real data it would masquerade as "CO adds skill".
+  - **Proposed fix:** compare each experiment against its own shuffled twin (same features and model, feature rows permuted in training), i.e. [s(E1) − s(E1 shuffled)] − [s(E2) − s(E2 shuffled)]. The variance artefact cancels.
+  - **Calibration started** (`--calibrate 3`): 3 noise seeds with the real 500-tree settings, plain rule vs shuffle-corrected rule, counting false positives. Still pre-freeze: the plan is not committed and no model has seen a real label.
+- **Calibration of the bootstrap rule** (real 500-tree settings, 3 noise seeds):
+  - plain rule: **7 of 9 false alarms**;
+  - one-shuffled-twin correction: **2 of 9**.
+  Neither is acceptable.
+- **Decision rule redesigned as group permutation tests.**
+  - **Method:** fit the base model + group G with real values, then refit 99 times with G's training rows shuffled; p = (1 + #null ≥ observed)/100; significant if p ≤ 0.05.
+  - Both arms have identical inputs, and refits carry the training randomness.
+  - **Hypotheses restated** as "does G add skill to a base model that includes geography":
+    - H1: activity layers on geography + NO₂ + CO + weather/HCHO;
+    - H2a/H2b: CO on geography + NO₂ (spatial / temporal);
+    - H3: D's features on the residual target;
+    - H4: NO₂ on geography for L-co in the corridor.
+  - Secondary results are point estimates only. Robustness = the same sign with ridge, XGBoost, 10/20 km blocks and without fold 3 (9 shuffles each).
+  - One RF fit (500 trees, 12 cores) takes 2.8 s.
+  - `experiments.py` rewritten; the smoke test passes (noise: all "no detectable effect").
+  - **Permutation-test calibration started:** 5 noise seeds × 5 tests, 19 shuffles, real settings (~2 h). The plan's §3.1, §7, §8 and §10 were updated (pre-freeze).
+- **Permutation calibration, after 15 of 25 tests** (independent noise):
+  - H1, H2a, H3, H4: p-values spread 0.10–0.85, no false alarms.
+  - **H2b (CO temporal) gave p 0.10, 0.05 (false alarm), 0.10**, with positive effects each time. With 19 shuffles, three p ≤ 0.10 in a row has chance ≈ 0.001: **a bias**.
+  - **Cause:** CO varies mostly between seasons, so shuffling its rows destroys its seasonal structure, and the shuffled versions are an unfair null for a *temporal* test.
+  - **Fix:** H2b uses **season permutations**. Each row gets CO from the same cell in another season (all 119 non-identity orders of 5 seasons in the real run; 19 random ones in calibration). Each season's CO map stays realistic; only its alignment with the label's seasons breaks.
+- **Second, harder null for the spatial tests:** smooth random maps (Gaussian-weighted white noise, σ = 6 km; the same in every season, plus 10% noise). Its variogram matches the real L-fd's (50% of the 30 km semivariance at 15.5 km vs 14.5 km).
+  - Queued: H2b season-permutation calibration (5 seeds) and H1/H2a/H3/H4 on smooth nulls (5 seeds), after the current run.
+  - `experiments.py`: `perm="seasons"` option; `noise_labels(smooth_km)`; `--smooth-km`, `--only`; a harmless sklearn warning silenced.
+- **Permutation calibration finished** (independent noise, 5 seeds, 19 shuffles, real settings, 174 min): **2 of 25 false alarms (8%)**, both from the row-shuffled H2b (p 0.10, 0.05, 0.10, 0.55, 0.05). **H1, H2a, H3, H4: 0 of 20** (p 0.10–0.95). This confirms the H2b bias and the switch to season permutations. File: `outputs/phase5/permutation_test_calibration.json`.
+  - Next (run manually by the user): `--calibrate 5 --only H2b` (season permutations) and `--calibrate 5 --smooth-km 6 --only H1 H2a H3 H4` (smooth nulls).
+- The first H2b season-permutation run crashed ("assignment destination is read-only": pandas returned a read-only array). Fixed with `to_numpy(float, copy=True)`; the season path was smoke-tested on noise. The smooth-null calibration (H1/H2a/H3/H4, σ 6 km) is running; the H2b season calibration is queued after it.
+- **Smooth-null calibration exposed a fundamental flaw in row shuffling.** Null labels: smooth random maps, σ = 6 km, as smooth as L-fd.
+  - Partial run (13 tests): **8 of 12 false alarms** for H2a/H3/H4 (all at p = 0.05, the minimum with 19 shuffles), while H1 sat at p = 1.00 every time (the opposite extreme). Stopped early; the verdict was clear.
+  - **Why:** two unrelated *smooth* maps often line up by chance; with ~13 independent areas, chance correlations of about 0.3 are common. A row-shuffled feature is no longer smooth, so it never lines up by chance, and the real (smooth) feature "wins" whenever it happens to resemble the label. Row shuffling is not a valid null for map data. The independent-noise calibration missed this because noise labels have no smoothness to line up with.
+  - **Fix: rotation ("spin") null** for the spatial tests H1, H2a, H3, H4.
+    - Each null rotates the tested group's maps about the emission source (the regional grid is a 30 km disk around it), alternating plain rotations and mirror-then-rotate, at angles spread over 20–340°. The same transform is applied to every season, for training and test rows.
+    - A rotated map keeps its smoothness and its rings around the city; only its directions stop lining up. The test therefore asks whether the real *placement* matters beyond geography.
+    - **Checks:** distance to the source is preserved within 30 km (median change 0.2–0.35 km, max 0.8 km). Corridor cells beyond 30 km (the Talegaon end, ~9% of corridor cells) take the nearest grid cell, with up to 9 km distortion (documented). Rotated NO₂ still correlates 0.43–0.93 with real NO₂ (the radial part is kept by design).
+  - H2b keeps season permutations (the same idea in time).
+  - **Calibration rerun:** spin tests on smooth nulls (5 seeds × H1, H2a, H3, H4) and H2b season permutations on independent noise (5 seeds).
+- **Calibration of the final decision rule: passed.** Real settings throughout (RF 500 trees, 19 nulls per test, 5 seeds).
+  - **Rotation tests on smooth null maps (σ 6 km): 1 false alarm in 20 (5%).** p-values: H1 0.70/0.40/0.65/0.15/0.60; H2a 0.85/0.50/0.90/0.05/0.45; H3 0.70/0.70/0.10/0.25/0.55; H4 0.30/0.10/0.10/0.95/0.40. File: `outputs/phase5/permutation_test_calibration_smooth6km_H1_H2a_H3_H4.json`. For comparison, row shuffling on the same null type gave 8 of 12.
+  - **H2b season permutations on independent noise: 0 false alarms in 5** (p 0.45, 0.30, 0.25, 0.80, 0.30; row shuffling on the same seeds gave 2 of 5, with 4 of 5 p ≤ 0.10). File: `outputs/phase5/permutation_test_calibration_H2b.json`.
+  - Code matched to the plan: the primary H2b run uses **all 119** season orders (calibration and robustness sample a subset).
+  - **The plan is ready to freeze.** The user's commit of `docs/phase5_analysis_plan.md` will be the pre-registration timestamp; no model has seen a real label.

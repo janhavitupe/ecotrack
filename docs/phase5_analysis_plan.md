@@ -1,6 +1,6 @@
 # EcoTrack — Analysis Plan for the ML Experiments (Phases 4–6)
 
-**Status:** DRAFT, to be frozen (committed to git) **before any model is trained**. The commit timestamp is the proof.
+**Status:** **FROZEN.** The git commit containing this line, made before any model was trained, is the proof. Any later change is a dated amendment (§9).
 **Author:** Janhavi Tupe · **Date:** 2026-10-10
 **Why this document exists:**
 - The labels are constructed and largely one smooth gradient away from Pune.
@@ -59,11 +59,28 @@ L-co is weak away from the city:
 | **N1: shuffled control** | D's features with rows permuted within each training fold (breaks the feature–label link) |
 | **Feature-group ablation** | D minus one group at a time: {NO₂}, {CO}, {weather + HCHO}, {night lights}, {land cover: NDVI, NDBI}, {roads}, {industrial land} |
 
+**Experiments on L-co:** N0, N1, A, C and D, with `co_norm` removed from C and D (B is undefined).
+
 **Residual target (the "beyond geography" test).** For every split, fit the label against distance to the source on the **training cells only**:
 - a monotone smooth: isotonic regression, decreasing with distance;
 - then train each experiment on the residuals and score on held-out residuals.
 
-The fit uses training data only, so no information leaks from the test cells.
+The fit uses training data only, so no information leaks from the test cells. The residual target is run for N0, A, B, C and D on the block folds and the PCMC hold-out.
+
+### 3.1 Primary hypotheses (the only ones that carry a significance claim)
+With ~4 experiments × 2 labels × 4 splits, some differences would pass a 95% rule by chance. So **five tests are primary** (four hypotheses; H2 is scored for space and for time); everything else is secondary and reported descriptively.
+
+| # | Tested group G | Base model | Label | Split | Score |
+|---|---|---|---|---|---|
+| H1 | **activity layers** (night lights, NDVI, NDBI, roads, industrial land) | geography + NO₂ + CO + weather/HCHO | L-fd | 15 km blocks | spatial skill |
+| H2a | **CO** | geography + NO₂ | L-fd | 15 km blocks | spatial skill |
+| H2b | **CO** | geography + NO₂ | L-fd | leave-one-season-out | temporal skill |
+| H3 | **all of D's features** | none (the target already has the distance trend removed) | L-fd residual target | 15 km blocks | R² |
+| H4 | **NO₂** | geography | L-co | 15 km blocks, corridor cells | spatial skill |
+
+Each hypothesis asks: **does feature group G add predictive skill to the base model?** "Geography" = distance to source, x, y, so each test asks whether G helps *beyond location*. The test is a group permutation test (§7).
+
+H4 is the NO₂-independent test: does satellite NO₂ locate emissions in a label that never used NO₂, beyond geography?
 
 ## 4. Splits
 
@@ -88,7 +105,17 @@ The fit uses training data only, so no information leaks from the test cells.
 1. **Spatial-block K-fold:** 15 km square blocks, assigned to K = 5 folds balanced by cell count (seed 42); all seasons of a cell stay in the same fold. *Robustness:* the comparison is repeated with 10 km and 20 km blocks; conclusions are reported as robust only if the sign of each significant difference holds at all three sizes.
 2. **Corridor transfer:** train on all cells *outside* the corridor; test on the 268 corridor cells. This is the purest "does it generalise to an unseen area" test.
 3. **PCMC hold-out:** train on cells more than 5 km from any C2 cell (2,600 cells); test on C2 (63 cells); the 231 cells in between are unused. C2 hosts the second hotspot, which a distance-only model cannot place.
-4. **Leave-one-season-out (L-fd only):** the temporal test.
+4. **Leave-one-season-out (L-fd only):** the temporal test. Only **temporal skill** is scored here: the held-out season shares its cells with the training seasons, so spatial skill would be leaked.
+
+**Two test sets are too small for interval estimates:**
+- **Corridor transfer:** 7 blocks, but uneven (117, 55, 44, 31, 14, 4, 3 cells), so effectively 3–4 areas. Its block-bootstrap intervals are reported but expected to be wide.
+- **PCMC hold-out:** 2 blocks (58 + 5 cells), so effectively **one area**. It is a **descriptive case study**: point estimates only, no significance claim. P4's "PCMC" part is judged descriptively.
+
+**Extrapolation in fold 3 (checked before freezing, from label ranges only, no model):**
+- Tree models can't predict above the largest training label.
+- Block fold 3 holds the central-Pune peak: 139 of its 2,890 test rows exceed every training label in that fold.
+- Every other fold, the corridor split and the PCMC split have no test row above their training maximum.
+- So results are also reported **per fold**, fold 3 is flagged, and the pooled comparison is repeated **without fold 3**. Ridge (which extrapolates) is shown for fold 3.
 
 ## 5. Models (fixed settings: no per-experiment tuning)
 
@@ -98,32 +125,61 @@ The fit uses training data only, so no information leaks from the test cells.
 | Random Forest | 500 trees, min_samples_leaf 5, max_features 0.5, seed 42 |
 | XGBoost | 400 trees, depth 4, learning rate 0.05, subsample 0.8, colsample 0.8, seed 42 |
 
-Hyperparameter tuning (proposal Phase 6) is done **once, on the best configuration only**, by nested CV, and is reported separately. It never decides between experiments.
+- **Primary model: Random Forest.** All decisions (§3.1, §7) use it.
+- **Ridge and XGBoost are robustness checks:** see §7 (robust = same sign in every variant).
+- **Hyperparameter tuning** (proposal Phase 6) is done once, on the best configuration only, by nested CV, and reported separately. "Best" = the experiment with the largest ΔR² over N0 on L-fd, 15 km blocks. Tuning never decides between experiments.
+- **Standardisation** is fitted on training data only. Trees don't need it but receive the same inputs.
 
 ## 6. Metrics
 
 - **R², RMSE, MAE** on held-out data.
 - **Skill over the null:** ΔR² = R²(experiment) − R²(N0), on the same split.
-- **Decomposition** of each held-out prediction:
-  - **spatial skill:** R² of cell means across held-out cells;
-  - **temporal skill:** R² of each cell's seasonal anomalies (L-fd only).
+- **Decomposition** of the pooled out-of-fold predictions:
+  - **spatial skill:** R² between the predicted and observed **cell means** (averaged over the 5 seasons) across held-out cells;
+  - **temporal skill:** R² between predicted and observed **seasonal anomalies** (value minus that cell's 5-season mean), pooled over cells (L-fd only).
+- **N1 (shuffled control):** training feature rows are permuted (labels stay), the model is trained, and it predicts the unpermuted test features.
 - **Ceiling-normalised R²:** R² ÷ noise ceiling.
 
-## 7. Decision rule
+## 7. Decision rule: group permutation tests
 
-- All experiments are scored on **identical splits**.
-- Differences (e.g. D − C, D − N0) are **paired**. Their 95% intervals come from a **block bootstrap**: 1,000 resamples of whole spatial blocks of the test set.
-- **A difference counts only if its 95% interval excludes zero.** Otherwise the result is "no detectable difference", and that is reported as such.
+For each primary hypothesis:
+1. Fit the base model + G with the **real** G values: out-of-fold score s_obs.
+2. Refit **99 times** with G replaced by a **structured null version** that keeps its realistic structure but breaks its alignment with the label (same columns, model, splits and seed): scores s_1 … s_99.
+   - **Spatial tests (H1, H2a, H3, H4): rotations.** G's maps are rotated about the emission source (alternating plain rotations and mirror-then-rotate, angles spread over 20–340°), with the same transform in every season, for training and test rows. A rotated map keeps its smoothness and its rings around the city; only its directions stop lining up with the label.
+   - **Temporal test (H2b): season permutations** (below).
+   - **Why not shuffle rows:** a shuffled map loses its smoothness. On smooth random null labels, row shuffling gave 8 false alarms in 12 tests: unrelated smooth maps line up by chance, and shuffled ones never do (§10).
+3. **Effect** = s_obs − mean(s_r). **One-sided p** = (1 + number of s_r ≥ s_obs) ÷ 100. Rotations by different angles are not fully independent (with ~13 independent areas, only a handful of truly different rotations exist), so p-values near 0.05 are interpreted cautiously and effect sizes are always shown.
+**Exception, H2b (temporal):** shuffling rows would destroy CO's seasonal structure (an unfair null for a timing test). H2b instead uses **season permutations**: each row receives CO from the same cell in another season, using all 119 non-identity orders of the 5 seasons, so p = (1 + #null ≥ observed) ÷ 120.
+
+4. **G adds skill only if p ≤ 0.05**, i.e. the real model beats at least 95 of the 99 shuffled versions. Otherwise the result is "no detectable effect", and that is reported as such.
+
+**Why this rule (and not a bootstrap of the difference between two experiments):**
+- On pure-noise labels the bootstrap rule flagged **7 of 9** contrasts as significant.
+- Models with different inputs differ in how much their predictions wobble, and resampling the test set measures that systematic difference very precisely.
+- Correcting each experiment by one shuffled twin still gave **2 of 9**.
+- In a permutation test both arms have identical inputs, and refitting captures the training randomness.
+- **Calibration before freezing (real settings, 19 nulls per test, 5 seeds):**
+
+  | Null labels | Tests | False alarms |
+  |---|---|---|
+  | Smooth random maps (σ = 6 km, as smooth as L-fd) | H1, H2a, H3, H4 (rotation nulls) | **1 of 20 (5%)** |
+  | Independent noise | H2b (season permutations) | **0 of 5** |
+
+  For comparison, row shuffling gave 8 of 12 (smooth maps) and 2 of 5 (H2b). Files: `outputs/phase5/permutation_test_calibration_*.json`.
+
+**Robustness:** each primary effect is recomputed (9 shuffles) with ridge and XGBoost, with 10 and 20 km blocks, and without fold 3. It is called robust if its sign is the same in every variant.
+
+**Secondary results** (experiments A–D vs N0, every split, the ablation) are reported as point estimates only, with no significance claim.
 
 ## 8. Predictions (written before any model is run)
 
 | # | Prediction | Reason |
 |---|---|---|
 | P1 | On L-fd, A scores high in raw R² | Construction link (NO₂ ↔ L-fd, Spearman 0.91) |
-| P2 | **B ≈ A in spatial skill** on L-fd | CO barely varies between 1 km cells (Phase 2 spatial share 0.02) |
-| P3 | B may add a little temporal skill on L-fd (leave-one-season-out) | CO's information is seasonal; small effect expected |
-| P4 | D > C in spatial skill, and D > N0 on the residual target, with the gain concentrated in the PCMC hold-out | Activity layers should place the PCMC hotspot that geography can't |
-| P5 | N1 (shuffled) shows ~0 skill over N0 | Sanity control |
+| P2 | **H2a: CO adds no detectable spatial skill** on L-fd | CO barely varies between 1 km cells (Phase 2 spatial share 0.02) |
+| P3 | H2b: CO may add a little temporal skill on L-fd (leave-one-season-out) | CO's information is seasonal; small effect expected |
+| P4 | H1 and H3 significant: activity layers add spatial skill beyond geography, with the gain most visible in the PCMC hold-out (descriptive) | Activity layers should place the PCMC hotspot that geography can't |
+| P5 | N1 (shuffled) shows ~0 skill over N0; H4 significant (NO₂ locates emissions in the CO label beyond geography) | Sanity control; NO₂ ↔ L-co Spearman 0.79 |
 | P6 | NDBI contributes little or negatively in the ablation | Dry-soil confusion (Phase 2) |
 | P7 | On L-co, scores are lower in absolute terms but similar as a fraction of the ceiling | L-co is noisier (ceiling 0.75 in the corridor) |
 
@@ -131,6 +187,7 @@ Hyperparameter tuning (proposal Phase 6) is done **once, on the best configurati
 
 - Every experiment, control and split is reported, including the ones that don't support a prediction.
 - Any change to this plan after freezing is recorded as a dated amendment with its reason, and results are shown both ways.
+- Secondary comparisons are reported with their intervals, but labelled "secondary"; their significance is not claimed.
 - Feature importance (permutation importance on held-out blocks) is *descriptive*. Correlated features share importance (Phase 2 correlation QA).
 
 ## 10. History of this plan (before freezing)
@@ -142,3 +199,8 @@ Hyperparameter tuning (proposal Phase 6) is done **once, on the best configurati
 | 2026-10-10 | **Block rule changed from the label variogram to the label-error variogram** | On the regional grid the first rule returned 100 km (the fit hit its bound; 2 blocks), because the label has no finite range. No model had been trained. The argument for errors is in §4.1 |
 | 2026-10-10 | Folds balanced by cell count | Random block assignment gave folds of 207–1,057 cells |
 | 2026-10-10 | Robustness at 10 and 20 km blocks; L-co interpreted mainly on the corridor | Added with the block result |
+| 2026-10-10 | **Decision rule replaced by group permutation tests (§7); hypotheses restated as "does group G add skill to a base model including geography"** | Smoke test on noise labels: the bootstrap rule gave 4 of 5, then 7 of 9 false alarms (real settings); a one-twin correction 2 of 9. Pre-freeze; no model had seen a real label |
+| 2026-10-10 | **Calibration passed:** rotation tests 1 of 20 false alarms on smooth nulls; H2b season permutations 0 of 5 on noise. Plan ready to freeze | Final check of the decision rule before any real result |
+| 2026-10-10 | **Spatial tests switched from row shuffling to rotations ("spin" nulls)** | On smooth random null labels (σ 6 km), row shuffling gave 8 false alarms in 12 tests (H1 stuck at p = 1.00): a shuffled map loses its smoothness, so the real smooth map wins by chance alignment. Pre-freeze; no model had seen a real label |
+| 2026-10-10 | H2b switched to season permutations; calibration extended to smooth random null maps | On noise labels the row-shuffled H2b gave p 0.10, 0.05, 0.10 (biased: shuffling destroys CO's seasonal structure). Smooth nulls test the spatial tests under realistic label smoothness |
+| 2026-10-10 | Before freezing, from an implementer's read-through: primary model (RF); four primary hypotheses H1–H4; precise spatial/temporal skill and N1 definitions; leave-one-season-out scores temporal skill only; PCMC hold-out descriptive (one area); fold-3 extrapolation handling; L-co experiment list; residual-target scope | Each gap would otherwise have become a choice made after seeing results |

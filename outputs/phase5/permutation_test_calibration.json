@@ -1,0 +1,210 @@
+{
+  "n_tests": 25,
+  "false_alarms": 2,
+  "rate": 0.08,
+  "expected_rate": 0.05,
+  "n_perm": 19,
+  "model": "rf (real settings)",
+  "runs": [
+    {
+      "seed": 1,
+      "hypothesis": "H1 activity layers add spatial skill (L-fd)",
+      "observed": -0.026663510990053485,
+      "effect": 0.007300367446609085,
+      "p_value": 0.35,
+      "significant": false
+    },
+    {
+      "seed": 1,
+      "hypothesis": "H2a CO adds spatial skill (L-fd)",
+      "observed": -0.030158132639749313,
+      "effect": -0.0003135494429759786,
+      "p_value": 0.6,
+      "significant": false
+    },
+    {
+      "seed": 1,
+      "hypothesis": "H2b CO adds temporal skill (L-fd)",
+      "observed": -0.07424573870255102,
+      "effect": 0.006519279491963695,
+      "p_value": 0.1,
+      "significant": false
+    },
+    {
+      "seed": 1,
+      "hypothesis": "H3 all features predict beyond geography (L-fd residual)",
+      "observed": -0.01989757891609134,
+      "effect": 0.0023416877150921785,
+      "p_value": 0.2,
+      "significant": false
+    },
+    {
+      "seed": 1,
+      "hypothesis": "H4 NO2 locates emissions in the CO label (L-co, corridor)",
+      "observed": -0.13407323796385184,
+      "effect": 0.026672567550580645,
+      "p_value": 0.3,
+      "significant": false
+    },
+    {
+      "seed": 2,
+      "hypothesis": "H1 activity layers add spatial skill (L-fd)",
+      "observed": -0.04593918339397818,
+      "effect": 0.004701882499418802,
+      "p_value": 0.25,
+      "significant": false
+    },
+    {
+      "seed": 2,
+      "hypothesis": "H2a CO adds spatial skill (L-fd)",
+      "observed": -0.08685376299348446,
+      "effect": -0.009176877422463342,
+      "p_value": 0.85,
+      "significant": false
+    },
+    {
+      "seed": 2,
+      "hypothesis": "H2b CO adds temporal skill (L-fd)",
+      "observed": -0.06342935151441798,
+      "effect": 0.01521886026826906,
+      "p_value": 0.05,
+      "significant": true
+    },
+    {
+      "seed": 2,
+      "hypothesis": "H3 all features predict beyond geography (L-fd residual)",
+      "observed": -0.023693137177267065,
+      "effect": -0.0016261351007257063,
+      "p_value": 0.8,
+      "significant": false
+    },
+    {
+      "seed": 2,
+      "hypothesis": "H4 NO2 locates emissions in the CO label (L-co, corridor)",
+      "observed": -0.2796612013736879,
+      "effect": -0.027621497782957305,
+      "p_value": 0.75,
+      "significant": false
+    },
+    {
+      "seed": 3,
+      "hypothesis": "H1 activity layers add spatial skill (L-fd)",
+      "observed": -0.029780945533652847,
+      "effect": 0.010864282814813706,
+      "p_value": 0.1,
+      "significant": false
+    },
+    {
+      "seed": 3,
+      "hypothesis": "H2a CO adds spatial skill (L-fd)",
+      "observed": -0.053694343779430165,
+      "effect": -0.0032800008803361078,
+      "p_value": 0.75,
+      "significant": false
+    },
+    {
+      "seed": 3,
+      "hypothesis": "H2b CO adds temporal skill (L-fd)",
+      "observed": -0.06961887738166217,
+      "effect": 0.010275734776900719,
+      "p_value": 0.1,
+      "significant": false
+    },
+    {
+      "seed": 3,
+      "hypothesis": "H3 all features predict beyond geography (L-fd residual)",
+      "observed": -0.02034625926408129,
+      "effect": 0.0017257879330686392,
+      "p_value": 0.45,
+      "significant": false
+    },
+    {
+      "seed": 3,
+      "hypothesis": "H4 NO2 locates emissions in the CO label (L-co, corridor)",
+      "observed": -0.21188118263969224,
+      "effect": -0.014500039262388603,
+      "p_value": 0.7,
+      "significant": false
+    },
+    {
+      "seed": 4,
+      "hypothesis": "H1 activity layers add spatial skill (L-fd)",
+      "observed": -0.041840316434779146,
+      "effect": 0.0003771943856518689,
+      "p_value": 0.4,
+      "significant": false
+    },
+    {
+      "seed": 4,
+      "hypothesis": "H2a CO adds spatial skill (L-fd)",
+      "observed": -0.056273409312397105,
+      "effect": -0.006860345961367691,
+      "p_value": 0.9,
+      "significant": false
+    },
+    {
+      "seed": 4,
+      "hypothesis": "H2b CO adds temporal skill (L-fd)",
+      "observed": -0.08245421535203401,
+      "effect": 0.0026654577072018487,
+      "p_value": 0.55,
+      "significant": false
+    },
+    {
+      "seed": 4,
+      "hypothesis": "H3 all features predict beyond geography (L-fd residual)",
+      "observed": -0.025353290347684077,
+      "effect": -0.001680406814578067,
+      "p_value": 0.7,
+      "significant": false
+    },
+    {
+      "seed": 4,
+      "hypothesis": "H4 NO2 locates emissions in the CO label (L-co, corridor)",
+      "observed": -0.15021818288266053,
+      "effect": -0.02415740822144244,
+      "p_value": 0.75,
+      "significant": false
+    },
+    {
+      "seed": 5,
+      "hypothesis": "H1 activity layers add spatial skill (L-fd)",
+      "observed": -0.057316098663625636,
+      "effect": -0.009804145476521059,
+      "p_value": 0.85,
+      "significant": false
+    },
+    {
+      "seed": 5,
+      "hypothesis": "H2a CO adds spatial skill (L-fd)",
+      "observed": -0.07719386770011516,
+      "effect": -0.015926097775268225,
+      "p_value": 0.95,
+      "significant": false
+    },
+    {
+      "seed": 5,
+      "hypothesis": "H2b CO adds temporal skill (L-fd)",
+      "observed": -0.06660723673159952,
+      "effect": 0.015474510050471887,
+      "p_value": 0.05,
+      "significant": true
+    },
+    {
+      "seed": 5,
+      "hypothesis": "H3 all features predict beyond geography (L-fd residual)",
+      "observed": -0.01892475832048257,
+      "effect": 0.0031592702810992745,
+      "p_value": 0.2,
+      "significant": false
+    },
+    {
+      "seed": 5,
+      "hypothesis": "H4 NO2 locates emissions in the CO label (L-co, corridor)",
+      "observed": -0.15386569612087264,
+      "effect": -0.004117624250239288,
+      "p_value": 0.55,
+      "significant": false
+    }
+  ]
+}

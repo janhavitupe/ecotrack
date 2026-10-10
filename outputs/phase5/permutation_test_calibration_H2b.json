@@ -1,0 +1,54 @@
+{
+  "n_tests": 5,
+  "false_alarms": 0,
+  "rate": 0.0,
+  "expected_rate": 0.05,
+  "n_perm": 19,
+  "model": "rf (real settings)",
+  "null_labels": "independent noise",
+  "tests": [
+    "H2b"
+  ],
+  "runs": [
+    {
+      "seed": 1,
+      "hypothesis": "H2b CO adds temporal skill (L-fd)",
+      "observed": -0.07424573870255102,
+      "effect": 0.0008358826596529395,
+      "p_value": 0.45,
+      "significant": false
+    },
+    {
+      "seed": 2,
+      "hypothesis": "H2b CO adds temporal skill (L-fd)",
+      "observed": -0.06342935151441798,
+      "effect": 0.003886563131740753,
+      "p_value": 0.3,
+      "significant": false
+    },
+    {
+      "seed": 3,
+      "hypothesis": "H2b CO adds temporal skill (L-fd)",
+      "observed": -0.06961887738166217,
+      "effect": 0.003845978238480652,
+      "p_value": 0.25,
+      "significant": false
+    },
+    {
+      "seed": 4,
+      "hypothesis": "H2b CO adds temporal skill (L-fd)",
+      "observed": -0.08245421535203401,
+      "effect": -0.006366736355901195,
+      "p_value": 0.8,
+      "significant": false
+    },
+    {
+      "seed": 5,
+      "hypothesis": "H2b CO adds temporal skill (L-fd)",
+      "observed": -0.06660723673159952,
+      "effect": 0.006267872048822884,
+      "p_value": 0.3,
+      "significant": false
+    }
+  ]
+}

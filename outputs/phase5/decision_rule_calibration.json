@@ -1,0 +1,93 @@
+{
+  "n_seeds": 3,
+  "n_boot": 200,
+  "model": "rf (real settings)",
+  "false_positives": {
+    "H1 D-C spatial": {
+      "plain": 1,
+      "corrected": 0
+    },
+    "H2a B-A spatial": {
+      "plain": 3,
+      "corrected": 1
+    },
+    "H2b B-A temporal": {
+      "plain": 3,
+      "corrected": 1
+    }
+  },
+  "runs": [
+    {
+      "seed": 1,
+      "contrast": "H1 D-C spatial",
+      "plain_diff": 0.006372142444570406,
+      "plain_sig": false,
+      "corrected_diff": -0.0016346032182972259,
+      "corrected_sig": false
+    },
+    {
+      "seed": 1,
+      "contrast": "H2a B-A spatial",
+      "plain_diff": 0.10569359895874753,
+      "plain_sig": true,
+      "corrected_diff": 0.052108855781908714,
+      "corrected_sig": true
+    },
+    {
+      "seed": 1,
+      "contrast": "H2b B-A temporal",
+      "plain_diff": 0.0858495764070395,
+      "plain_sig": true,
+      "corrected_diff": -0.016184385950441804,
+      "corrected_sig": false
+    },
+    {
+      "seed": 2,
+      "contrast": "H1 D-C spatial",
+      "plain_diff": 0.023680343534393966,
+      "plain_sig": true,
+      "corrected_diff": 0.007814117122472153,
+      "corrected_sig": false
+    },
+    {
+      "seed": 2,
+      "contrast": "H2a B-A spatial",
+      "plain_diff": 0.058204139888709205,
+      "plain_sig": true,
+      "corrected_diff": -0.01251993147243513,
+      "corrected_sig": false
+    },
+    {
+      "seed": 2,
+      "contrast": "H2b B-A temporal",
+      "plain_diff": 0.08417961341615632,
+      "plain_sig": true,
+      "corrected_diff": 0.01523027743496752,
+      "corrected_sig": false
+    },
+    {
+      "seed": 3,
+      "contrast": "H1 D-C spatial",
+      "plain_diff": 0.006876752646298945,
+      "plain_sig": false,
+      "corrected_diff": -0.0007657119611870211,
+      "corrected_sig": false
+    },
+    {
+      "seed": 3,
+      "contrast": "H2a B-A spatial",
+      "plain_diff": 0.09132452608743868,
+      "plain_sig": true,
+      "corrected_diff": 0.00789839901729339,
+      "corrected_sig": false
+    },
+    {
+      "seed": 3,
+      "contrast": "H2b B-A temporal",
+      "plain_diff": 0.08581813043249364,
+      "plain_sig": true,
+      "corrected_diff": 0.027846894014343482,
+      "corrected_sig": true
+    }
+  ]
+}
