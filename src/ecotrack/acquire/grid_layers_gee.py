@@ -30,19 +30,35 @@ from ecotrack.feasibility.g2_tropomi_coverage import month_starts
 from ecotrack.grid import GRID_DIR
 
 
-def cells_fc():
-    gj = json.loads((GRID_DIR / "cells.geojson").read_text())
-    return ee.FeatureCollection([ee.Feature(ee.Geometry(f["geometry"]), f["properties"]) for f in gj["features"]])
+CHUNK = 400  # cells per request: the regional grid (~2,900 cells, D22) is too large for one request at 20 m
 
 
-def reduce(img, fc, scale, names):
+def cells_fc(chunk=CHUNK):
+    """The grid cells as a list of small FeatureCollections, each built from only its own cells.
+    (One collection of all cells would upload every polygon, ~1.5 MB for the regional grid, in
+    every request, even when the request uses only a slice of them.)"""
+    feats = json.loads((GRID_DIR / "cells.geojson").read_text())["features"]
+    return [ee.FeatureCollection([ee.Feature(ee.Geometry(f["geometry"]), f["properties"]) for f in feats[i:i + chunk]])
+            for i in range(0, len(feats), chunk)]
+
+
+def cells_bounds():
+    """Bounding rectangle of the grid (client-side), for filterBounds."""
+    xs, ys = [], []
+    for f in json.loads((GRID_DIR / "cells.geojson").read_text())["features"]:
+        for x, y in f["geometry"]["coordinates"][0]:
+            xs.append(x); ys.append(y)
+    return ee.Geometry.Rectangle([min(xs), min(ys), max(xs), max(ys)])
+
+
+def reduce(img, chunks, scale, names):
     # A single-band image reduces to a property called "mean", not the band name: name outputs explicitly.
     reducer = ee.Reducer.mean().setOutputs(names) if len(names) == 1 else ee.Reducer.mean()
-    out = img.reduceRegions(collection=fc, reducer=reducer, scale=scale).getInfo()["features"]
     rows = []
-    for f in out:
-        p = f["properties"]
-        rows.append({"cell_id": p["cell_id"], **{n: p.get(n) for n in names}})
+    for part in chunks:
+        for f in img.reduceRegions(collection=part, reducer=reducer, scale=scale).getInfo()["features"]:
+            p = f["properties"]
+            rows.append({"cell_id": p["cell_id"], **{nm: p.get(nm) for nm in names}})
     return rows
 
 
@@ -90,7 +106,7 @@ def run_seasonal(cfg, fc):
     s2 = cfg["phase2"]["sentinel2"]
     y0 = int(cfg["study"]["period"]["start"][:4])
     y1 = int(cfg["study"]["period"]["end"][:4])
-    region = fc.geometry().bounds()
+    region = cells_bounds()
     for y in range(y0, y1):
         season = f"{y}-{str(y + 1)[2:]}"
         if season in done:

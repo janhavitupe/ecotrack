@@ -116,6 +116,9 @@ tropomi_co:
 phase2:
   cell_km: 1.0                 # UTM 43N cells
   min_frac_in_corridor: 0.5    # keep a cell if >= half its area lies inside the corridor (D15)
+  # D22: regional training grid (ECOTRACK_GRID=region): cells within radius_km of the source and
+  # >= box_margin_km inside the TROPOMI cube box, plus all corridor cells
+  region: {radius_km: 30, box_margin_km: 5}
   # D14: chemistry proxy = TROPOMI HCHO (VOC indicator) + ERA5 temperature / solar radiation.
   # TROPOMI O3 is a total column (stratosphere-dominated), so it is not used.
   hcho: {collection: COPERNICUS/S5P/OFFL/L3_HCHO, band: tropospheric_HCHO_column_number_density,
@@ -123,3 +126,21 @@ phase2:
   viirs: {collection: NOAA/VIIRS/DNB/MONTHLY_V1/VCMSLCFG, band: avg_rad, min_cf_cvg: 1}
   sentinel2: {collection: COPERNICUS/S2_SR_HARMONIZED, max_cloud_pct: 60,
               keep_scl: [4, 5, 6, 7]}   # vegetation, bare, water, unclassified; drops cloud/shadow
+
+# Phase 3 — CO2 labels per 1 km cell and season (D16, PROPOSED: awaiting the guide)
+phase3:
+  smoothing_px: 5              # ~5 km box filter on the 0.01 deg emission maps = TROPOMI's effective resolution
+  smoothing_sensitivity: [3, 7]
+  bootstrap_fd: 200            # resamples of overpasses for the NO2 emission map
+  bootstrap_co: 100            # resamples for the CO emission map (and each season's CO total)
+  primary_label: fd            # fd = NO2 flux divergence (D10/D16); co = CO flux divergence (NO2-independent)
+  co_seasonal_scale: false     # D21: CO can't resolve season-to-season totals (between/within 0.5 < 1), so L-co is spatial-only
+
+# Phase 4 — model table and cross-validation splits (docs/phase5_analysis_plan.md)
+phase4:
+  k_folds: 5
+  seed: 42
+  min_block_km: 5               # spatial blocks never smaller than TROPOMI's effective resolution
+  variogram_max_km: 30
+  noise_draws: 30              # bootstrap NO2 maps for the label-error variogram (block size, plan §4.1)
+  pcmc_buffer_km: 5             # PCMC hold-out: training cells must be > 5 km from any C2 cell

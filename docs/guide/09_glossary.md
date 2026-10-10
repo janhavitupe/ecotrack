@@ -100,6 +100,12 @@
 
 **Glint mode**: OCO looking at the sun's reflection, used over water; our OCO-2 day was glint.
 
+**Construction baseline**: an experiment whose features include the label's own construction input (e.g. Experiment A, NO₂ only, with the NO₂-built label L-fd). Its score shows the recipe, not new skill; what matters is whether other experiments beat it.
+
+**Fold**: one of the K parts the data are split into for cross-validation; each fold is the test set once.
+
+**Geography-only null (N0)**: a model given only location and distance to the source. Experiments are judged by their skill *above* it.
+
 **Granule**: one data file/unit in a satellite archive (OCO: one global day).
 
 **Haversine**: the formula for distance between two lat/lon points.
@@ -132,6 +138,12 @@
 
 **MD5 checksum**: a short fingerprint of a file published next to a download; recomputing it (`md5sum`) proves the file arrived complete and unaltered.
 
+**L-fd / L-co**: the two Phase 3 labels. L-fd spreads city CO₂ by the NO₂ flux-divergence map (per season); L-co by the CO flux-divergence map (spatial-only, D21).
+
+**Label**: the answer a model learns to predict. Here: fossil CO₂ per 1 km cell per season, constructed from satellite emission maps (Phase 3).
+
+**Nugget / sill / practical range**: variogram terms. Nugget = difference at near-zero distance (noise); sill = level where the curve flattens (unrelated cells); practical range = distance where it reaches 95% of the sill.
+
 **MIDC**: Maharashtra Industrial Development Corporation industrial estates (Bhosari, Chinchwad, Talegaon).
 
 **Midday rate**: our satellite-derived rate (11:30–13:30 IST, October–May), expressed per year; not an annual total.
@@ -154,6 +166,8 @@
 
 **.npz**: NumPy's compressed array file.
 
+**Noise ceiling**: the best R² any model could reach given the label noise: 1 − mean(noise variance) ÷ label variance. L-fd 0.97, L-co 0.75.
+
 **OCO-2 / OCO-3**: NASA's CO₂ satellites (OCO-3 on the ISS, with snapshot mode).
 
 **ODIAC**: the fossil-CO₂ inventory spread by night-lights; units tonnes C/cell/month.
@@ -173,6 +187,8 @@
 **Oversampling**: gridding coarse pixels onto a finer grid, so neighbouring cells repeat values (GEE L3).
 
 **PBF (.osm.pbf)**: OpenStreetMap's compact binary file format; read in Python with pyosmium (`import osmium`).
+
+**Pre-registration**: writing the analysis rules (metrics, splits, decision rule, predictions) and committing them before seeing results, so the conclusions can't be tuned to the data.
 
 **PCMC**: Pimpri-Chinchwad Municipal Corporation, the twin city northwest of Pune.
 
@@ -236,6 +252,8 @@
 
 **Spearman correlation**: correlation computed on ranks instead of raw values; robust to skewed data and outliers. Used in the v2 correlation QA.
 
+**Spatial block cross-validation**: hiding whole squares of the map (blocks) as the test set, so the model can't copy a near-identical neighbour. Our blocks are 15 km (D23).
+
 **SRTM**: the Shuttle Radar Topography Mission height map.
 
 **Steady state**: emissions in = losses out, so amounts don't change over time.
@@ -245,6 +263,8 @@
 **Sun-synchronous orbit**: an orbit passing each place at the same local time every day.
 
 **Swath**: the strip of ground a satellite sees in one pass.
+
+**Variogram**: average squared difference between two cells (÷ 2) as a function of their distance; shows how far apart cells must be to stop resembling each other.
 
 **Synthetic test**: running a method on fake data with a known answer to measure its accuracy.
 

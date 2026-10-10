@@ -26,6 +26,8 @@ By the end you should be able to:
 | 10 | [10_viva_questions.md](10_viva_questions.md) | Questions an examiner might ask, with model answers | 1 h |
 | 11 | [11_code_walkthrough.md](11_code_walkthrough.md) | **How to read the code**: reading order, what produces what, hands-on snippets, tracing a number back | 8 short sessions |
 | 12 | [12_phase2_feature_table.md](12_phase2_feature_table.md) | **Phase 2**: the 1 km grid, every layer, the roads saga, the feature table and its QA | 1 h |
+| 13 | [13_phase3_labels.md](13_phase3_labels.md) | **Phase 3**: building the CO₂ labels, circularity, uncertainty, the noise ceiling, D21 | 1 h |
+| 14 | [14_phase4_model_table.md](14_phase4_model_table.md) | **Phase 4**: the bigger training area, variograms, fair cross-validation, pre-registration | 1 h |
 
 **How to study it:** read chapters 1–3 carefully (the foundation), skim 4, then read 5–7 with
 the code open beside you, following the reading order in chapter 11. Do chapter 8 on your own machine. Keep chapter 9 open in another tab

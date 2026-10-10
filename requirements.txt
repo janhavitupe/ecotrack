@@ -13,3 +13,5 @@ pytest
 openpyxl
 osmium
 reportlab
+scikit-learn
+xgboost

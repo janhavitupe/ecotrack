@@ -21,7 +21,7 @@ import ee
 import pandas as pd
 
 from ecotrack.acquire.ee_utils import init_ee
-from ecotrack.acquire.grid_layers_gee import cells_fc
+from ecotrack.acquire.grid_layers_gee import cells_bounds, cells_fc
 from ecotrack.grid import GRID_DIR
 
 GRIP = "projects/sat-io/open-datasets/GRIP4/South-East-Asia"
@@ -30,8 +30,7 @@ BATCH = 40
 
 
 def run():
-    cells = cells_fc()
-    roads = ee.FeatureCollection(GRIP).filterBounds(cells.geometry().bounds())
+    roads = ee.FeatureCollection(GRIP).filterBounds(cells_bounds())
 
     def per_cell(cell):
         geom = cell.geometry()
@@ -43,15 +42,13 @@ def run():
             props[name] = ee.Number(length_m).divide(1000)
         return cell.set(props)
 
-    n = cells.size().getInfo()
-    lst = cells.toList(n)
+    chunks = cells_fc(BATCH)  # small client-side batches: each request uploads only its own cells
     rows = []
-    for i in range(0, n, BATCH):
-        part = ee.FeatureCollection(ee.List(lst.slice(i, min(i + BATCH, n)))).map(per_cell)
-        for f in part.getInfo()["features"]:
+    for i, part in enumerate(chunks):
+        for f in part.map(per_cell).getInfo()["features"]:
             p = f["properties"]
             rows.append({"cell_id": p["cell_id"], **{k: p.get(k, 0.0) for k in CLASSES}})
-        print(f"  cells {min(i + BATCH, n)}/{n}")
+        print(f"  batches {i + 1}/{len(chunks)}")
     df = pd.DataFrame(rows)
     df["road_total_km"] = df[list(CLASSES)].sum(axis=1)
     df.to_csv(GRID_DIR / "layers_roads_grip.csv", index=False)

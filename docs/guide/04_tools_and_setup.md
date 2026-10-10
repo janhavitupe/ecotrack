@@ -60,7 +60,10 @@ src/ecotrack/
 ├── geometry.py            waypoints, corridor polygon (highway ± 3.5 km + Talegaon MIDC), cluster zones
 ├── qc.py                  IQR outlier filter (3 variants; we use "temporal", k = 3)
 ├── grid.py                Phase 2: the 1 km UTM grid (268 cells), load_cells()
-├── features.py            Phase 2: assembles feature table v1 (cell × month) + QA
+├── features.py            Phase 2: assembles the feature table (v2: cell × month) + QA
+├── labels.py              Phase 3: CO₂ labels per cell × season (L-fd, L-co) + QA
+├── tensor.py              Phase 4: model table (season means + labels), error variogram, CV blocks and splits
+├── progress_report.py     the illustrated progress-report PDF
 ├── acquire/               ── getting data ──
 │   ├── ee_utils.py        Earth Engine login, geometries, the TROPOMI cloud/zenith mask
 │   ├── tropomi_gee.py     first test export (week 1)
@@ -71,7 +74,7 @@ src/ecotrack/
 │   ├── odiac.py           ODIAC, clipped via the GHG Center API
 │   ├── grid_layers_gee.py Phase 2: VIIRS, HCHO, ERA5 t2m/radiation (monthly), Sentinel-2 NDVI/NDBI (seasonal) per cell
 │   ├── roads_osm.py       Phase 2: OSM roads via the Overpass API (superseded: servers overloaded)
-│   ├── osm_pbf.py         Phase 2: OSM roads + industrial land from a Geofabrik .osm.pbf file (used for v2)
+│   ├── osm_pbf.py         Phase 2: OSM roads + industrial land from a Geofabrik .osm.pbf file (used for v2; node cache on disk)
 │   └── roads_grip.py      Phase 2: GRIP4 road length per cell in Earth Engine (fallback, D20)
 ├── feasibility/           ── go/no-go checks (chapter 5) ──
 │   ├── g1_oco_soundings.py      count OCO soundings over Pune

@@ -80,4 +80,51 @@ All four overpass-matched variables are the same for every cell in a month: the 
 
 ## Not in the table, and why
 - **OCO-3 / OCO-2 XCO₂:** too sparse for per-cell features (8 dates in total; D11).
-- **Labels (the CO₂ per cell):** built in Phase 3 from the flux-divergence shares (D10), kept in a separate file so they can't leak into the features.
+- **Labels (the CO₂ per cell):** built in Phase 3 (D16, D21), kept in a separate file (below) so they can't leak into the features.
+
+---
+
+# Labels v1 (Phase 3)
+
+**File:** `data/processed/labels_v1.csv`, built by `python -m ecotrack.labels` (meta: `labels_v1.meta.json` with constants, common-scale uncertainty and SHA-256).
+**Shape:** 1,340 rows = 268 cells × 5 seasons (2019–20 … 2023–24). Join to the features on `cell_id` + `season` (season-mean features).
+
+| Column | Meaning | Units |
+|---|---|---|
+| `cell_id`, `season`, `cluster` | identifiers (as in the feature table) | – |
+| `label_fd` | **L-fd (primary):** NO₂ flux-divergence share (5 km smoothed) × season EMG NOx × CO₂:NOx 162.7 | t CO₂ / km² / yr, midday Oct–May rate |
+| `label_fd_sd` | random 1σ: map bootstrap (200) + season-total uncertainty | same |
+| `label_fd_annual` | `label_fd` ÷ F (1.214, D17) | t CO₂ / km² / yr, annual mean |
+| `label_co` | **L-co:** CO flux-divergence share × multi-year city CO₂; same every season (D21) | t CO₂ / km² / yr, midday rate |
+| `label_co_sd` | random 1σ: map bootstrap (100) | same |
+| `label_co_annual` | `label_co` ÷ F | annual mean |
+| `share_fd_per_km2`, `share_co_per_km2` | the cell's fraction of the 25 km city total (per km²; the sum over cells = corridor share) | – |
+
+**Not in `label_*_sd`** (the same factor for every cell): the CO₂:NOx ratio 5.1%, NOx/NO₂ 7.6%, EMG method bias 12%.
+**Construction links:** L-fd ← NO₂ (+ ERA5 wind); L-co ← CO (+ ERA5 wind, DEM). With L-co, drop `co_norm` from the features.
+
+---
+
+# Model table v1 (Phase 4) and the regional grid (D22)
+
+**Files:**
+- `data/processed/model_table_v1_region.csv`: what Phase 5 trains on;
+- `model_table_v1.csv`: corridor version;
+- each with a `.meta.json` (variogram, block size, fold sizes, SHA-256).
+
+**Built by:** `python -m ecotrack.tensor` (set `ECOTRACK_GRID=region` for the regional version).
+**Shape:** regional 14,470 rows = 2,894 cells × 5 seasons; corridor 1,340.
+
+| Column(s) | Meaning |
+|---|---|
+| `cell_id`, `season` | regional ids are `g<easting km>_<northing km>` (UTM 43N centre); corridor ids `c<row>_<col>` |
+| `in_corridor`, `corridor_cell_id`, `cluster` | regional cells inside the corridor (≥ 50%), their corridor-grid id, and cluster (`outside` otherwise) |
+| `x_utm`, `y_utm`, `lat`, `lon`, `dist_to_source_km` | location (context; also the geography-only null N0's inputs) |
+| label columns | as in labels v1 |
+| features | season means of the 17 features; `wd850` is replaced by `wd850_sin`, `wd850_cos` (vector-averaged unit direction); `n_months` = months averaged |
+| `block_id` | 15 km (regional) / 10 km (corridor) square block |
+| `fold_block` | 0–4: cross-validation fold (blocks assigned to balance cell counts) |
+| `split_corridor` | `train` (outside the corridor) / `test` (corridor) |
+| `split_pcmc` | `test` (C2 PCMC), `train` (> 5 km from any C2 cell), `gap` (unused buffer) |
+
+**Regional versions of the earlier tables** (same columns as the corridor ones, plus `in_corridor`/`corridor_cell_id`): `feature_table_v2_region.csv` (115,760 rows) and `labels_v1_region.csv` (14,470 rows).

@@ -30,6 +30,16 @@ regenerated with the commands in §9.
 14. **The pipeline sees real-world changes.** Seasonal NOx is resolvable (between/within ratio 2.8; 0.43–0.73 kg/s). The city's NO₂ excess fell **74%** in the 2020 lockdown and **29%** in the 2021 restrictions.
 15. **A CO-based emission map works independently of NO₂** (25 km total within 3% of the CO step; r = 0.75 with NO₂). The corridor holds **14.5% of the city's CO vs 21.0% of its NOx**: an exploratory sign of **industrial corridor vs residential core**.
 16. **Winds reverse seasonally:** east-southeast in October–March (Pune's plume carried up the corridor), west-northwest in April–May.
+17. **Phase 3 labels built (D16, D21):** 1,340 cell-season labels from two tracers.
+    - **L-fd** (NO₂): median 2,374 t CO₂/km²/yr, noise ceiling R² 0.97.
+    - **L-co** (CO): spatial-only, noise ceiling 0.75.
+    - They agree on *where* (cell r = 0.93) but not on the corridor share (20.7% vs 14.3%).
+    - CO can't resolve seasonal totals (between/within 0.49), hence D21.
+    - **Circularity measured:** NO₂ correlates 0.91 with L-fd (its recipe) and still 0.79 with L-co, which never used NO₂, so NO₂ carries genuine emission information.
+18. **Phase 4: the corridor alone is too small to test ML honestly.** Label errors stay correlated over ~10–15 km, leaving the corridor only ~3 independent areas.
+    - The training area was enlarged to **2,894 cells** within 30 km (D22), giving **~13 independent areas** with 15 km cross-validation blocks (D23).
+    - Every corridor value is identical on both grids.
+    - The rules for the ML experiments (controls, splits, decision rule, predictions) are fixed in an analysis plan before any training.
 
 ---
 
@@ -709,6 +719,71 @@ Full write-up: [phase2_report.md](phase2_report.md).
 
 ---
 
+## 4c. Phase 3 — CO₂ labels (v1 built, 2026-10-09; D16 + D21 await the guide)
+
+Full write-up: [phase3_report.md](phase3_report.md). Code: `src/ecotrack/labels.py`. Output: `data/processed/labels_v1.csv` (+ meta with SHA-256), `outputs/phase3/qa_labels.json`, `outputs/phase3/figures/`.
+
+| | L-fd (primary) | L-co (independent) |
+|---|---|---|
+| Recipe | NO₂ FD share (5 km smoothed) × seasonal EMG NOx × 162.7 | CO FD share × multi-year city CO₂ (D21: spatial-only) |
+| Median (t CO₂/km²/yr, midday) | 2,374 | 2,010 |
+| Corridor share (cells / pixels) | 20.7% / 21.0% | 14.3% / 14.5% |
+| Median relative 1σ | 8% (sampling only) | 34% |
+| Negative labels | 0% | 11.6% (rural C3; zero within noise; kept) |
+| Noise ceiling R² | 0.97 | 0.75 |
+| Spatial variance share | 0.85 | 1.00 |
+
+**Checks:**
+- the rebuilt NO₂ map equals Phase 1's exactly;
+- smoothing 3/7 px r ≥ 0.98;
+- per-season NO₂ maps vs the multi-year map r ≥ 0.98 (fixed pattern justified); CO r 0.24–0.86;
+- CO seasonal totals between/within 0.49 → D21.
+
+**Per cluster (mean, t/km²/yr):** L-fd C1 3,427 · C2 3,067 · C3 1,358; L-co 2,880 · 2,593 · 545.
+**Corridor total, L-fd (kt CO₂/yr, midday):** 462 · 642 · 781 · 709 · 706 (2019–20 → 2023–24); L-co 488 every season.
+
+**Circularity (Spearman with season-mean features):**
+- L-fd: NO₂ 0.91 (construction link), VIIRS 0.75, roads 0.54, NDBI −0.45.
+- L-co: NO₂ 0.79, VIIRS 0.72, roads 0.61, CO column only 0.27.
+
+**Rules fixed before modelling:**
+- with L-fd, Experiment A is the "construction baseline";
+- with L-co, `co_norm` is dropped;
+- spatial CV blocks must be ≥ 5 km (the labels are a ~5 km field: ~11 independent areas in the corridor).
+
+**Inventories (reference):** ODIAC pattern Spearman 0.89 with both labels (night-light-drawn), EDGAR 0.66 / 0.48 (0.1° blocks).
+
+![Label maps](../outputs/phase3/figures/label_maps.png)
+
+---
+
+## 4d. Phase 4 — regional training grid and model table (2026-10-10; D22, D23)
+
+Full write-up: [phase4_report.md](phase4_report.md). Code: `grid.py` (regional mode, `ECOTRACK_GRID=region`), `tensor.py`. Rules for Phases 5–6: [phase5_analysis_plan.md](phase5_analysis_plan.md).
+
+| | Corridor | Region (D22) |
+|---|---|---|
+| Cells | 268 | 2,894 |
+| Label-error correlation range | 9.5 km | 14.7 km |
+| CV block | 10 km (9 blocks) | **15 km (23 blocks)** |
+| Independent areas | ~3 | **~13** |
+| L-fd / L-co noise ceiling | 0.97 / 0.75 | 0.99 / 0.78 |
+| L-fd vs L-co (cells) | r = 0.93 | r = 0.75 |
+| Spatial variance share, NO₂ / HCHO | 0.34 / 0.03 | 0.57 / 0.15 |
+
+**Consistency:** corridor cells are identical on both grids for every layer (≤ 1e-11 relative) and for the labels.
+
+**Model table** (`model_table_v1_region.csv`, 14,470 cell-seasons):
+- season-mean features, with wind direction as averaged sin/cos;
+- labels;
+- split columns: balanced 15 km block folds (577–582 cells), corridor transfer (2,626 train / 268 test), PCMC hold-out (2,600 / 63, 231 buffer).
+
+**D23 in one line:** the labels are smooth at all scales (no variogram range), so blocks are sized to how far label *errors* spread (bootstrap maps). The smooth signal is handled by scoring every experiment against the geography-only null.
+
+![Variogram](../outputs/phase4_region/variogram.png)
+
+---
+
 ## 5. Design decisions so far
 
 | # | Decision | Driven by |
@@ -733,6 +808,9 @@ Full write-up: [phase2_report.md](phase2_report.md).
 | D18 | Monte Carlo uncertainty (200k draws, lognormal); headline symmetric, bias-corrected as sensitivity | Asymmetric ranges; known EMG bias handled explicitly |
 | D19 | EMG fit window ≤ 45 km + sloped background; unconstrained-fit fallback; structure term in the budget | The 60 km window included a second source → NOx biased ~20% low |
 | D20 | Roads: GRIP4 fallback for feature table v1; OSM for v2 (done 2026-10-04 via a Geofabrik extract) | OSM servers overloaded for hours |
+| D21 | L-co is spatial-only (multi-year CO total in every season) — PROPOSED | CO seasonal totals not resolvable (between/within 0.49 vs NO₂ 2.8) |
+| D22 | Regional training grid: 2,894 cells within 30 km; corridor = evaluation focus | Corridor alone has ~3 independent areas |
+| D23 | CV blocks sized by the label-error variogram: 15 km | Label variogram has no range; errors are what leak |
 
 Full reasoning for each is in [decisions.md](decisions.md).
 
@@ -772,6 +850,10 @@ Full reasoning for each is in [decisions.md](decisions.md).
 | TROPOMI CO terrain imprint (~6%) larger than Pune's signal | Could fake or hide the CO step | Air-mass normalisation + static-pattern removal; synthetic test −1.4% / ≈0 with terrain only |
 | Secondary CO (VOC oxidation) and EDGAR's per-sector ratios | CO:NOx → CO₂:NOx mapping | Both push toward a higher ratio; 10% term assumed |
 | D8 not yet approved | Changes Experiment B's meaning | **Awaiting guide review** |
+| Labels are constructed, effective resolution ~5 km | ~11 independent areas in the corridor; neighbouring cells correlated | Two tracers; spatial CV blocks ≥ 5 km |
+| L-fd uncertainty covers sampling noise only | Noise ceiling 0.97 optimistic | Common-scale terms in the label meta file |
+| ~13 independent areas even on the regional grid | Small differences between experiments may be undetectable | Paired block-bootstrap comparisons; "no detectable difference" is reported as such |
+| L-co is noise-dominated away from the city | Regional L-co scores mostly reflect noise | L-co interpreted on the corridor |
 | OSM is a 2026 snapshot used for 2019–2024 | Roads/industry built after 2019 counted for all years | Stated assumption; static layers vary little at 1 km over 5 years |
 | CO, HCHO and weather barely vary between 1 km cells (spatial share ≤ 2%) | They can't help the model locate emissions, only time them | Documented before modelling (§4b); spatial CV in Phases 4–6 |
 | NDBI confused by dry bare soil | "Built-up" highest in rural C3; negative correlation with NO₂/VIIRS | Caveat for Experiment D; roads/industry/VIIRS are the reliable activity layers |
@@ -782,8 +864,10 @@ Full reasoning for each is in [decisions.md](decisions.md).
 
 1. **Send the progress report PDF, the Phase 1 report and the Phase 3 design note to the guide; get sign-off on D8/D11/D12/D16/D19.** Headline (post-D19): 2.79 Mt fossil CO₂/yr annual mean [95%: 1.79–4.36].
 2. ~~Finish Phase 2~~ **Done (2026-10-04):** feature table v2 (OSM roads + industrial land, GRIP4 cross-check, correlation QA, SHA-256).
-3. **Phase 3 (labels)** per the guide's answer on D16; then Phase 4 (feature tensor: standardise, spatial-block folds).
-4. **Optional:** per-swath offsets in the OCO regression; a wider across-wind window for the CO step. (The sloped EMG background was done as D19.)
+3. ~~Phase 3 (labels)~~ **Built (2026-10-09):** labels v1, L-fd + L-co (D16, D21 await the guide; the primary label is a config switch).
+4. ~~Phase 4~~ **Done (2026-10-10):** regional grid (D22), model table, 15 km blocks (D23), splits; analysis plan written.
+5. **Freeze the analysis plan** (commit it), then **Phase 5:** Experiments A–D + controls exactly as planned.
+6. **Optional:** per-swath offsets in the OCO regression; a wider across-wind window for the CO step. (The sloped EMG background was done as D19.)
 
 ---
 
@@ -815,6 +899,15 @@ python -m ecotrack.acquire.roads_grip                       # GRIP4 roads (cross
 # download data/raw/osm/western-zone-<date>.osm.pbf from Geofabrik (check its .md5), then:
 python -m ecotrack.acquire.osm_pbf                          # OSM roads + industrial land (v2)
 python -m ecotrack.features                                 # feature table v2
+# Phase 3
+python -m ecotrack.labels                                   # labels v1 (L-fd, L-co) + QA
+# Phase 4 (corridor): model table + splits
+python -m ecotrack.tensor
+# Regional grid (D22): set the switch, then rerun the Phase 2-4 chain
+$env:ECOTRACK_GRID="region"
+python -m ecotrack.grid ; python -m ecotrack.acquire.grid_layers_gee ; python -m ecotrack.acquire.roads_grip
+python -m ecotrack.acquire.osm_pbf ; python -m ecotrack.features ; python -m ecotrack.labels ; python -m ecotrack.tensor
+Remove-Item Env:ECOTRACK_GRID
 # Illustrated progress report (docs/EcoTrack_Progress_Report.pdf)
 python -m ecotrack.progress_report
 # Method tests

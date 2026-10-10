@@ -74,6 +74,18 @@ PHASE 2 (chapter 12)
   acquire/roads_grip.py ◄── cells.geojson ──► layers_roads_grip.csv (GRIP4 fallback)
   features.py ◄── cells + both cubes + DEM + ERA5 + all layers + EDGAR + ODIAC
        └─► data/processed/feature_table_v2.csv (+ .meta.json with SHA-256) ; outputs/phase2/qa_*_v2
+
+PHASE 3 (chapter 13)
+  labels.py ◄── NO₂ + CO cubes, ERA5, city_fit, seasonal, co_ratio, temporal_adjust, cells, feature_table_v2
+       └─► data/processed/labels_v1.csv (+ .meta.json) ; outputs/phase3/qa_labels.json, figures/
+
+PHASE 4 (chapter 14)
+  tensor.py ◄── feature_table_v2 + labels_v1 + cells (+ NO₂ cube for the error variogram)
+       └─► data/processed/model_table_v1.csv (+ meta) ; outputs/phase4/variogram.png
+
+REGIONAL GRID (D22): set ECOTRACK_GRID=region and rerun grid → grid_layers_gee → roads_grip → osm_pbf
+  → features → labels → tensor; every output gets a "_region" suffix
+
   progress_report.py ◄── all results ──► docs/EcoTrack_Progress_Report.pdf
 ```
 

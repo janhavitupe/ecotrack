@@ -1,0 +1,352 @@
+{
+  "constants": {
+    "co2_nox_ratio": 162.6619720914768,
+    "co2_nox_ratio_95": [
+      147.5779087012383,
+      179.80810130940557
+    ],
+    "annual_factor_F": 1.2144249166418857,
+    "e_nox_all_kg_s": 0.6626723086050081,
+    "smoothing_px": 5
+  },
+  "check_map_equals_phase1": true,
+  "corridor_share": {
+    "label_fd_cells": 0.20749559214592772,
+    "fd_pixels_unsmoothed": 0.20989899388218786,
+    "label_co_cells": 0.1433520587491881,
+    "co_pixels_unsmoothed": 0.1449382466708188,
+    "note": "cells use the ~5 km smoothed map, which spreads some emission across the corridor edge"
+  },
+  "totals_kt_yr_midday": {
+    "label_fd": {
+      "2019-20": {
+        "C1_shivajinagar_kasarwadi": 218.3,
+        "C2_pcmc": 135.3,
+        "C3_dehu_talegaon": 108.4,
+        "outside": 2142.1,
+        "corridor": 462.0
+      },
+      "2020-21": {
+        "C1_shivajinagar_kasarwadi": 303.2,
+        "C2_pcmc": 187.9,
+        "C3_dehu_talegaon": 150.5,
+        "outside": 2974.8,
+        "corridor": 641.6
+      },
+      "2021-22": {
+        "C1_shivajinagar_kasarwadi": 369.0,
+        "C2_pcmc": 228.6,
+        "C3_dehu_talegaon": 183.2,
+        "outside": 3620.1,
+        "corridor": 780.8
+      },
+      "2022-23": {
+        "C1_shivajinagar_kasarwadi": 335.2,
+        "C2_pcmc": 207.7,
+        "C3_dehu_talegaon": 166.4,
+        "outside": 3288.2,
+        "corridor": 709.2
+      },
+      "2023-24": {
+        "C1_shivajinagar_kasarwadi": 333.6,
+        "C2_pcmc": 206.7,
+        "C3_dehu_talegaon": 165.6,
+        "outside": 3272.8,
+        "corridor": 705.9
+      }
+    },
+    "label_co": {
+      "2019-20": {
+        "C1_shivajinagar_kasarwadi": 262.1,
+        "C2_pcmc": 163.4,
+        "C3_dehu_talegaon": 62.2,
+        "outside": 3098.6,
+        "corridor": 487.6
+      },
+      "2020-21": {
+        "C1_shivajinagar_kasarwadi": 262.1,
+        "C2_pcmc": 163.4,
+        "C3_dehu_talegaon": 62.2,
+        "outside": 3098.6,
+        "corridor": 487.6
+      },
+      "2021-22": {
+        "C1_shivajinagar_kasarwadi": 262.1,
+        "C2_pcmc": 163.4,
+        "C3_dehu_talegaon": 62.2,
+        "outside": 3098.6,
+        "corridor": 487.6
+      },
+      "2022-23": {
+        "C1_shivajinagar_kasarwadi": 262.1,
+        "C2_pcmc": 163.4,
+        "C3_dehu_talegaon": 62.2,
+        "outside": 3098.6,
+        "corridor": 487.6
+      },
+      "2023-24": {
+        "C1_shivajinagar_kasarwadi": 262.1,
+        "C2_pcmc": 163.4,
+        "C3_dehu_talegaon": 62.2,
+        "outside": 3098.6,
+        "corridor": 487.6
+      }
+    }
+  },
+  "label_fd": {
+    "min": -380.607212011237,
+    "p1": -187.0819698631334,
+    "median": 971.3283295878616,
+    "p99": 4609.256115812087,
+    "max": 5575.161359645524,
+    "negative_fraction": 0.06738078783690393,
+    "noise_ceiling_r2": 0.9858436432297192,
+    "median_relative_sd": 0.1003813107381206,
+    "spatial_variance_share": 0.9418700288598797
+  },
+  "label_co": {
+    "min": -2402.2222363301553,
+    "p1": -2077.216561958898,
+    "median": 1008.2721990366583,
+    "p99": 5915.052889691808,
+    "max": 6597.294553454351,
+    "negative_fraction": 0.20352453351762267,
+    "noise_ceiling_r2": 0.7775625899542664,
+    "median_relative_sd": 0.6304008056811382,
+    "spatial_variance_share": 0.9999999999999998
+  },
+  "fd_vs_co_cells": {
+    "pearson": 0.7507849353070456,
+    "spearman": 0.7162818741342446
+  },
+  "season_pattern_vs_multiyear": {
+    "2019-20": {
+      "fd_r": 0.9854357699730673,
+      "co_r": 0.6913581717240531
+    },
+    "2020-21": {
+      "fd_r": 0.9859874890109583,
+      "co_r": 0.7253450460729385
+    },
+    "2021-22": {
+      "fd_r": 0.9871493089878703,
+      "co_r": 0.6736943673221224
+    },
+    "2022-23": {
+      "fd_r": 0.9919807478401569,
+      "co_r": 0.6393463599873478
+    },
+    "2023-24": {
+      "fd_r": 0.9860613319991864,
+      "co_r": 0.7652368591802635
+    }
+  },
+  "smoothing_sensitivity": {
+    "3px": {
+      "fd_r_vs_main": 0.9988726215380506,
+      "fd_corridor_share": 0.2089482690848649,
+      "co_r_vs_main": 0.976649173004048,
+      "co_corridor_share": 0.1446635782305316
+    },
+    "7px": {
+      "fd_r_vs_main": 0.9990919774178262,
+      "fd_corridor_share": 0.20562811137729956,
+      "co_r_vs_main": 0.9825151396557155,
+      "co_corridor_share": 0.1417326671618489
+    }
+  },
+  "label_feature_spearman": {
+    "label_fd": {
+      "no2": {
+        "r": 0.929,
+        "construction_link": "label is built from the NO2 emission map (Experiment A = construction baseline)"
+      },
+      "co_norm": {
+        "r": 0.251,
+        "construction_link": null
+      },
+      "hcho": {
+        "r": 0.69,
+        "construction_link": null
+      },
+      "ws850": {
+        "r": -0.003,
+        "construction_link": "ERA5 850 hPa wind moves the NO2 field in the flux divergence"
+      },
+      "wd850": {
+        "r": -0.028,
+        "construction_link": "same wind"
+      },
+      "blh_m": {
+        "r": 0.089,
+        "construction_link": null
+      },
+      "frac_ese": {
+        "r": -0.075,
+        "construction_link": "same wind"
+      },
+      "t2m_k": {
+        "r": -0.148,
+        "construction_link": null
+      },
+      "ssrd_j_m2": {
+        "r": 0.229,
+        "construction_link": null
+      },
+      "viirs_rad": {
+        "r": 0.865,
+        "construction_link": null
+      },
+      "ndvi": {
+        "r": -0.302,
+        "construction_link": null
+      },
+      "ndbi": {
+        "r": -0.123,
+        "construction_link": null
+      },
+      "road_major_km": {
+        "r": 0.313,
+        "construction_link": null
+      },
+      "road_mid_km": {
+        "r": 0.34,
+        "construction_link": null
+      },
+      "road_minor_km": {
+        "r": 0.546,
+        "construction_link": null
+      },
+      "road_total_km": {
+        "r": 0.569,
+        "construction_link": null
+      },
+      "industrial_frac": {
+        "r": 0.242,
+        "construction_link": null
+      }
+    },
+    "label_co": {
+      "no2": {
+        "r": 0.611,
+        "construction_link": null
+      },
+      "co_norm": {
+        "r": 0.177,
+        "construction_link": "label is built from the CO emission map: drop CO from the features"
+      },
+      "hcho": {
+        "r": 0.448,
+        "construction_link": null
+      },
+      "ws850": {
+        "r": 0.0,
+        "construction_link": "ERA5 850 hPa wind moves the CO field"
+      },
+      "wd850": {
+        "r": 0.0,
+        "construction_link": "same wind"
+      },
+      "blh_m": {
+        "r": 0.0,
+        "construction_link": null
+      },
+      "frac_ese": {
+        "r": 0.0,
+        "construction_link": "same wind"
+      },
+      "t2m_k": {
+        "r": -0.237,
+        "construction_link": null
+      },
+      "ssrd_j_m2": {
+        "r": 0.033,
+        "construction_link": null
+      },
+      "viirs_rad": {
+        "r": 0.495,
+        "construction_link": null
+      },
+      "ndvi": {
+        "r": -0.035,
+        "construction_link": null
+      },
+      "ndbi": {
+        "r": -0.116,
+        "construction_link": null
+      },
+      "road_major_km": {
+        "r": 0.244,
+        "construction_link": null
+      },
+      "road_mid_km": {
+        "r": 0.189,
+        "construction_link": null
+      },
+      "road_minor_km": {
+        "r": 0.318,
+        "construction_link": null
+      },
+      "road_total_km": {
+        "r": 0.336,
+        "construction_link": null
+      },
+      "industrial_frac": {
+        "r": 0.112,
+        "construction_link": null
+      }
+    }
+  },
+  "label_inventory_spearman": {
+    "label_fd": {
+      "ref_edgar_co2_t_km2_yr": 0.78,
+      "ref_odiac_co2_t_km2_month": 0.898
+    },
+    "label_co": {
+      "ref_edgar_co2_t_km2_yr": 0.395,
+      "ref_odiac_co2_t_km2_month": 0.589
+    }
+  },
+  "co_season_totals": {
+    "2019-20": {
+      "n": 151,
+      "co25_mol_s": 225.5466829956937,
+      "sd_mol_s": 27.91915091075985
+    },
+    "2020-21": {
+      "n": 141,
+      "co25_mol_s": 258.0557645644331,
+      "sd_mol_s": 33.99329119403507
+    },
+    "2021-22": {
+      "n": 144,
+      "co25_mol_s": 231.79174861545093,
+      "sd_mol_s": 34.83055717334874
+    },
+    "2022-23": {
+      "n": 154,
+      "co25_mol_s": 265.810011584861,
+      "sd_mol_s": 47.76685774254036
+    },
+    "2023-24": {
+      "n": 158,
+      "co25_mol_s": 260.59467418156953,
+      "sd_mol_s": 42.652175927200496
+    }
+  },
+  "co_between_within_ratio": 0.4895362988240271,
+  "construction_inputs": {
+    "label_fd": {
+      "no2": "label is built from the NO2 emission map (Experiment A = construction baseline)",
+      "ws850": "ERA5 850 hPa wind moves the NO2 field in the flux divergence",
+      "wd850": "same wind",
+      "frac_ese": "same wind"
+    },
+    "label_co": {
+      "co_norm": "label is built from the CO emission map: drop CO from the features",
+      "ws850": "ERA5 850 hPa wind moves the CO field",
+      "wd850": "same wind",
+      "frac_ese": "same wind"
+    }
+  }
+}

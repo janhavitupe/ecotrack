@@ -229,3 +229,65 @@ This log is the raw material for the Methods chapter.
 - **Phase 2 report written** (`docs/phase2_report.md`; the user noticed it was missing; Phase 1 had one). It follows the Phase 1 report's structure: summary, objective, grid, layers table, roads/D20, results (column groups, meta/SHA, per-cluster means), QA (incl. correlation and spatial-variance share), deviations, limitations, implications for Phases 3–6, next steps, reproducibility, references.
   - **New finding while writing it: NDBI caveat.** NDBI is highest in rural C3 (0.054 vs C1 0.001, C2 0.027) and Spearman −0.28 with NO₂ and −0.33 with VIIRS. Dry-season bare soil has high SWIR, so NDBI is not a reliable built-up indicator here. It was added to findings §4b and §7, guide ch.12 and ch.7 (#40), and the progress-report PDF (Phase 2 page, limitations, mistakes table). README links the Phase 2 report.
   - Other per-cluster numbers: NO₂ 67.2/64.5/49.2 µmol/m²; VIIRS 24.4/27.4/10.0; roads 10.5/14.6/4.9 km; industrial 4.6/10.4/3.1%. NO₂ overpasses per cell-month 6–32 (median 25).
+
+## 2026-10-09
+- **Phase 3 started and built** (the user: "let's move on to the third phase"). D16 is still awaiting the guide, so both labels were built, and the primary is a config switch (`phase3.primary_label`) so the answer needs no rebuild.
+  - **New `src/ecotrack/labels.py`** + config `phase3:` (smoothing 5 px, bootstrap 200/100). It reuses the Phase 1 inputs exactly (same day selection, τ, background, IQR).
+    - **L-fd** = 5 km-smoothed NO₂ FD share × seasonal EMG NOx × 162.66.
+    - **L-co** = CO FD share × multi-year city CO₂.
+    - Units t CO₂/km²/yr (midday rate); `_annual` ÷ F = 1.214 (mean of the two D17 profile variants).
+  - **Checks:**
+    - the rebuilt NO₂ map equals `divergence_map.npz` exactly;
+    - cell corridor shares 20.7% / 14.3% vs pixels 21.0% / 14.5%;
+    - smoothing 3/7 px r ≥ 0.979;
+    - per-season NO₂ maps r 0.98–0.99 vs multi-year; CO 0.24–0.86;
+    - unit and conservation tests (`tests/test_labels.py`; 15 tests pass).
+  - **D21 (new, proposed):** per-season CO FD totals 226/258/232/266/261 ± 28–48 mol/s give between/within **0.49** (NO₂ EMG 2.8), so seasonal CO totals are not resolvable. L-co is made spatial-only (`co_seasonal_scale: false`). First run (seasonal L-co): ceiling 0.69, corridor totals 444–523 kt; after D21: 0.75, 488 kt every season.
+  - **Results:**
+    - L-fd median 2,374 t/km²/yr [p1 649, p99 4,852], 0% negative, median rel. sd 8%, ceiling 0.97, spatial share 0.85.
+    - L-co median 2,010 [−1,019, 5,203], 11.6% negative (rural C3, |value| < 1σ; kept to avoid an upward bias), rel. sd 34%, ceiling 0.75.
+    - Cell r(L-fd, L-co) 0.93.
+    - Clusters (L-fd / L-co): C1 3,427 / 2,880; C2 3,067 / 2,593; C3 1,358 / 545.
+    - Corridor L-fd 462/642/781/709/706 kt/yr.
+  - **Circularity measured (Spearman with season-mean features):**
+    - L-fd: NO₂ 0.91 (link), VIIRS 0.75, roads 0.54, NDBI −0.45.
+    - L-co: NO₂ 0.79, VIIRS 0.72, roads 0.61, `co_norm` only 0.27, because the CO column has ~no spatial variance (Phase 2), while the label comes from the emission map.
+  - Inventories (reference): ODIAC 0.885/0.888, EDGAR 0.655/0.481.
+  - **Docs:**
+    - new `docs/phase3_report.md`; new guide ch.13; decisions (D16 implementation, D21);
+    - findings §1 item 17, new §4c, §5 D21, §7 two rows, §8, §9;
+    - phase3_design status box; data dictionary (labels section); README;
+    - guide ch.0, 4, 9 (5 terms), 10 (Q35–Q39), 11.
+- **Progress report PDF updated for Phase 3** (24 pages): section 8 now shows labels v1 (comparison table, label maps, checks, D21, measured circularity) and the experiments; D21 added to the decisions table; status chart, pipeline diagram, next steps and the questions for the guide updated.
+
+## 2026-10-10
+- **Enlarging the training data (D22)**, following the guide-style review: corridor-only labels give too few independent areas, are dominated by one gradient, and Experiment B is likely null. The user chose to enlarge the training data.
+  - `grid.py` gains a regional mode (`ECOTRACK_GRID=region`): cells within 30 km of the source, ≥ 5 km inside the cube box, plus all corridor cells. Result: **2,894 cells** (268 corridor + 2,626 outside); all 268 corridor cells coincide with the corridor grid. Ids are UTM-km based (`g<E>_<N>`); columns `in_corridor` and `corridor_cell_id`. Every downstream output gets a `_region` suffix.
+  - **OSM (regional):** first attempt failed with MemoryError (0.21 GB RAM free; C: only 2.6 GB free, so the page file can't grow). Fixed by caching node locations in a file on D: (`sparse_file_array`; a ~550 MB temp file, deleted after). Result: 75,639 road ways, 341 industrial areas; 840 cells with a major road; 65 cells > 25% industrial. **Corridor cells identical to the corridor-grid values** (max difference 1e-14).
+  - **Earth Engine (regional):** the first run took ~6.5 min/month. Cause: `cells_fc()` built one client-side collection of all 2,894 polygons, so every chunked request uploaded ~1.5 MB. Fixed by building each chunk client-side from its own cells (also in `roads_grip.py`): **1.7 min/month**. Completed months are kept (resumable).
+  - **Analysis plan drafted** (`docs/phase5_analysis_plan.md`): pre-registration of experiments, controls (geography-only null N0, shuffled N1, residual "beyond geography" target, feature-group ablation), splits (spatial blocks from the variogram; corridor transfer; PCMC hold-out; leave-one-season-out), fixed model settings, metrics (ΔR² over N0, spatial/temporal decomposition, ceiling-normalised), the paired block-bootstrap decision rule, and predictions P1–P7. To be frozen by commit before training.
+  - **Phase 4 code** (`src/ecotrack/tensor.py`, config `phase4:`): season means (wind direction as sin/cos), label join, variogram of the detrended L-fd, blocks and folds, corridor and PCMC splits.
+    - Dry run on the corridor: practical range 6.8 km, first lag at 95% of variance 5.5 km → **7 km blocks, only ~5–6 independent areas in the corridor** (worse than the ~11 guessed in Phase 3; supports D22).
+    - The corridor variogram shows a hole effect (narrow, elongated domain), so the block rule now takes the larger of the fitted range and the empirical first crossing of 95% of the variance. Fixed before the regional result was seen.
+  - Installed scikit-learn 1.9.1 and xgboost 3.2.0 (requirements updated).
+- **Regional extraction finished** (the previous session ended while it ran; it had completed: 40 months, 5 seasons with 76–98 Sentinel-2 scenes each, GRIP4).
+  - The user freed C: (now 14 GB).
+  - 0 missing values. Corridor cells identical to the corridor grid for every Earth Engine layer (≤ 4e-14 relative; GRIP 1e-11).
+- **Regional features** (`feature_table_v2_region.csv`): 115,760 rows; 0 missing in all features; ODIAC reference missing for 12 cells (480 rows).
+  - Spatial variance share: NO₂ 0.57 (corridor 0.34), HCHO 0.15 (0.03), CO 0.04.
+  - VIIRS 0.04–111; NDVI down to −0.33 (lakes); a few slightly negative monthly HCHO means (rural retrieval noise).
+- **Regional labels** (`labels_v1_region.csv`, 14,470): checks unchanged (map identical to Phase 1; corridor shares 20.7% / 14.3%).
+  - L-fd median 971 t/km²/yr, 6.7% negative, ceiling 0.99, spatial share 0.94.
+  - L-co median rel. sd 63%, 20.4% negative, ceiling 0.78.
+  - L-fd vs L-co r = 0.75 (corridor 0.93). L-fd vs features: NO₂ 0.93, VIIRS 0.87, HCHO 0.69. Inventories: ODIAC 0.90, EDGAR 0.78 (L-fd).
+  - **Two bugs** found on the new grid: the figure read corridor cell shapes; the smoothing check summed all regional cells as "corridor" (117%). Fixed; the corridor labels were rebuilt byte-identical (git diff empty).
+- **Phase 4, block size.**
+  - The label-variogram rule failed on the region: the detrended label keeps rising to 30 km; the fit hit its 100 km bound (2 blocks).
+  - Rethought (D23): block size from the variogram of label *errors* (30 bootstrap NO₂ maps − main map).
+  - First fit failed numerically (values ~1e-18); fixed by fitting in units of the sill.
+  - Regional range 14.7 km (first 95% crossing 14.5 km) → **15 km blocks, 23 blocks, ~13 independent areas**. Corridor: 9.5 km → 10 km, 9 blocks, ~3 areas.
+  - Fixed-denominator and mean-removed variants also give 14.5 km (not a common-scale artefact).
+  - Folds were badly unbalanced with random assignment (207–1,057 cells), so they are now balanced largest-first: 577–582. Refactored as `block_folds()`; the output hash is unchanged.
+- `tests/test_tensor.py` (circular wind mean; fold balance and reproducibility): 17 tests pass.
+- **Analysis plan updated** (still a draft, to be frozen): input SHA-256s, regional ceilings, the L-co corridor focus, §4.1 15 km with reasoning, robustness at 10/20 km, PCMC counts, §10 history table.
+- **Docs:** new `docs/phase4_report.md`, guide ch.14; decisions D22 results + D23; findings §1 item 18, §4d, §5, §7, §8, §9; data dictionary (model table); README; guide ch.0, 4, 7 (#41–44), 9 (6 terms), 10 (Q40–Q43), 11.

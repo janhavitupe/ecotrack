@@ -181,6 +181,46 @@ It also lets us show the known +12% method bias both uncorrected (headline) and 
 The between-season spread (0.43–0.73 kg/s) is 2.8× the within-season bootstrap uncertainty, and an independent model-free
 check sees the 2020 lockdown (−74%) and the 2021 restrictions (−29%).
 
+**Q35. How did you make labels when nobody measures CO₂ per km² in Pune?**
+We constructed them from satellite physics: the city's CO₂ (NOx × 163) spread over cells by the Phase 1 emission maps,
+smoothed to ~5 km (TROPOMI's real resolution). Two versions: L-fd from the NO₂ map (varies by season) and L-co from the CO
+map (spatial-only). Each label has a bootstrap uncertainty, and the meta file lists the common-scale errors.
+
+**Q36. Isn't using an NO₂-built label with NO₂ features circular?**
+Yes, for Experiment A, and we say so: with L-fd, A is reported as the "construction baseline", and the question is whether
+B/C/D beat it. L-co never uses NO₂, so it tests A fairly. Even then NO₂ correlates 0.79 with L-co, so NO₂ carries genuine
+emission information beyond the recipe.
+
+**Q37. Why is L-co the same in every season?**
+Decision D21. We applied the Phase 1 rule (between-season spread must exceed within-season noise). NO₂ scored 2.8; CO's
+seasonal totals scored 0.49, so CO's season-to-season changes are noise. The rule was set before the test and applied to both gases.
+
+**Q38. What's a noise ceiling and why does it matter?**
+The best R² any model could reach given label noise: 0.97 for L-fd, 0.75 for L-co. A model scoring 0.70 on L-co is close to
+perfect; without the ceiling that score would look mediocre.
+
+**Q39. Why must cross-validation use blocks of at least 5 km?**
+The labels are a ~5 km field sampled at 1 km (about 11 independent areas in the corridor). If neighbouring cells sit in
+training and test sets, the model can copy its neighbour and look better than it is.
+
+**Q40. Your labels are a smooth map. How many independent data points do you really have?**
+About 13 on the regional grid, and about 3 in the corridor alone. We measured how far label errors stay correlated (a variogram of
+bootstrap map errors): ~15 km. So the honest sample is ~13 independent 15 km areas, not 14,470 rows. That's why we enlarged
+the training area (D22) and use paired block-bootstrap comparisons.
+
+**Q41. Why are your cross-validation blocks 15 km?**
+That's the distance over which label errors stay correlated (D23). The labels' own variogram never levels off (they're smooth at
+all scales), so it can't set a block size. The smooth signal is handled differently: every experiment is compared with a
+geography-only null model.
+
+**Q42. Didn't you change your method after seeing data?**
+The block rule changed, but before any model was trained, and the change is recorded with its reason in the analysis plan's
+history table. The plan is committed to git before Phase 5, so the decision rule and the predictions predate every result.
+
+**Q43. Why train on cells outside your study corridor?**
+The corridor alone holds ~3 independent areas: too few to tell experiments apart. The region (2,894 cells within 30 km) holds ~13.
+The corridor stays the evaluation focus, including a "train outside, test on the corridor" split.
+
 **Q28. What comes next?**
 Phase 2: gridded human-activity layers (night-lights, roads, Sentinel-2). Phase 3: labels from the
 satellite flux-divergence shares, which avoids the circularity of labelling with the same proxies

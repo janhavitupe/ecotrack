@@ -209,12 +209,27 @@ Caught because a fraction can't exceed 1.
 correlated with NO₂ and night lights. Dry-season bare soil reflects SWIR like concrete. Caught only when writing the
 per-cluster table for the Phase 2 report. Lesson: sanity-check each feature against layers you trust.
 
+**41. A rule that worked on the corridor failed on the region.** The planned block-size rule (where the label's variogram
+levels off) gave 7 km in the corridor but 100 km on the regional grid: the labels never level off. The rule was rethought rather
+than tweaked: errors, not the smooth signal, are what leak between neighbours (D23). It was decided before any model was trained,
+and recorded. Lesson: test rules on the real domain before freezing them.
+
+**42. Uploading the whole map with every request.** Earth Engine slowed to 6.5 min/month because each chunked request re-sent
+all 2,894 cell outlines. Building each chunk from its own cells: 1.7 min/month. Lesson: check what travels over the network.
+
+**43. MemoryError on a full C: drive.** osmium's in-memory node cache needed ~1–2 GB; with 0.2 GB of RAM free and no room on C:
+for the page file, it crashed. Moved the cache to a file on D:. Lesson: low disk space on C: also means low memory on Windows.
+
+**44. Bugs that only appear on new data.** The label figure read the corridor's cell shapes; a check summed every regional cell
+as "corridor" (117%). Both fixed; the corridor labels were rebuilt byte-identical. Lesson: when generalising code, rerun the old
+case and compare hashes.
+
 ## Small tooling issues (for completeness)
 - Git Bash sometimes choked on long inline Python heredocs. Scripts were written to files instead.
 - Matplotlib titles were clipped by long axis labels. The fix was to anchor titles to the figure (`suptitle`).
 - A mistyped memory path ("JANHAV" for "JANHAVI"). Retried.
 
-## The pattern across all 40
+## The pattern across all 44
 Almost every problem was caught by one of three habits:
 1. **Sanity-check numbers against physics** (439 overpasses? 29% outliers? a 2.6× mismatch?).
 2. **Test methods on synthetic data with known answers**, and check real-data behaviour too.

@@ -42,12 +42,12 @@ from scipy.ndimage import uniform_filter
 
 from ecotrack.acquire.tropomi_cube import load_cube
 from ecotrack.config import DATA_INTERIM, OUTPUTS, ROOT, load_config
-from ecotrack.grid import GRID_DIR, load_cells
+from ecotrack.grid import GRID_DIR, SUFFIX, load_cells
 from ecotrack.inversion.run_co_ratio import FOOTPRINT_PX, SCALE_HEIGHT_KM
 
 VERSION = "v2"
-OUT_CSV = ROOT / "data" / "processed" / f"feature_table_{VERSION}.csv"
-QA_DIR = OUTPUTS / "phase2"
+OUT_CSV = ROOT / "data" / "processed" / f"feature_table_{VERSION}{SUFFIX}.csv"  # SUFFIX "_region" for the D22 grid
+QA_DIR = OUTPUTS / f"phase2{SUFFIX}"
 C_TO_CO2 = 44.0095 / 12.011
 FEATURES = ["no2", "co_norm", "hcho", "ws850", "wd850", "blh_m", "frac_ese", "t2m_k", "ssrd_j_m2",
             "viirs_rad", "ndvi", "ndbi", "road_major_km", "road_mid_km", "road_minor_km", "road_total_km", "industrial_frac"]
@@ -158,10 +158,11 @@ def build():
             df[c] = np.nan
     roads = osm if osm.exists() else grip
     df = df.merge(pd.read_csv(GRID_DIR / "layers_landuse.csv"), on="cell_id", how="left")
-    df = df.merge(cells[["cell_id", "lat", "lon", "cluster", "frac_in_corridor", "dist_to_source_km"]], on="cell_id", how="left")
+    ctx = [c for c in ["lat", "lon", "cluster", "frac_in_corridor", "in_corridor", "corridor_cell_id", "dist_to_source_km"] if c in cells]
+    df = df.merge(cells[["cell_id"] + ctx], on="cell_id", how="left")
     df = df.merge(inventories(cells, sorted(df.month.unique())), on=["cell_id", "month"], how="left")
 
-    lead = ["cell_id", "month", "season", "lat", "lon", "cluster", "frac_in_corridor", "dist_to_source_km"]
+    lead = ["cell_id", "month", "season"] + ctx
     df = df[lead + FEATURES + ["no2_n", "co_n"] + [c for c in df.columns if c.startswith("grip_")]
             + [c for c in df.columns if c.startswith("ref_")]]
     df.attrs["road_source"] = road_source

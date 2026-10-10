@@ -1,0 +1,42 @@
+{
+  "version": "v1",
+  "grid": "_region",
+  "rows": 14470,
+  "cells": 2894,
+  "seasons": [
+    "2019-20",
+    "2020-21",
+    "2021-22",
+    "2022-23",
+    "2023-24"
+  ],
+  "variogram": {
+    "target": "L-fd share error field (bootstrap maps - main map), averaged over draws",
+    "noise_draws": 30,
+    "nugget": 4.152359700062549e-37,
+    "sill": 6.383127146071576e-22,
+    "practical_range_km": 14.672042447580507,
+    "first_lag_reaching_95pct_variance_km": 14.5,
+    "label_detrended_variance_descriptive": 496677.24875832855,
+    "block_km": 15,
+    "n_blocks": 23,
+    "effective_independent_areas": 12.862222222222222
+  },
+  "cells_per_fold": {
+    "0": 582,
+    "1": 579,
+    "2": 578,
+    "3": 578,
+    "4": 577
+  },
+  "split_pcmc_counts": {
+    "train": 2600,
+    "gap": 231,
+    "test": 63
+  },
+  "split_corridor_counts": {
+    "train": 2626,
+    "test": 268
+  },
+  "sha256": "347dbb72cf94c73e19c57554533f291ce595fd0c677bd39ba3903f4f94d0aff0"
+}

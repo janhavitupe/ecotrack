@@ -21,6 +21,7 @@ Usage:
     python -m ecotrack.acquire.osm_pbf
 """
 
+import gc
 import glob
 import json
 
@@ -33,10 +34,13 @@ from shapely.geometry import LineString, box
 from shapely.ops import transform, unary_union
 
 from ecotrack.acquire.roads_osm import CLASSES
-from ecotrack.config import DATA_RAW, load_config
+from ecotrack.config import DATA_INTERIM, DATA_RAW, load_config
 from ecotrack.grid import GRID_DIR, load_cells
 
 PBF_GLOB = str(DATA_RAW / "osm" / "*.osm.pbf")
+# Node coordinates are cached in a file on disk, not in RAM: the in-memory cache needs ~1-2 GB and
+# failed with MemoryError on an 8 GB laptop with a nearly full C: drive (no room to grow the page file).
+NODE_CACHE = DATA_INTERIM / "osm_node_locations.idx"
 
 
 def read_osm(pbf, bbox):
@@ -46,7 +50,8 @@ def read_osm(pbf, bbox):
     cls_of = {h: c for c, hs in CLASSES.items() for h in hs}
     wkb = osmium.geom.WKBFactory()
     roads, industrial, skipped = [], [], 0
-    fp = (osmium.FileProcessor(pbf).with_locations()
+    NODE_CACHE.unlink(missing_ok=True)
+    fp = (osmium.FileProcessor(pbf).with_locations(f"sparse_file_array,{NODE_CACHE}")
           .with_areas(osmium.filter.TagFilter(("landuse", "industrial")))
           .with_filter(osmium.filter.KeyFilter("highway", "landuse")))
     for obj in fp:
@@ -61,6 +66,12 @@ def read_osm(pbf, bbox):
                     industrial.append(geom)
         except (osmium.InvalidLocationError, RuntimeError):
             skipped += 1  # objects cut by the extract boundary (far from Pune)
+    del fp
+    gc.collect()  # release osmium's handle on the cache file
+    try:
+        NODE_CACHE.unlink(missing_ok=True)
+    except PermissionError:  # still held on Windows: it is removed at the start of the next run
+        pass
     return roads, industrial, skipped
 
 
@@ -102,7 +113,7 @@ def run():
          "road_ways": len(roads), "industrial_areas": len(industrial)}, indent=2))
     print(f"Roads per cell: total median {rd.road_total_km.median():.1f} km, max {rd.road_total_km.max():.1f}; "
           f"cells with a major road {(rd.road_major_km > 0).sum()} of {len(rd)}")
-    print(f"Industrial land: corridor mean {100 * ld.industrial_frac.mean():.1f}%, "
+    print(f"Industrial land: grid mean {100 * ld.industrial_frac.mean():.1f}%, "
           f"cells > 25% industrial: {(ld.industrial_frac > 0.25).sum()}")
 
 

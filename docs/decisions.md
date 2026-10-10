@@ -149,3 +149,50 @@ Beyond ~45 km the downwind profile contains **PCMC and Talegaon, a second source
 **D19 results (2026-10-01, full chain rerun):** main E(NOx) **0.663 kg/s [0.620–0.715]**, τ 1.09 h [0.96–1.23], R² 0.998. Quality-rule fallbacks: westerly regime (sloped τ 0.42 h, bootstrap 0.80–3.96 → flat 0.484) and season 2023–24 (sloped τ 0.75 h, bootstrap 0.75–2.37 → flat 0.663). The first D19 rerun without the rule gave a spurious ±52% budget. Budget structure term 5.4%; wind-level term drops to 0.8%. DE: all 24 converged fits identical (0.6627); the 12 CR = 0.3 runs didn't converge within maxiter for 6 parameters (within 3% of optimal cost). **Downstream:** CO:NOx 16.7 [14.7–18.8] (EDGAR 16.0); CO₂:NOx 163 (148–180); CO₂ midday 3.40 Mt/yr; annual MC **2.79 [1.79–4.36]**; satellite NOx annual −17 to −19% vs EDGAR (was −36%).
 
 **D12 status after D19:** the CO constraint stands (CO₂:NOx now 163, 95% 148–180, vs EDGAR 172), but its **interpretation is revised**: the pre-D19 conclusion "more household/biomass burning than EDGAR" came from an underestimated NOx and is **withdrawn**. Post-D19 CO:NOx agrees with EDGAR's within 4%, and all four sector scenarios are feasible.
+
+**D16 implementation (2026-10-09):** `src/ecotrack/labels.py` builds **labels v1** (`data/processed/labels_v1.csv`, 1,340 = 268 cells × 5 seasons).
+- **L-fd** = 5 km-smoothed NO₂ FD share × seasonal EMG NOx × 162.7.
+- **L-co** = CO FD share × multi-year city CO₂.
+
+Checks:
+- the rebuilt NO₂ map equals Phase 1's exactly;
+- cell corridor shares 20.7% / 14.3% (pixels 21.0% / 14.5%);
+- smoothing 3/7 px r ≥ 0.98;
+- noise ceilings 0.97 / 0.75.
+
+Circularity measured: L-fd vs the NO₂ feature 0.91; L-co (no NO₂ used) vs NO₂ 0.79; L-co vs its own CO-column feature only 0.27. The primary label is a config switch (`phase3.primary_label`), so the guide's answer needs no rebuild. **Still PROPOSED.**
+
+## D21 — L-co is a spatial-only label (2026-10-09, PROPOSED)
+**Evidence:** per-season CO flux-divergence totals are 226 / 258 / 232 / 266 / 261 mol/s, each ±28–48 (bootstrap). The between-season spread ÷ within-season noise is **0.49**. Under the same rule Phase 1 used to accept seasonal NOx (ratio 2.8), CO cannot resolve season-to-season changes. Per-season CO *maps* are also noisy (r 0.24–0.86 vs the multi-year map), while NO₂'s are stable (r ≥ 0.98).
+**Decision:** L-co uses the multi-year CO pattern and total for every season (`phase3.co_seasonal_scale: false`). The seasonal totals are still computed and stored in `outputs/phase3/qa_labels.json`.
+**Consequence:** L-co tests only *where* (spatial skill); L-fd tests *where* and *when*. L-co's noise ceiling rises from 0.69 to 0.75.
+
+## D22 — Regional training grid: train on ~2,900 cells, evaluate on the corridor (2026-10-10)
+**Problem:** the corridor's 268 labels are a ~5 km field (Phase 3): only ~11 independent areas × 5 seasons. With up to 17 features, differences between Experiments A–D would likely fall within the noise. The labels are also dominated by one gradient away from central Pune.
+**Decision:** build the same features and labels on a **regional grid**:
+- every 1 km cell whose centre is within **30 km** of the Phase 1 source and ≥ 5 km inside the TROPOMI cube box;
+- plus every corridor cell;
+- **2,894 cells** (268 corridor + 2,626 outside), same UTM 1 km alignment, so the corridor cells coincide exactly.
+
+Models train on the region; the corridor remains the evaluation focus. Switch: environment variable `ECOTRACK_GRID=region` (default `corridor`). Outputs carry a `_region` suffix; the corridor products are unchanged.
+**Why 30 km:** the flux-divergence maps are reliable within ~25–30 km of the source (Phase 1 totals and shares are defined within 25 km), and the 5 km margin keeps the 5 px smoothing and the gradient away from the cube edge.
+**Expected gain:** ~10× more independent areas (~100+ instead of ~11). The region also contains other emission features (Pune core, Hadapsar, Chakan's edge), so the "one gradient" problem weakens.
+**Consistency check:** OSM roads and industrial land for the 268 corridor cells are identical on both grids (max difference ~1e-14).
+**Engineering note:** reading the OSM file for the larger box failed with MemoryError (0.2 GB RAM free; C: has 2.6 GB free, so the page file can't grow). The node-location cache was moved to a file on D: (`sparse_file_array`); same results, no RAM spike.
+
+**D22 results (2026-10-10):** the full regional pipeline ran.
+- **Data:** features 115,760 rows (0 missing in all 17 features; ODIAC reference missing for 12 cells), labels 14,470, model table 14,470.
+- **Consistency:** all corridor cells are identical on both grids (≤ 1e-11 relative).
+- **Regional labels:** L-fd ceiling 0.99, 6.7% negative (rural edge); L-co ceiling 0.78, median uncertainty 63%, 20% negative; L-fd vs L-co r = 0.75 (corridor 0.93). L-co is therefore interpreted mainly on the corridor.
+- **Spatial contrast grows:** spatial variance share NO₂ 0.34 → 0.57, HCHO 0.03 → 0.15.
+
+## D23 — Cross-validation blocks sized by the correlation range of label *errors*: 15 km (2026-10-10)
+**Problem:** the label's own variogram has no finite range on the regional grid. Even with the distance trend removed it keeps rising to 30 km, and the planned rule returned 100 km blocks (2 blocks).
+**Reasoning:** two things can leak between neighbouring cells:
+1. **The smooth signal:** interpolable from location. That is what the geography-only null N0 measures, and every experiment is scored as skill above N0.
+2. **Shared label errors:** 5 km smoothing plus the satellite footprint. Blocks must stop this.
+
+**Decision:** block size = the practical range of the variogram of (bootstrap NO₂ map − main map) sampled at the cells (30 draws), i.e. the larger of the fitted range and the first lag reaching 95% of the sill, rounded up, minimum 5 km.
+**Result:** 14.7 km → **15 km blocks, 23 blocks, ~13 independent areas** (corridor alone: 9.5 km, 9 blocks, ~3 areas). Fixing each draw's 25 km denominator gives the same 14.5 km (not a common-scale artefact).
+**Folds:** blocks assigned largest first to the emptiest fold (seed 42): 577–582 cells per fold (random assignment gave 207–1,057).
+**Timing:** decided before any model was trained; recorded in the analysis plan's history table (§10). Robustness at 10/20 km blocks is pre-registered.

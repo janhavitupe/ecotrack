@@ -1,0 +1,33 @@
+{
+  "version": "v1",
+  "design": "D16 (PROPOSED, awaiting the guide); D21 L-co spatial-only",
+  "primary_label": "fd",
+  "co_seasonal_scale": false,
+  "rows": 14470,
+  "cells": 2894,
+  "seasons": [
+    "2019-20",
+    "2020-21",
+    "2021-22",
+    "2022-23",
+    "2023-24"
+  ],
+  "units": "t CO2 / km2 / yr, midday Oct-May rate; *_annual = / F",
+  "constants": {
+    "co2_nox_ratio": 162.6619720914768,
+    "co2_nox_ratio_95": [
+      147.5779087012383,
+      179.80810130940557
+    ],
+    "annual_factor_F": 1.2144249166418857,
+    "e_nox_all_kg_s": 0.6626723086050081,
+    "smoothing_px": 5
+  },
+  "common_scale_uncertainty_rel_1sigma": {
+    "note": "same factor for every cell; not in label_*_sd",
+    "co2_nox_ratio": 0.050546466420700494,
+    "nox_no2_ratio": 0.07575757575757576,
+    "emg_method_bias": 0.12
+  },
+  "sha256": "cc6172dbf6b4054577da20c49e1cf511f65c84832b0ec70a05d828e78f4fa6f9"
+}

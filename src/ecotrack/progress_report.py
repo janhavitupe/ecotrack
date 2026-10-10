@@ -70,7 +70,7 @@ def fig_pipeline():
     box(8.1, 3.0, 1.8, 1.6, "HEADLINE\n2.79 Mt CO₂/yr\n(annual mean)\n95%: 1.79–4.36", ORANGE)
     # phase 2
     box(2.7, 0.55, 4.9, 1.0, "PHASE 2 — 1 km grid (268 cells) × 40 months\nfeature table v2: 17 features, 0 missing", AQUA)
-    box(8.1, 0.55, 1.8, 1.0, "NEXT\nPhase 3 labels →\nML experiments", INK2)
+    box(8.1, 0.55, 1.8, 1.0, "PHASES 3–4\nlabels + model table\n2,894 cells → ML", INK2)
     for y in (5.4, 4.54, 3.68):
         arrow(2.0, y, 2.7, 4.0)
     arrow(3.8, 4.65, 3.8, 4.35); arrow(3.8, 3.45, 3.8, 3.15)
@@ -229,9 +229,9 @@ def fig_budget():
 def fig_status():
     phases = ["Feasibility (G1–G4)", "Phase 1: NO₂ → CO₂", "Phase 2: feature table", "Phase 3: labels",
               "Phase 4: feature tensor", "Phase 5: models A–D", "Phase 6: ablation", "Phase 7: validation", "Phase 8: write-up"]
-    done = [1.0, 1.0, 1.0, 0.25, 0.0, 0.0, 0.0, 0.35, 0.3]
-    notes = ["done", "done (guide sign-off pending)", "done: feature table v2 frozen", "designed + tested; needs guide (D16)",
-             "next after labels", "", "", "uncertainty, COVID, maps done early", "reports + guide written"]
+    done = [1.0, 1.0, 1.0, 0.9, 1.0, 0.0, 0.0, 0.35, 0.4]
+    notes = ["done", "done (guide sign-off pending)", "done: feature table v2 frozen", "labels v1 built; guide sign-off (D16, D21)",
+             "done: regional grid, model table, 15 km blocks", "", "", "uncertainty, COVID, maps done early", "reports + guide written"]
     fig, ax = plt.subplots(figsize=(9, 3.9))
     for i, (p, d, n) in enumerate(zip(phases, done, notes)):
         ax.barh(i, 1, color=GRID, height=0.55)
@@ -513,22 +513,38 @@ def build_pdf():
               PageBreak()]
 
     # ---------------------------------------------------------------- 8 phase 3 plan
-    story += [P("8. The plan for Phase 3 and the machine-learning experiments", "h1"),
+    story += [P("8. Phase 3: the CO2 labels", "h1"),
               P("The machine-learning phases need a CO2 value (a <i>label</i>) for every cell and season. There is no ground truth at 1 km, "
                 "so labels must be built, and the main risk is <b>circularity</b>: if a label is built from a layer that is also a model "
                 "input, the model just learns the recipe back and looks better than it is (D2). The proposal's activity-weighted label had "
                 "exactly this problem for Experiment D."),
-              P("<b>Proposed design (D16, awaiting the guide):</b>"),
-              *bullets(["<b>Primary label:</b> seasonal city CO2 (plume fit × CO-constrained ratio) × each cell's flux-divergence share: "
-                        "268 cells × 5 seasons = 1,340 labelled samples.",
-                        "<b>Independent label:</b> the same with the CO emission map (feasibility passed: within 3% of the CO step, r = 0.75 "
-                        "with NO2). It does not use NO2, so it tests Experiment A fairly.",
-                        "<b>Circularity rule:</b> a label's construction inputs are removed from that experiment's features, or the "
-                        "experiment is reported as a 'construction baseline'.",
-                        "<b>Evaluation:</b> spatial blocks, holding out a whole cluster, aggregated seasonal totals, and season-to-season "
-                        "change. Tree models (XGBoost, Random Forest) with a ridge-regression floor; bootstrap intervals on the differences "
-                        "between experiments; a shuffled-feature negative control (D5)."]),
+              P("<b>What was built (labels v1, design D16, awaiting the guide):</b> 268 cells × 5 seasons = 1,340 labels, two per row, "
+                "each with an uncertainty from bootstrapping the satellite days:"),
+              table([["", "L-fd (primary)", "L-co (independent)"],
+                     ["Built from", "NO2 emission map × seasonal city NOx × 163", "CO emission map × city CO2 (no NO2 in the pattern)"],
+                     ["Varies by", "cell and season", "cell only (D21)"],
+                     ["Median (t CO2/km²/yr, midday)", "2,374", "2,010"],
+                     ["Share of the city in the corridor", "20.7%", "14.3%"],
+                     ["Noise ceiling (best possible R²)", "0.97", "0.75"],
+                     ["Correlation with the NO2 feature", "0.91 (its recipe)", "0.79 (never used NO2)"]],
+                    [5.2 * cm, 5.6 * cm, W - 10.8 * cm]),
               Spacer(1, 6),
+              img(OUTPUTS / "phase3" / "figures" / "label_maps.png", cap="Figure. The two labels (multi-year mean) and their relative "
+                  "uncertainty. Both show the gradient from Pune up the corridor; L-co is weak and noisy in rural Talegaon."),
+              PageBreak(),
+              P("<b>Checks:</b> the rebuilt NO2 map equals the Phase 1 map exactly; the cells reproduce the corridor shares (20.7% vs 21.0%; "
+                "14.3% vs 14.5%); changing the smoothing scale barely matters (r ≥ 0.98); each season's NO2 map matches the 5-year pattern "
+                "(r ≥ 0.98), so one fixed pattern is justified. The two labels agree on <i>where</i> (cell r = 0.93)."),
+              P("<b>A decision forced by the data (D21):</b> CO's seasonal totals vary less than their own noise (between/within 0.49, "
+                "against 2.8 for NO2, the same rule as Phase 1). So the CO label is spatial-only: it tests whether a model finds "
+                "<i>where</i> emissions are; the NO2 label tests <i>where and when</i>."),
+              P("<b>Circularity, measured:</b> the NO2-built label correlates 0.91 with the NO2 feature, so with it Experiment A is a "
+                "'construction baseline'. But the CO-built label, which never used NO2, still correlates 0.79 with NO2: satellite NO2 "
+                "carries genuine emission information. With the CO label, the CO feature is dropped. Because the labels are a ~5 km field "
+                "(about 11 independent areas), cross-validation blocks must be at least 5 km."),
+              P("<b>The experiments (Phases 4–6):</b> tree models (XGBoost, Random Forest) with a ridge-regression floor; spatial blocks, "
+                "cluster hold-out and season hold-out; bootstrap intervals on the differences between experiments; a shuffled-feature "
+                "negative control (D5). Each experiment is run on both labels:"),
               table([["Experiment", "Inputs", "Question"],
                      ["A", "TROPOMI NO2 only", "Baseline: the base paper's single-tracer approach on the corridor"],
                      ["B", "A + TROPOMI CO (proposed; the proposal said OCO-3, which is too sparse to be a per-cell input, D11)",
@@ -538,9 +554,35 @@ def build_pdf():
                     [2.2 * cm, 7.4 * cm, W - 9.6 * cm]),
               PageBreak()]
 
-    # ---------------------------------------------------------------- 9 decisions
-    story += [P("9. All design decisions", "h1"),
-              P("Every change from the proposal is recorded with its evidence in docs/decisions.md. Status: <b>A</b> = adopted, "
+    # ---------------------------------------------------------------- 9 phase 4
+    story += [P("9. Phase 4: a bigger training area and a fair test", "h1"),
+              P("A critical review found that the corridor alone is too small for an honest machine-learning test: the labels are a "
+                "smooth ~5 km field, so neighbouring cells are near-copies. The training area was therefore <b>enlarged to 2,894 cells</b> "
+                "within 30 km of the source (D22), while the corridor stays the evaluation focus. Every corridor value came out identical "
+                "on both grids, proving the larger pipeline changes nothing that was already there."),
+              table([["", "Corridor only", "Regional grid (D22)"],
+                     ["Cells", "268", "2,894"],
+                     ["How far label errors stay correlated", "9.5 km", "14.7 km"],
+                     ["Cross-validation blocks", "10 km (9 blocks)", "15 km (23 blocks)"],
+                     ["Independent areas (the honest sample size)", "~3", "~13"],
+                     ["NO2-label noise ceiling", "0.97", "0.99"]],
+                    [7.0 * cm, 4.0 * cm, W - 11 * cm]),
+              Spacer(1, 6),
+              P("<b>How big must the test blocks be? (D23)</b> A variogram measures how different two cells are as a function of their "
+                "distance. The labels never level off (they are smooth at every scale), so they cannot set a block size. But the smooth "
+                "signal is already handled: every experiment is compared with a model that knows only location. What blocks must stop is "
+                "neighbouring cells sharing the same label <i>errors</i>, and those stop being correlated after about 15 km."),
+              img(OUTPUTS / "phase4_region" / "variogram.png", width=W * 0.8,
+                  cap="Figure. Label errors (blue) decorrelate within ~15 km; the labels themselves (grey) keep rising: smooth at all scales."),
+              P("<b>The analysis plan</b> (docs/phase5_analysis_plan.md) fixes the experiments, a geography-only null model, a shuffled "
+                "control, four split schemes, the metrics and the decision rule (a difference counts only if its 95% interval excludes "
+                "zero), plus seven written predictions, before any model is trained. It is committed to git first, so its timestamp "
+                "proves the rules came before the results."),
+              PageBreak()]
+
+    # ---------------------------------------------------------------- 10 decisions
+    story += [P("10. All design decisions", "h1"),
+              P("All 23 decisions are recorded with their evidence in docs/decisions.md. Status: <b>A</b> = adopted, "
                 "<b>P</b> = proposed, awaiting the guide's sign-off."),
               table([["#", "Decision", "Why", ""],
                      ["D1", "Estimate emissions per cluster, not per waypoint", "Waypoints are closer together than one TROPOMI pixel", "A"],
@@ -562,12 +604,15 @@ def build_pdf():
                      ["D17", "Report an annual-mean equivalent", "Like-for-like comparison with annual inventories", "A"],
                      ["D18", "Monte Carlo uncertainty; method bias handled explicitly", "Honest, non-symmetric ranges", "A"],
                      ["D19", "Fit ≤ 45 km downwind with a sloped background", "A second source biased NOx ~20% low", "P"],
-                     ["D20", "Roads: GRIP4 fallback (v1), OpenStreetMap (v2)", "OSM servers overloaded; solved with a bulk file", "A"]],
+                     ["D20", "Roads: GRIP4 fallback (v1), OpenStreetMap (v2)", "OSM servers overloaded; solved with a bulk file", "A"],
+                     ["D21", "CO label is spatial-only", "CO seasonal totals vary less than their noise (0.49)", "P"],
+                     ["D22", "Train on a regional grid (2,894 cells); evaluate on the corridor", "The corridor alone has ~3 independent areas", "A"],
+                     ["D23", "15 km test blocks, sized by how far label errors spread", "Labels are smooth at all scales; errors are what leak", "A"]],
                     [1.3 * cm, 6.6 * cm, W - 9.2 * cm, 1.3 * cm]),
               PageBreak()]
 
     # ---------------------------------------------------------------- 10 mistakes & lessons
-    story += [P("10. What went wrong, and how it was caught", "h1"),
+    story += [P("11. What went wrong, and how it was caught", "h1"),
               P("Forty problems are logged in the research log and learning guide. The ones that changed the science:"),
               table([["Problem", "How it was caught", "Fix"],
                      ["Proposal waypoints up to 4.4 km off; Talegaon MIDC outside the corridor", "Checked against OpenStreetMap (G4)", "Corridor rebuilt on the highway (D9)"],
@@ -598,7 +643,7 @@ def build_pdf():
     story += [PageBreak()]
 
     # ---------------------------------------------------------------- 11 limitations
-    story += [P("11. Limitations (stated openly)", "h1"),
+    story += [P("12. Limitations (stated openly)", "h1"),
               table([["Limitation", "Effect", "How it is handled"],
                      ["Midday, October–May observations only", "Not a true annual total", "Annual mean via published emission profiles (±~10%)"],
                      ["Plume-fit bias +12% (synthetic)", "Total may be slightly high", "In the budget; bias-corrected variant reported"],
@@ -617,21 +662,22 @@ def build_pdf():
               PageBreak()]
 
     # ---------------------------------------------------------------- 12 status & next
-    story += [P("12. Where the project stands, and what comes next", "h1"),
+    story += [P("13. Where the project stands, and what comes next", "h1"),
               img(FIG / "status.png", cap="Figure 15. Progress by phase."),
               P("<b>Next steps</b>", "h2")]
     story += bullets(["<b>Guide review and sign-off</b> of the open decisions: OCO's role (D8/D11), the CO-constrained ratio (D12), "
-                      "the fit-window correction (D19) and the Phase 3 label design (D16).",
-                      "<b>Phase 3, labels:</b> CO2 per cell and season = city total × flux-divergence share; test a CO-based label "
-                      "that is independent of NO2, so the experiments are not circular.",
-                      "<b>Phases 4–6, machine learning:</b> train tree models for Experiments A–D (NO2 only → + CO → + weather → + "
-                      "human activity), with spatial-block cross-validation and an ablation, to measure what each data source adds.",
+                      "the fit-window correction (D19), the Phase 3 label design (D16) and the spatial-only CO label (D21).",
+                      "<b>Freeze the analysis plan</b> (commit it to git) before any model is trained.",
+                      "<b>Phases 5–6, machine learning:</b> Experiments A–D (NO2 only → + CO → + weather → + human activity) on both "
+                      "labels, against the geography-only null, on 15 km blocks, the corridor-transfer and PCMC hold-out splits; "
+                      "feature-group ablation; robustness at 10 and 20 km blocks.",
                       "<b>Phase 7–8:</b> validation maps, final uncertainty, and the final report."])
     story += [Spacer(1, 10),
-              P("<b>Questions for the guide:</b> (1) Is the seasonal flux-divergence label acceptable, given its link to NO2 is stated? "
-                "(2) Should the CO-based label become a second label? (3) Is seasonal resolution (1,340 labelled samples) enough? "
-                "(4) Should Experiment B be redefined around TROPOMI CO, since OCO cannot be a per-cell feature?", "box"),
-              P("Full detail: docs/phase1_report.md, docs/phase2_report.md, docs/findings.md, docs/decisions.md, docs/phase3_design.md, and the learning guide in docs/guide/.", "cap"),
+              P("<b>Questions for the guide:</b> (1) Is the NO2-based label acceptable as primary, with Experiment A reported as a "
+                "construction baseline? (2) Should the ablation run on both labels, with the CO label as the NO2-independent check? "
+                "(3) Is a spatial-only CO label (D21) acceptable? (4) Is seasonal resolution (1,340 labels) enough? (5) Should "
+                "Experiment B be redefined around TROPOMI CO, since OCO cannot be a per-cell feature?", "box"),
+              P("Full detail: docs/phase1_report.md … docs/phase4_report.md, docs/phase5_analysis_plan.md, docs/findings.md, docs/decisions.md, docs/phase3_design.md, and the learning guide in docs/guide/.", "cap"),
               PageBreak()]
 
     # ---------------------------------------------------------------- references
@@ -657,7 +703,9 @@ def build_pdf():
                       "inversion.de_sensitivity; inversion.run_seasonal; inversion.run_co_divergence; inversion.temporal_adjust; inversion.mc_budget.",
                       "<b>Phase 2:</b> grid; acquire.grid_layers_gee; acquire.roads_grip; acquire.osm_pbf (after downloading the Geofabrik "
                       "file); features.",
-                      "<b>Tests:</b> python -m pytest (13 tests). <b>This report:</b> python -m ecotrack.progress_report."])
+                      "<b>Phase 3–4:</b> labels; tensor. <b>Regional grid (D22):</b> set ECOTRACK_GRID=region and rerun grid, "
+                      "grid_layers_gee, roads_grip, osm_pbf, features, labels and tensor.",
+                      "<b>Tests:</b> python -m pytest (17 tests). <b>This report:</b> python -m ecotrack.progress_report."])
 
     def footer(canvas, doc):
         canvas.saveState()

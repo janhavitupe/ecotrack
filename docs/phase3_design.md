@@ -1,6 +1,11 @@
 # EcoTrack — Phase 3 Design Note: Building the CO₂ Labels
 
-**For:** faculty guide review · **Author:** Janhavi Tupe · **Date:** 2026-10-01 · **Status:** proposal (D16), not yet implemented
+**For:** faculty guide review · **Author:** Janhavi Tupe · **Date:** 2026-10-01 · **Status:** proposal (D16), **implemented 2026-10-09**
+
+> **Update (2026-10-09):** the design below is built: `labels_v1.csv` with L-fd and L-co. Results are in
+> [phase3_report.md](phase3_report.md). One change from this note came out of the data: **CO cannot resolve
+> season-to-season totals** (between/within 0.49), so L-co is spatial-only (**D21**, proposed). The primary label is a
+> config switch, so the guide's answer to §6 needs no rebuild.
 
 ## 1. What Phase 3 has to produce
 
