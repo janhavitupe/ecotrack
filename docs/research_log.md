@@ -350,3 +350,9 @@ This log is the raw material for the Methods chapter.
   - **H2b season permutations on independent noise: 0 false alarms in 5** (p 0.45, 0.30, 0.25, 0.80, 0.30; row shuffling on the same seeds gave 2 of 5, with 4 of 5 p ≤ 0.10). File: `outputs/phase5/permutation_test_calibration_H2b.json`.
   - Code matched to the plan: the primary H2b run uses **all 119** season orders (calibration and robustness sample a subset).
   - **The plan is ready to freeze.** The user's commit of `docs/phase5_analysis_plan.md` will be the pre-registration timestamp; no model has seen a real label.
+
+## 2026-10-11
+- **Pre-run hardening of `experiments.py`** (no change to the analysis):
+  - **Checkpointing:** every finished permutation test is saved to `outputs/phase5/results_partial.json`; a rerun with the same input SHA resumes and skips finished tests. The first version ran the robustness test before checking whether it was done, so resume saved no time; caught in review and fixed.
+  - **Full end-to-end rehearsal** on noise labels with tiny models, after the rotation and season changes: all stages ran (5 primary, 21 robustness, descriptive, ablation, figures; exit 0, 3 min). All primaries were "no detectable effect" on noise; robustness signs flip at random (correct for noise).
+  - **Resume tested:** "Resuming: 5 primary and 21 robustness tests already done".

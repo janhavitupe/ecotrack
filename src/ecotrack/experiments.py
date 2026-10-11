@@ -343,14 +343,29 @@ def run(smoke=False):
     n_primary, n_robust = (3, 2) if smoke else (R_PRIMARY, R_ROBUST)
     corridor = tab.in_corridor.to_numpy(bool)
     res = {"input_sha256": sha, "smoke": smoke, "descriptive": {}, "primary": {}, "robustness": {}, "ablation": {}}
+    # Checkpoint: every finished test is saved at once; a rerun after a crash (or Windows sleeping) skips
+    # the permutation tests already done. The descriptive runs and the ablation are cheap and recomputed.
+    ckpt = out / "results_partial.json"
+    if ckpt.exists():
+        prev = json.loads(ckpt.read_text())
+        if prev.get("input_sha256") == sha and prev.get("smoke") == smoke:
+            res["primary"], res["robustness"] = prev.get("primary", {}), prev.get("robustness", {})
+            print(f"Resuming: {len(res['primary'])} primary and {len(res['robustness'])} robustness tests already done")
+
+    def save():
+        ckpt.write_text(json.dumps(res, indent=2, default=float))
+
     oof_cols = {}
     t0 = time.time()
 
     # ---- 1. primary hypotheses (the only significance claims)
     print("PRIMARY HYPOTHESES (group permutation tests, Random Forest)")
     for name, h in HYPOTHESES.items():
+        if name in res["primary"]:
+            continue
         r, _ = perm_test(tab, h, n_primary, smoke=smoke)
         res["primary"][name] = r
+        save()
         print(f"  {name:58s} effect {r['effect']:+.4f}  p {r['p_value']:.3f}  "
               f"{'SIGNIFICANT' if r['significant'] else 'no detectable effect'}  ({(time.time() - t0) / 60:.0f} min)", flush=True)
 
@@ -363,9 +378,12 @@ def run(smoke=False):
             if h["rows"] == "all":
                 variants += [("rf", None, "without_fold3")]
         for kind, scheme, rows in variants:
-            r, _ = perm_test(tab, h, n_robust, kind=kind, smoke=smoke, scheme=scheme, rows=rows)
             key = f"{name} | {kind}{' ' + scheme if scheme else ''}{' ' + rows if rows else ''}"
+            if key in res["robustness"]:
+                continue
+            r, _ = perm_test(tab, h, n_robust, kind=kind, smoke=smoke, scheme=scheme, rows=rows)
             res["robustness"][key] = r
+            save()
             same = np.sign(r["effect"]) == np.sign(res["primary"][name]["effect"])
             print(f"  {key[:75]:75s} effect {r['effect']:+.4f}  {'same sign' if same else 'SIGN FLIPS'}", flush=True)
 
